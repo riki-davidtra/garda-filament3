@@ -85,4 +85,9 @@ class User extends Authenticatable implements HasAvatar
     {
         return $this->hasMany(Dokumen::class);
     }
+
+    public function fileDokumens()
+    {
+        return $this->hasMany(FileDokumen::class);
+    }
 }

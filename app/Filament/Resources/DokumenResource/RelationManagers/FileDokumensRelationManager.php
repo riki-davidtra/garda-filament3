@@ -14,14 +14,42 @@ class FileDokumensRelationManager extends RelationManager
 {
     protected static string $relationship = 'fileDokumens';
     protected static ?string $title = 'Daftar File Dokumen';
+    protected static ?string $label = 'File Dokumen';
+    protected static ?string $navigationIcon = 'heroicon-o-paper-clip';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama')
+                Forms\Components\FileUpload::make('path')
+                    ->label('Unggah File')
                     ->required()
-                    ->maxLength(255),
+                    ->disk('public')
+                    ->directory('file-dokumen')
+                    ->openable()
+                    ->downloadable()
+                    ->maxSize(2048)
+                    ->getUploadedFileNameForStorageUsing(function ($file) {
+                        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                        $extension = $file->getClientOriginalExtension();
+                        $uniqueCode = uniqid();
+
+                        return $originalName . '-' . $uniqueCode . '.' . $extension;
+                    })
+                    ->acceptedFileTypes([
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-excel',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.ms-powerpoint',
+                        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                        'image/jpg',
+                        'image/jpeg',
+                        'image/png',
+                        'image/heic',
+                        'image/heif',
+                    ]),
             ]);
     }
 
@@ -30,10 +58,47 @@ class FileDokumensRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('nama')
             ->columns([
-                Tables\Columns\TextColumn::make('nama'),
+                Tables\Columns\TextColumn::make('nama')
+                    ->label('Nama File')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('tipe')
+                    ->label('Tipe')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('ukuran')
+                    ->label('Ukuran')
+                    ->sortable()
+                    ->searchable()
+                    ->formatStateUsing(fn($state) => number_format($state / 1024, 2) . ' KB'),
+                Tables\Columns\TextColumn::make('versi')
+                    ->label('Versi')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Diunggah Oleh')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
+                    ->sortable()
+                    ->searchable()
+                    ->dateTime()
+                    ->since()
+                    ->dateTimeTooltip()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Diperbarui Pada')
+                    ->sortable()
+                    ->searchable()
+                    ->dateTime()
+                    ->since()
+                    ->dateTimeTooltip()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                \Filament\Tables\Filters\TrashedFilter::make(),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
@@ -41,10 +106,14 @@ class FileDokumensRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class DokumenResource extends Resource
 {
@@ -73,6 +74,12 @@ class DokumenResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = Auth::user();
+                if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
+                    $query->where('subbagian_id', $user->subbagian_id);
+                }
+            })
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('tahun')
@@ -87,6 +94,10 @@ class DokumenResource extends Resource
                     ->label('Jenis Dokumen')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('file_dokumens_count')
+                    ->label('Jumlah File')
+                    ->counts('fileDokumens')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('tenggat_waktu')
                     ->label('Tenggat Waktu')
                     ->dateTime()

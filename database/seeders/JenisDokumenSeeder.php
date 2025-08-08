@@ -13,9 +13,12 @@ class JenisDokumenSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['nama' => 'Jenis Dokumen 1',],
-            ['nama' => 'Jenis Dokumen 2',],
-            ['nama' => 'Jenis Dokumen 3',],
+            ['nama' => 'RKA'],
+            ['nama' => 'DPA'],
+            ['nama' => 'RKAP'],
+            ['nama' => 'DPPA'],
+            ['nama' => 'LAKIP'],
+            ['nama' => 'Renja'],
         ];
 
         foreach ($data as $item) {

@@ -15,38 +15,52 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // create roles
+        // create roles 
         $RoleSuperAdmin = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
         $RoleAdmin      = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $RolePerencana  = Role::firstOrCreate(['name' => 'perencana', 'guard_name' => 'web']);
-        $RoleSubbagian  = Role::firstOrCreate(['name' => 'subbagian', 'guard_name' => 'web']);
         $RolePimpinan   = Role::firstOrCreate(['name' => 'pimpinan', 'guard_name' => 'web']);
+        $RoleSubbagian  = Role::firstOrCreate(['name' => 'subbagian', 'guard_name' => 'web']);
 
         // get permissions
-        $permissions          = Permission::pluck('name')->toArray();
-        $perencanaPermissions = [
-            'view-any Model',
-            'view Model',
-            'create Model',
-            'update Model',
-        ];
-        foreach ($perencanaPermissions as $permission) {
-            Permission::firstOrCreate([
-                'name'       => $permission,
-                'guard_name' => 'web'
-            ]);
-        }
+        $permissions = Permission::pluck('name')->toArray();
 
-        // set permissions for role
+        $perencanaPermissions = [
+            'view-any Dokumen',
+            'view Dokumen',
+            'create Dokumen',
+            'update Dokumen',
+            'delete Dokumen',
+        ];
+
+        $pimpinanPermissions = [];
+
+        $subbagianPermissions = [
+            'view-any Dokumen',
+            'view Dokumen',
+            'create Dokumen',
+            'update Dokumen',
+
+            'view-any FileDokumen',
+            'view FileDokumen',
+            'create FileDokumen',
+            'update FileDokumen',
+        ];
+
+        // set permissions for role  
         $RoleSuperAdmin->syncPermissions($permissions);
         $RoleAdmin->syncPermissions($permissions);
         $RolePerencana->syncPermissions($perencanaPermissions);
+        $RolePimpinan->syncPermissions($pimpinanPermissions);
+        $RoleSubbagian->syncPermissions($subbagianPermissions);
 
         // set role for users
         $roles = [
             'superadmin' => 'Super Admin',
             'admin'      => 'admin',
-            'user'       => 'user',
+            'perencana'  => 'perencana',
+            'pimpinan'   => 'pimpinan',
+            'subbagian'  => 'subbagian',
         ];
         foreach ($roles as $username => $role) {
             $user = User::where('username', $username)->first();

@@ -18,7 +18,7 @@ class FileDokumenObserver
             $fullPath = Storage::disk('public')->path($fileDokumen->path);
 
             $fileDokumen->nama   = basename($fileDokumen->path);
-            $fileDokumen->tipe   = mime_content_type($fullPath);
+            $fileDokumen->tipe   = pathinfo($fileDokumen->nama, PATHINFO_EXTENSION);
             $fileDokumen->ukuran = filesize($fullPath);
         }
     }
@@ -36,7 +36,7 @@ class FileDokumenObserver
                 $fullPath = Storage::disk('public')->path($fileDokumen->path);
 
                 $fileDokumen->nama   = basename($fileDokumen->path);
-                $fileDokumen->tipe   = mime_content_type($fullPath);
+                $fileDokumen->tipe   = pathinfo($fileDokumen->nama, PATHINFO_EXTENSION);
                 $fileDokumen->ukuran = filesize($fullPath);
             }
         }

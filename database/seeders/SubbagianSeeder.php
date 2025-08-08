@@ -13,9 +13,13 @@ class SubbagianSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['nama' => 'Subbagian 1',],
-            ['nama' => 'Subbagian 2',],
-            ['nama' => 'Subbagian 3',],
+            ['nama' => 'Subbagian Tata Pemerintahan'],
+            ['nama' => 'Subbagian Otonomi Daerah'],
+            ['nama' => 'Subbagian Pemerintahan Umum'],
+            ['nama' => 'Subbagian Kerjasama Pemerintah Daerah'],
+            ['nama' => 'Subbagian Pertanahan dan Kewilayahan'],
+            ['nama' => 'Subbagian Administrasi Kewilayahan'],
+            ['nama' => 'Subbagian Kelembagaan dan Analisis Jabatan'],
         ];
 
         foreach ($data as $item) {
