@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('nama')->nullable();
             $table->string('tipe')->nullable();
             $table->string('ukuran')->nullable();
-            $table->integer('versi')->default(1);
             $table->softDeletes();
             $table->timestamps();
         });

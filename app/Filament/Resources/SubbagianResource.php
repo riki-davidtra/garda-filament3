@@ -43,24 +43,24 @@ class SubbagianResource extends Resource
             ->columns([
                 \Filament\Tables\Columns\TextColumn::make('nama')
                     ->label('Nama')
-                    ->sortable()
-                    ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('created_at')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
-                    ->sortable()
-                    ->searchable()
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                \Filament\Tables\Columns\TextColumn::make('updated_at')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
-                    ->sortable()
-                    ->searchable()
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 //

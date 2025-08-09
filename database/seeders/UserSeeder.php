@@ -17,8 +17,8 @@ class UserSeeder extends Seeder
         $data = [
             ['username' => 'superadmin', 'name' => 'Superadmin', 'subbagian_id' => null],
             ['username' => 'admin', 'name' => 'Admin', 'subbagian_id' => null],
-            ['username' => 'perencana', 'name' => 'Perencana', 'subbagian_id' => null],
             ['username' => 'pimpinan', 'name' => 'Pimpinan', 'subbagian_id' => null],
+            ['username' => 'perencana', 'name' => 'Perencana', 'subbagian_id' => null],
             ['username' => 'subbagian', 'name' => 'Subbagian', 'subbagian_id' => 1],
         ];
 

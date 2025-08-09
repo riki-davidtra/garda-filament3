@@ -23,14 +23,14 @@ class SettingSeeder extends Seeder
             [
                 'setting_id' => $settings['konfigurasiSitus']->id,
                 'name'       => 'Nama Situs',
-                'key'        => 'nama_situs',
+                'key'        => 'site_name',
                 'type'       => 'text',
                 'value'      => 'GARDA',
             ],
             [
                 'setting_id' => $settings['konfigurasiSitus']->id,
                 'name'       => 'URL Situs Web',
-                'key'        => 'url_situs_web',
+                'key'        => 'website_url',
                 'type'       => 'url',
                 'value'      => 'http://127.0.0.1:8000/',
             ],

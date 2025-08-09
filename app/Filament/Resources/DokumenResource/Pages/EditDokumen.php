@@ -16,4 +16,13 @@ class EditDokumen extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getFormActions(): array
+    {
+        if (! auth()->user()->hasRole(['Super Admin', 'admin', 'perencana'])) {
+            return [];
+        }
+
+        return parent::getFormActions();
+    }
 }

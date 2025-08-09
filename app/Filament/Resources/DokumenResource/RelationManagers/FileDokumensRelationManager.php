@@ -72,30 +72,26 @@ class FileDokumensRelationManager extends RelationManager
                     ->sortable()
                     ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state / 1024, 2) . ' KB'),
-                Tables\Columns\TextColumn::make('versi')
-                    ->label('Versi')
-                    ->sortable()
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Diunggah Oleh')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
-                    ->sortable()
-                    ->searchable()
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
-                    ->sortable()
-                    ->searchable()
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 \Filament\Tables\Filters\TrashedFilter::make(),

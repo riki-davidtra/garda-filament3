@@ -27,13 +27,16 @@ class DokumenResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $isReadOnly = !auth()->user()->hasRole(['Super Admin', 'admin', 'perencana']);
+
         return $form
             ->schema([
                 Forms\Components\TextInput::make('tahun')
                     ->label('Tahun')
                     ->required()
                     ->maxLength(4)
-                    ->numeric(),
+                    ->numeric()
+                    ->disabled($isReadOnly),
                 Forms\Components\Select::make('subbagian_id')
                     ->label('Subbagian')
                     ->required()
@@ -41,7 +44,8 @@ class DokumenResource extends Resource
                     ->preload()
                     ->relationship('subbagian', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
-                    }),
+                    })
+                    ->disabled($isReadOnly),
                 Forms\Components\Select::make('jenis_dokumen_id')
                     ->label('Jenis Dokumen')
                     ->required()
@@ -49,10 +53,12 @@ class DokumenResource extends Resource
                     ->preload()
                     ->relationship('jenisDokumen', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
-                    }),
+                    })
+                    ->disabled($isReadOnly),
                 Forms\Components\DateTimePicker::make('tenggat_waktu')
                     ->label('Tenggat Waktu')
-                    ->nullable(),
+                    ->nullable()
+                    ->disabled($isReadOnly),
                 Forms\Components\Radio::make('status')
                     ->label('Status')
                     ->required()
@@ -62,12 +68,14 @@ class DokumenResource extends Resource
                         'disetujui' => 'Disetujui',
                         'ditolak' => 'Ditolak',
                     ])
-                    ->default('menunggu'),
+                    ->default('menunggu')
+                    ->disabled($isReadOnly),
                 Forms\Components\Textarea::make('keterangan')
                     ->label('Keterangan')
                     ->nullable()
                     ->columnSpanFull()
-                    ->maxLength(3000),
+                    ->maxLength(3000)
+                    ->disabled($isReadOnly),
             ]);
     }
 
@@ -84,63 +92,69 @@ class DokumenResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('tahun')
                     ->label('Tahun')
-                    ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('subbagian.nama')
                     ->label('Subbagian')
-                    ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('jenisDokumen.nama')
                     ->label('Jenis Dokumen')
-                    ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('file_dokumens_count')
                     ->label('Jumlah File')
                     ->counts('fileDokumens')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tenggat_waktu')
                     ->label('Tenggat Waktu')
-                    ->dateTime()
-                    ->sortable()
+                    ->dateTime('d F Y H:i')
                     ->color(
                         fn($record) =>
                         now()->lte($record->tenggat_waktu)
                             ? 'success'
                             : 'danger'
-                    ),
+                    )
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->sortable()
                     ->colors([
                         'primary'  => 'aktif',
                         'success'  => 'terpenuhi',
                         'danger'   => 'terlambat',
-                    ]),
+                    ])
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('keterangan')
+                    ->label('Keterangan')
+                    ->limit(20)
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Dibuat Oleh')
-                    ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
-                    ->sortable()
-                    ->searchable()
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
-                    ->sortable()
-                    ->searchable()
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 \Filament\Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
