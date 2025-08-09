@@ -108,7 +108,7 @@ class DokumenResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tenggat_waktu')
                     ->label('Tenggat Waktu')
-                    ->dateTime('d F Y H:i')
+                    ->dateTime('d M Y H:i')
                     ->color(
                         fn($record) =>
                         now()->lte($record->tenggat_waktu)

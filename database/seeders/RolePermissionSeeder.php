@@ -52,17 +52,7 @@ class RolePermissionSeeder extends Seeder
             'force-delete FileDokumen',
             'force-delete-any FileDokumen',
         ];
-        $subbagianPermissions = [
-            'view-any Dokumen',
-            'view Dokumen',
-            'update Dokumen',
-            'view-any FileDokumen',
-            'view FileDokumen',
-            'create FileDokumen',
-            'delete FileDokumen',
-
-
-
+        $subbagianPermissions = [ 
             'view-any Dokumen',
             'view Dokumen',
             // 'create Dokumen',

@@ -14,8 +14,8 @@ class FileDokumenObserver
             $fileDokumen->user_id = Auth::user()->id;
         }
 
-        if ($fileDokumen->path && Storage::disk('public')->exists($fileDokumen->path)) {
-            $fullPath = Storage::disk('public')->path($fileDokumen->path);
+        if ($fileDokumen->path && Storage::disk('local')->exists($fileDokumen->path)) {
+            $fullPath = Storage::disk('local')->path($fileDokumen->path);
 
             $fileDokumen->nama   = basename($fileDokumen->path);
             $fileDokumen->tipe   = pathinfo($fileDokumen->nama, PATHINFO_EXTENSION);
@@ -28,12 +28,12 @@ class FileDokumenObserver
         if ($fileDokumen->isDirty('path')) {
             $originalPath = $fileDokumen->getOriginal('path');
 
-            if ($originalPath && Storage::disk('public')->exists($originalPath)) {
-                Storage::disk('public')->delete($originalPath);
+            if ($originalPath && Storage::disk('local')->exists($originalPath)) {
+                Storage::disk('local')->delete($originalPath);
             }
 
-            if ($fileDokumen->path && Storage::disk('public')->exists($fileDokumen->path)) {
-                $fullPath = Storage::disk('public')->path($fileDokumen->path);
+            if ($fileDokumen->path && Storage::disk('local')->exists($fileDokumen->path)) {
+                $fullPath = Storage::disk('local')->path($fileDokumen->path);
 
                 $fileDokumen->nama   = basename($fileDokumen->path);
                 $fileDokumen->tipe   = pathinfo($fileDokumen->nama, PATHINFO_EXTENSION);
@@ -45,8 +45,8 @@ class FileDokumenObserver
     public function deleting(FileDokumen $fileDokumen): void
     {
         if ($fileDokumen->isForceDeleting()) {
-            if ($fileDokumen->path && Storage::disk('public')->exists($fileDokumen->path)) {
-                Storage::disk('public')->delete($fileDokumen->path);
+            if ($fileDokumen->path && Storage::disk('local')->exists($fileDokumen->path)) {
+                Storage::disk('local')->delete($fileDokumen->path);
             }
         }
     }

@@ -14,10 +14,12 @@ class DokumenObserver
         }
     }
 
-    public function forceDeleted(Dokumen $dokumen): void
+    public function deleting(Dokumen $dokumen): void
     {
-        foreach ($dokumen->files()->withTrashed()->get() as $file) {
-            $file->forceDelete();
+        if ($dokumen->isForceDeleting()) {
+            $dokumen->fileDokumens()->withTrashed()->get()->each(function ($file) {
+                $file->forceDelete();
+            });
         }
     }
 }
