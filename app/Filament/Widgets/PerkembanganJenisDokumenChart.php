@@ -2,89 +2,77 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
-use Filament\Forms;
+use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Support\Carbon;
+use Flowframe\Trend\Trend;
+use Flowframe\Trend\TrendValue;
 
-class PerkembanganJenisDokumenChart extends ChartWidget implements Forms\Contracts\HasForms
+class PerkembanganJenisDokumenChart extends ApexChartWidget
 {
-    use Forms\Concerns\InteractsWithForms;
-
+    protected static ?string $chartId = 'perkembanganJenisDokumenChart';
     protected static ?string $heading = 'Persentase Perkembangan per Jenis Dokumen';
     protected int | string | array $columnSpan = 'full';
     protected static ?int $sort = 2;
 
-    public ?string $dateFrom = null;
-    public ?string $dateTo = null;
-
     protected function getFormSchema(): array
     {
         return [
-            Forms\Components\DatePicker::make('dateFrom')
+            DatePicker::make('date_start')
                 ->label('Tanggal Mulai')
-                ->default(now()->startOfMonth())
+                ->default(now()->subMonth())
                 ->required(),
-
-            Forms\Components\DatePicker::make('dateTo')
+            DatePicker::make('date_end')
                 ->label('Tanggal Akhir')
-                ->default(now()->endOfMonth())
+                ->default(now())
                 ->required(),
         ];
     }
 
-    public function mount(): void
+    protected function getOptions(): array
     {
-        $this->form->fill([
-            'dateFrom' => now()->startOfMonth()->toDateString(),
-            'dateTo' => now()->endOfMonth()->toDateString(),
-        ]);
-    }
+        $dateStart = isset($this->filterFormData['date_start']) ? Carbon::parse($this->filterFormData['date_start']) : now()->subMonth();
+        $dateEnd = isset($this->filterFormData['date_end']) ? Carbon::parse($this->filterFormData['date_end']) : now();
 
-    protected function getType(): string
-    {
-        return 'bar';
-    }
+        $categories = ['Jenis A', 'Jenis B', 'Jenis C', 'Jenis D', 'Jenis E', 'Jenis F', 'Jenis G', 'Jenis H'];
+        $data = [75, 50, 90, 60, 80, 90, 100, 75];
 
-    protected function getData(): array
-    {
-        // Ambil nilai tanggal dari form
-        $filters = $this->form->getState();
-        $dateFrom = $filters['dateFrom'] ?? now()->startOfMonth()->toDateString();
-        $dateTo = $filters['dateTo'] ?? now()->endOfMonth()->toDateString();
+        // Fungsi untuk generate warna hex random
+        $randomColors = array_map(fn($_) => sprintf('#%06X', mt_rand(0, 0xFFFFFF)), $data);
 
-        // Contoh logika query data sesuaikan dengan model dan data kamu
-        // Misal:
-        // $data = ModelDokumen::query()
-        //     ->whereBetween('created_at', [$dateFrom, $dateTo])
-        //     ->groupBy('jenis_dokumen')
-        //     ->selectRaw('jenis_dokumen, AVG(progress) as avg_progress')
-        //     ->get();
-
-        // Sementara dummy data pakai tetap sama, tapi sebenarnya harus dari database dengan filter tanggal
         return [
-            'labels' => ['Jenis A', 'Jenis B', 'Jenis C', 'Jenis D', 'Jenis E', 'Jenis F', 'Jenis G', 'Jenis H'],
-            'datasets' => [
+            'chart' => [
+                'type' => 'bar',
+                'height' => 300,
+            ],
+            'series' => [
                 [
-                    'label' => 'Persentase Progres (%)',
-                    'data' => [75, 50, 90, 60, 80, 90, 100, 75],
-                    'backgroundColor' => [
-                        '#60A5FA',
-                        '#FCA5A5',
-                        '#6EE7B7',
-                        '#FCD34D',
-                        '#C4B5FD',
-                        '#93C5FD',
-                        '#34D399',
-                        '#FBBF24',
+                    'name' => "Persentase Progres ({$dateStart->format('d M Y')} - {$dateEnd->format('d M Y')})",
+                    'data' => $data,
+                ],
+            ],
+            'xaxis' => [
+                'categories' => $categories,
+                'labels' => [
+                    'style' => [
+                        'fontFamily' => 'inherit',
                     ],
                 ],
             ],
+            'yaxis' => [
+                'labels' => [
+                    'style' => [
+                        'fontFamily' => 'inherit',
+                    ],
+                ],
+            ],
+            'colors' => $randomColors,
+            'plotOptions' => [
+                'bar' => [
+                    'borderRadius' => 3,
+                    'horizontal' => false,
+                ],
+            ],
         ];
-    }
-
-    // Jangan lupa method ini agar widget refresh ketika filter diubah
-    public function updated($propertyName): void
-    {
-        $this->emit('refreshWidget');
     }
 }

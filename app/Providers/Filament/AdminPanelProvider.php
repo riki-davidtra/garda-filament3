@@ -25,6 +25,7 @@ use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -105,6 +106,9 @@ class AdminPanelProvider extends PanelProvider
                 //     return auth()->user()->company()->exists();
                 // })
             ])
-            ->theme(asset('css/filament/admin/theme.css'));
+            ->theme(asset('css/filament/admin/theme.css'))
+            ->plugins([
+                FilamentApexChartsPlugin::make()
+            ]);
     }
 }
