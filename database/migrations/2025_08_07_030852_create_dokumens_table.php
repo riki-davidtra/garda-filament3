@@ -22,7 +22,6 @@ return new class extends Migration
             $table->enum('status', ['menunggu', 'disetujui', 'ditolak'])->default('menunggu');
             $table->text('keterangan')->nullable();
             $table->softDeletes();
-            $table->timestamp('uploaded_at')->useCurrent();
             $table->timestamps();
         });
     }

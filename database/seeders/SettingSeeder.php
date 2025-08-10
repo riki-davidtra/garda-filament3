@@ -61,6 +61,13 @@ class SettingSeeder extends Seeder
     <meta property = "og:image" content       = "" />',
             ],
             [
+                'setting_id' => $settings['konfigurasiSitus']->id,
+                'name'       => 'Target Dokumen',
+                'key'        => 'target_dokumen',
+                'type'       => 'number',
+                'value'      => 400,
+            ],
+            [
                 'setting_id' => $settings['kontak']->id,
                 'name'       => 'Alamat',
                 'key'        => 'alamat',

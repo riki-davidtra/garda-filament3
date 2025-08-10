@@ -22,7 +22,7 @@ class SubbagianResource extends Resource
     protected static ?string $navigationLabel  = 'Subbagian';
     protected static ?string $pluralModelLabel = 'Daftar Subbagian';
     protected static ?string $modelLabel       = 'Subbagian';
-    protected static ?int $navigationSort      = 22;
+    protected static ?int $navigationSort      = 23;
 
     public static function form(Form $form): Form
     {

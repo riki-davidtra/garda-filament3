@@ -113,7 +113,7 @@ class DokumenResource extends Resource
                     ->dateTime('d M Y H:i')
                     ->color(
                         fn($record) =>
-                        now()->lte($record->tenggat_waktu)
+                        $record->tenggat_waktu >= now()
                             ? 'success'
                             :   'danger'
                     )
