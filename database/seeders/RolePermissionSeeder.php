@@ -25,7 +25,7 @@ class RolePermissionSeeder extends Seeder
         // get permissions
         $permissions = Permission::pluck('name')->toArray();
 
-        $pimpinanPermissions = [];
+        $pimpinanPermissions  = [];
         $perencanaPermissions = [
             'view-any Dokumen',
             'view Dokumen',
@@ -39,6 +39,7 @@ class RolePermissionSeeder extends Seeder
             'restore-any Dokumen',
             'force-delete Dokumen',
             'force-delete-any Dokumen',
+
             'view-any FileDokumen',
             'view FileDokumen',
             'create FileDokumen',
@@ -51,8 +52,47 @@ class RolePermissionSeeder extends Seeder
             'restore-any FileDokumen',
             'force-delete FileDokumen',
             'force-delete-any FileDokumen',
+
+            'view-any Panduan',
+            'view Panduan',
+            // 'create Panduan',
+            // 'update Panduan',
+            // 'delete Panduan',
+            // 'delete-any Panduan',
+            // 'reorder Panduan',
+            // 'replicate Panduan',
+            // 'restore Panduan',
+            // 'restore-any Panduan',
+            // 'force-delete Panduan',
+            // 'force-delete-any Panduan',
+
+            'view-any Faq',
+            'view Faq',
+            // 'create Faq',
+            // 'update Faq',
+            // 'delete Faq',
+            // 'delete-any Faq',
+            // 'reorder Faq',
+            // 'replicate Faq',
+            // 'restore Faq',
+            // 'restore-any Faq',
+            // 'force-delete Faq',
+            // 'force-delete-any Faq',
+
+            'view-any Pengaduan',
+            'view Pengaduan',
+            'create Pengaduan',
+            // 'update Pengaduan',
+            // 'delete Pengaduan',
+            // 'delete-any Pengaduan',
+            // 'reorder Pengaduan',
+            // 'replicate Pengaduan',
+            // 'restore Pengaduan',
+            // 'restore-any Pengaduan',
+            // 'force-delete Pengaduan',
+            // 'force-delete-any Pengaduan',
         ];
-        $subbagianPermissions = [ 
+        $subbagianPermissions = [
             'view-any Dokumen',
             'view Dokumen',
             // 'create Dokumen',
@@ -65,6 +105,7 @@ class RolePermissionSeeder extends Seeder
             // 'restore-any Dokumen',
             // 'force-delete Dokumen',
             // 'force-delete-any Dokumen',
+
             'view-any FileDokumen',
             'view FileDokumen',
             'create FileDokumen',
@@ -77,6 +118,45 @@ class RolePermissionSeeder extends Seeder
             // 'restore-any FileDokumen',
             // 'force-delete FileDokumen',
             // 'force-delete-any FileDokumen',
+
+            'view-any Panduan',
+            'view Panduan',
+            // 'create Panduan',
+            // 'update Panduan',
+            // 'delete Panduan',
+            // 'delete-any Panduan',
+            // 'reorder Panduan',
+            // 'replicate Panduan',
+            // 'restore Panduan',
+            // 'restore-any Panduan',
+            // 'force-delete Panduan',
+            // 'force-delete-any Panduan',
+
+            'view-any Faq',
+            'view Faq',
+            // 'create Faq',
+            // 'update Faq',
+            // 'delete Faq',
+            // 'delete-any Faq',
+            // 'reorder Faq',
+            // 'replicate Faq',
+            // 'restore Faq',
+            // 'restore-any Faq',
+            // 'force-delete Faq',
+            // 'force-delete-any Faq',
+
+            'view-any Pengaduan',
+            'view Pengaduan',
+            'create Pengaduan',
+            // 'update Pengaduan',
+            // 'delete Pengaduan',
+            // 'delete-any Pengaduan',
+            // 'reorder Pengaduan',
+            // 'replicate Pengaduan',
+            // 'restore Pengaduan',
+            // 'restore-any Pengaduan',
+            // 'force-delete Pengaduan',
+            // 'force-delete-any Pengaduan',
         ];
 
         // set permissions for role  

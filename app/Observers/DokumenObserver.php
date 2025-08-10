@@ -7,10 +7,32 @@ use App\Models\Dokumen;
 
 class DokumenObserver
 {
+    public function __construct(
+        protected \App\Services\FileContentCleanupService $cleanupService
+    ) {}
+
     public function creating(Dokumen $dokumen): void
     {
         if (empty($dokumen->user_id)) {
             $dokumen->user_id = Auth::user()->id;
+        }
+    }
+
+    public function updating(Dokumen $dokumen): void
+    {
+
+        if ($dokumen->isDirty('keterangan')) {
+            $oldContent = $dokumen->getOriginal('keterangan') ?? '';
+            $newContent = $dokumen->keterangan ?? '';
+
+            $oldFiles = $this->cleanupService->extractFilesFromContent($oldContent);
+            $newFiles = $this->cleanupService->extractFilesFromContent($newContent);
+
+            $deletedFiles = array_diff($oldFiles, $newFiles);
+
+            foreach ($deletedFiles as $fileUrl) {
+                $this->cleanupService->deleteFileByUrl($fileUrl);
+            }
         }
     }
 
@@ -20,6 +42,10 @@ class DokumenObserver
             $dokumen->fileDokumens()->withTrashed()->get()->each(function ($file) {
                 $file->forceDelete();
             });
+
+            if (!empty($dokumen->keterangan)) {
+                $this->cleanupService->deleteFilesFromContent($dokumen->keterangan);
+            }
         }
     }
 }

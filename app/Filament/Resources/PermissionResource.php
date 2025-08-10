@@ -76,7 +76,7 @@ class PermissionResource extends Resource
 
     public static function getNavigationSort(): ?int
     {
-        return  14;
+        return  13;
     }
 
     public static function getPluralLabel(): string

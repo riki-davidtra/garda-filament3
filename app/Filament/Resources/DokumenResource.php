@@ -23,7 +23,7 @@ class DokumenResource extends Resource
     protected static ?string $navigationLabel  = 'Dokumen';
     protected static ?string $pluralModelLabel = 'Daftar Dokumen';
     protected static ?string $modelLabel       = 'Dokumen';
-    protected static ?int $navigationSort      = 11;
+    protected static ?int $navigationSort      = 21;
 
     public static function form(Form $form): Form
     {
@@ -59,22 +59,24 @@ class DokumenResource extends Resource
                     ->label('Tenggat Waktu')
                     ->nullable()
                     ->disabled($isReadOnly),
+                Forms\Components\RichEditor::make('keterangan')
+                    ->label('Keterangan')
+                    ->nullable()
+                    ->columnSpanFull()
+                    ->maxLength(3000)
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('dokumen/keterangan')
+                    ->disabled($isReadOnly),
                 Forms\Components\Radio::make('status')
                     ->label('Status')
                     ->required()
                     ->inline()
                     ->options([
-                        'menunggu' => 'Menunggu',
+                        'menunggu'  => 'Menunggu',
                         'disetujui' => 'Disetujui',
-                        'ditolak' => 'Ditolak',
+                        'ditolak'   => 'Ditolak',
                     ])
                     ->default('menunggu')
-                    ->disabled($isReadOnly),
-                Forms\Components\Textarea::make('keterangan')
-                    ->label('Keterangan')
-                    ->nullable()
-                    ->columnSpanFull()
-                    ->maxLength(3000)
                     ->disabled($isReadOnly),
             ]);
     }
@@ -113,24 +115,27 @@ class DokumenResource extends Resource
                         fn($record) =>
                         now()->lte($record->tenggat_waktu)
                             ? 'success'
-                            : 'danger'
+                            :   'danger'
                     )
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->colors([
-                        'primary'  => 'aktif',
-                        'success'  => 'terpenuhi',
-                        'danger'   => 'terlambat',
-                    ])
                     ->sortable(),
                 Tables\Columns\TextColumn::make('keterangan')
                     ->label('Keterangan')
-                    ->limit(20)
+                    ->limit(30)
+                    ->formatStateUsing(fn($state) => strip_tags($state))
                     ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'menunggu'  => 'warning',
+                        'disetujui' => 'success',
+                        'ditolak'   => 'danger',
+                        default     => 'secondary',
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Dibuat Oleh')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -151,7 +156,7 @@ class DokumenResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                \Filament\Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

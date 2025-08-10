@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\JenisDokumenResource\Pages;
-use App\Filament\Resources\JenisDokumenResource\RelationManagers;
-use App\Models\JenisDokumen;
+use App\Filament\Resources\FaqResource\Pages;
+use App\Filament\Resources\FaqResource\RelationManagers;
+use App\Models\Faq;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,36 +13,45 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class JenisDokumenResource extends Resource
+class FaqResource extends Resource
 {
-    protected static ?string $model = JenisDokumen::class;
+    protected static ?string $model = Faq::class;
 
-    protected static ?string $navigationIcon   = 'heroicon-o-tag';
-    protected static ?string $navigationGroup  = 'Manajemen Dokumen';
-    protected static ?string $navigationLabel  = 'Jenis Dokumen';
-    protected static ?string $pluralModelLabel = 'Daftar Jenis Dokumen';
-    protected static ?string $modelLabel       = 'Jenis Dokumen';
-    protected static ?int $navigationSort      = 23;
+    protected static ?string $navigationIcon   = 'heroicon-o-question-mark-circle';
+    protected static ?string $navigationGroup  = 'Panduan & Bantuan';
+    protected static ?string $navigationLabel  = 'FAQ';
+    protected static ?string $pluralModelLabel = 'Daftar FAQ';
+    protected static ?string $modelLabel       = 'FAQ';
+    protected static ?int $navigationSort      = 32;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama')
-                    ->label('Nama')
+                Forms\Components\TextInput::make('pertanyaan')
+                    ->label('Pertanyaan')
                     ->required()
                     ->string()
+                    ->columnSpanFull()
                     ->maxLength(255),
+                Forms\Components\RichEditor::make('jawaban')
+                    ->label('Jawaban')
+                    ->required()
+                    ->columnSpanFull()
+                    ->maxLength(3000)
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('faq/jawaban'),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->reorderable('order')
+            ->defaultSort('order', 'asc')
             ->columns([
-                Tables\Columns\TextColumn::make('nama')
-                    ->label('Nama')
+                Tables\Columns\TextColumn::make('pertanyaan')
+                    ->label('Pertanyaan')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -66,6 +75,7 @@ class JenisDokumenResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -85,9 +95,9 @@ class JenisDokumenResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListJenisDokumens::route('/'),
-            // 'create' => Pages\CreateJenisDokumen::route('/create'),
-            // 'edit' => Pages\EditJenisDokumen::route('/{record}/edit'),
+            'index' => Pages\ListFaqs::route('/'),
+            // 'create' => Pages\CreateFaq::route('/create'),
+            // 'edit' => Pages\EditFaq::route('/{record}/edit'),
         ];
     }
 }

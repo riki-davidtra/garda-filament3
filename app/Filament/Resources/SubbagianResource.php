@@ -17,18 +17,18 @@ class SubbagianResource extends Resource
 {
     protected static ?string $model = Subbagian::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationIcon   = 'heroicon-o-user-group';
     protected static ?string $navigationGroup  = 'Manajemen Dokumen';
     protected static ?string $navigationLabel  = 'Subbagian';
     protected static ?string $pluralModelLabel = 'Daftar Subbagian';
     protected static ?string $modelLabel       = 'Subbagian';
-    protected static ?int $navigationSort      = 11;
+    protected static ?int $navigationSort      = 22;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                \Filament\Forms\Components\TextInput::make('nama')
+                Forms\Components\TextInput::make('nama')
                     ->label('Nama')
                     ->required()
                     ->string()
@@ -41,7 +41,7 @@ class SubbagianResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('nama')
+                Tables\Columns\TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),

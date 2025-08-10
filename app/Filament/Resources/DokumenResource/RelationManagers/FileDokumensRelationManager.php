@@ -70,15 +70,15 @@ class FileDokumensRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('tipe')
                     ->label('Tipe')
                     ->sortable()
-                    ->searchable()
-                    ->toggleable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('ukuran')
                     ->label('Ukuran')
                     ->sortable()
                     ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state / 1024, 2) . ' KB'),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('Diunggah Oleh')
+                    ->label('Dibuat Oleh')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -99,7 +99,7 @@ class FileDokumensRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->filters([
-                \Filament\Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
