@@ -27,9 +27,9 @@ class DokumenResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) static::getModel()::whereIn('status', ['menunggu'])->count();
+        return (string) static::getModel()::whereIn('status', ['baru'])->count();
     }
-    protected static ?string $navigationBadgeTooltip = 'Jumlah dokumen dengan status menunggu.';
+    protected static ?string $navigationBadgeTooltip = 'Jumlah dokumen dengan status baru.';
 
     public static function form(Form $form): Form
     {
@@ -78,11 +78,12 @@ class DokumenResource extends Resource
                     ->required()
                     ->inline()
                     ->options([
-                        'menunggu'  => 'Menunggu',
-                        'disetujui' => 'Disetujui',
-                        'ditolak'   => 'Ditolak',
+                        'baru'      => 'Baru',
+                        'revisi'    => 'Revisi',
+                        'terlambat' => 'Terlambat',
+                        'selesai'   => 'Selesai',
                     ])
-                    ->default('menunggu')
+                    ->default('baru')
                     ->disabled($isReadOnly),
             ]);
     }
@@ -121,7 +122,7 @@ class DokumenResource extends Resource
                         fn($record) =>
                         $record->tenggat_waktu >= now()
                             ? 'success'
-                            :   'danger'
+                            :      'danger'
                     )
                     ->sortable(),
                 Tables\Columns\TextColumn::make('keterangan')
@@ -133,9 +134,10 @@ class DokumenResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'menunggu'  => 'warning',
-                        'disetujui' => 'success',
-                        'ditolak'   => 'danger',
+                        'baru'      => 'info',
+                        'revisi'    => 'warning',
+                        'terlambat' => 'danger',
+                        'selesai'   => 'success',
                         default     => 'secondary',
                     })
                     ->sortable(),

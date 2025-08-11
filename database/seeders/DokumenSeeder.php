@@ -19,7 +19,6 @@ class DokumenSeeder extends Seeder
                 'subbagian_id'      => 1,
                 'jenis_dokumen_id'  => 1,
                 'tenggat_waktu'     => now()->addDays(10),
-                'status'            => 'menunggu',
                 'keterangan'        => 'Dokumen uji coba pertama.',
             ],
             [
@@ -28,7 +27,6 @@ class DokumenSeeder extends Seeder
                 'subbagian_id'     => 2,
                 'jenis_dokumen_id' => 2,
                 'tenggat_waktu'    => now()->addDays(5),
-                'status'           => 'menunggu',
                 'keterangan'       => 'Dokumen uji coba kedua.',
             ],
         ];
