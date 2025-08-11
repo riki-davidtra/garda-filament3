@@ -29,6 +29,13 @@ class SettingSeeder extends Seeder
             ],
             [
                 'setting_id' => $settings['konfigurasiSitus']->id,
+                'name'       => 'Nama Panjang Situs',
+                'key'        => 'site_full_name',
+                'type'       => 'text',
+                'value'      => 'Gerbang Arsip Rencana dan Data Administratif',
+            ],
+            [
+                'setting_id' => $settings['konfigurasiSitus']->id,
                 'name'       => 'URL Situs Web',
                 'key'        => 'website_url',
                 'type'       => 'url',
