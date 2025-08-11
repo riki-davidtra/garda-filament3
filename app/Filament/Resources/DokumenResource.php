@@ -25,6 +25,12 @@ class DokumenResource extends Resource
     protected static ?string $modelLabel       = 'Dokumen';
     protected static ?int $navigationSort      = 21;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::whereIn('status', ['menunggu'])->count();
+    }
+    protected static ?string $navigationBadgeTooltip = 'Jumlah dokumen dengan status menunggu.';
+
     public static function form(Form $form): Form
     {
         $isReadOnly = !auth()->user()->hasRole(['Super Admin', 'admin', 'perencana']);

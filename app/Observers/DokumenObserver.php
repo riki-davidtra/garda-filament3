@@ -42,10 +42,19 @@ class DokumenObserver
             $dokumen->fileDokumens()->withTrashed()->get()->each(function ($file) {
                 $file->forceDelete();
             });
+        } else {
+            $dokumen->fileDokumens()->get()->each->delete();
+        }
 
+        if ($dokumen->isForceDeleting()) {
             if (!empty($dokumen->keterangan)) {
                 $this->cleanupService->deleteFilesFromContent($dokumen->keterangan);
             }
         }
+    }
+
+    public function restoring(Dokumen $dokumen): void
+    {
+        $dokumen->fileDokumens()->onlyTrashed()->get()->each->restore();
     }
 }

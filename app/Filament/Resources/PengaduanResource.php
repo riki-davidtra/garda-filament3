@@ -25,6 +25,12 @@ class PengaduanResource extends Resource
     protected static ?string $modelLabel       = 'Pengaduan';
     protected static ?int $navigationSort      = 33;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::whereIn('status', ['menunggu'])->count();
+    }
+    protected static ?string $navigationBadgeTooltip = 'Jumlah pengaduan dengan status menunggu.';
+
     public static function form(Form $form): Form
     {
         return $form
