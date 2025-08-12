@@ -14,7 +14,7 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
 
-        $targetDokumen = App::make('settingItems')['target_dokumen']->value ?? 0;
+        $targetDokumen = 500;
         $totalDokumen = Dokumen::count();
 
         $persentase = $targetDokumen > 0

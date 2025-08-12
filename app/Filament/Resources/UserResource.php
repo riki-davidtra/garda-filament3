@@ -31,7 +31,7 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\FileUpload::make('avatar_url')
-                    ->label('Avatar')
+                    ->label('Foto Profil')
                     ->nullable()
                     ->image()
                     ->disk('public')
@@ -42,7 +42,7 @@ class UserResource extends Resource
                 Forms\Components\Grid::make(2)
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->label('Name')
+                            ->label('Nama')
                             ->required()
                             ->string()
                             ->maxLength(255),
@@ -70,15 +70,23 @@ class UserResource extends Resource
                             ->autocomplete('new-password')
                             ->dehydrated(fn($state) => !empty($state)),
                         Forms\Components\TextInput::make('password_confirmation')
-                            ->label('Confirm Password')
+                            ->label('Konfirmasi Password')
                             ->password()
                             ->required(fn(string $context): bool => $context === 'create')
                             ->string()
                             ->minLength(6)
                             ->revealable()
                             ->dehydrated(fn($state) => !empty($state)),
+                        Forms\Components\Select::make('subbagian_id')
+                            ->label('Subbagian')
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->relationship('subbagian', 'nama', function ($query) {
+                                $query->orderBy('nama', 'asc');
+                            }),
                         Forms\Components\Select::make('roles')
-                            ->label('Roles')
+                            ->label('Peran')
                             ->nullable()
                             ->multiple()
                             ->relationship('roles', 'name')
@@ -94,13 +102,13 @@ class UserResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar_url')
-                    ->label('Avatar')
+                    ->label('Foto Profil')
                     ->width(50)
                     ->height(50)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('username')
@@ -111,8 +119,12 @@ class UserResource extends Resource
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('subbagian.nama')
+                    ->label('Subbagian')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('roles.name')
-                    ->label('Roles')
+                    ->label('Peran')
                     ->badge()
                     ->searchable()
                     ->sortable(),

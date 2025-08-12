@@ -28,6 +28,11 @@ class Subbagian extends Model
         return 'uuid';
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function dokumens()
     {
         return $this->hasMany(Dokumen::class);

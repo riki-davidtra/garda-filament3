@@ -18,11 +18,11 @@ class SubbagianResource extends Resource
     protected static ?string $model = Subbagian::class;
 
     protected static ?string $navigationIcon   = 'heroicon-o-user-group';
-    protected static ?string $navigationGroup  = 'Manajemen Dokumen';
+    protected static ?string $navigationGroup  = 'Manajemen Pengguna';
     protected static ?string $navigationLabel  = 'Subbagian';
     protected static ?string $pluralModelLabel = 'Daftar Subbagian';
     protected static ?string $modelLabel       = 'Subbagian';
-    protected static ?int $navigationSort      = 23;
+    protected static ?int $navigationSort      = 14;
 
     public static function form(Form $form): Form
     {

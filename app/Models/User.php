@@ -81,6 +81,11 @@ class User extends Authenticatable implements HasAvatar
         return $this->avatar_url ? Storage::url("$this->avatar_url") : null;
     }
 
+    public function subbagian()
+    {
+        return $this->belongsTo(Subbagian::class);
+    }
+
     public function dokumens()
     {
         return $this->hasMany(Dokumen::class);
