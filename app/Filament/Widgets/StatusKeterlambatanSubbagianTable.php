@@ -12,10 +12,13 @@ use Filament\Forms\Components\DatePicker;
 
 class StatusKeterlambatanSubbagianTable extends BaseWidget
 {
-    protected static ?string $heading = 'Status Keterlambatan per Subbagian';
+    protected static ?string $heading          = 'Status Keterlambatan per Subbagian';
     protected int | string | array $columnSpan = 'full';
-    protected static ?int $sort = 3;
-
+    protected static ?int $sort                = 3;
+    public static function canView(): bool
+    {
+        return false;
+    }
     public function table(Table $table): Table
     {
         return $table

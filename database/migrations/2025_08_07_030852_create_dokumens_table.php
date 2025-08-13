@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
+            $table->foreignId('subkegiatan_id')->nullable()->constrained('subkegiatans')->nullOnDelete();
+            $table->string('nama');
             $table->string('tahun');
-            $table->dateTime('tenggat_waktu')->nullable();
+            $table->dateTime('waktu_unggah_mulai')->nullable();
+            $table->dateTime('waktu_unggah_selesai')->nullable();
             $table->text('keterangan')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
@@ -25,11 +28,6 @@ return new class extends Migration
             $table->timestamp('restored_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
-
-            $table->index([
-                'jenis_dokumen_id',
-                'tahun'
-            ]);
         });
     }
 

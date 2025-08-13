@@ -19,11 +19,14 @@ class DokumenSeeder extends Seeder
             Dokumen::updateOrCreate(
                 [
                     'jenis_dokumen_id' => $jenis->id,
+                    'nama'             => 'Nama Dokumen ' . $jenis->nama,
                     'tahun'            => 2024,
+                    'subkegiatan_id'   => 1,
                 ],
                 [
-                    'tenggat_waktu' => now()->addDays(10),
-                    'keterangan'    => 'Dokumen tahun 2024 untuk jenis ' . $jenis->nama,
+                    'waktu_unggah_mulai'   => now(),
+                    'waktu_unggah_selesai' => now()->addDays(10),
+                    'keterangan'           => 'Dokumen tahun 2024 untuk jenis ' . $jenis->nama,
                 ]
             );
         }
@@ -32,12 +35,15 @@ class DokumenSeeder extends Seeder
             Dokumen::updateOrCreate(
                 [
                     'jenis_dokumen_id' => $jenis->id,
+                    'nama'             => 'Nama Dokumen ' . $jenis->nama,
                     'tahun'            => 2025,
+                    'subkegiatan_id'   => 1,
                 ],
                 [
-                    'tenggat_waktu' => now()->addDays(20),
-                    'keterangan'    => 'Dokumen tahun 2025 untuk jenis ' . $jenis->nama,
-                    'created_by'    => 1,
+                    'waktu_unggah_mulai'   => now(),
+                    'waktu_unggah_selesai' => now()->addDays(10),
+                    'keterangan'           => 'Dokumen tahun 2025 untuk jenis ' . $jenis->nama,
+                    'created_by'           => 1,
                 ]
             );
         }

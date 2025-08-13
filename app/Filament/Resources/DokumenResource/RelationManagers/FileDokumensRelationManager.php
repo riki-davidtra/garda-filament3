@@ -24,16 +24,16 @@ class FileDokumensRelationManager extends RelationManager
 
         return $form
             ->schema([
-                Forms\Components\Select::make('subbagian_id')
-                    ->label('Subbagian')
-                    ->nullable()
-                    ->searchable()
-                    ->preload()
-                    ->relationship('subbagian', 'nama', function ($query) {
-                        $query->orderBy('nama', 'asc');
-                    })
-                    ->hiddenOn('create')
-                    ->disabled(),
+                // Forms\Components\Select::make('subbagian_id')
+                //     ->label('Subbagian')
+                //     ->nullable()
+                //     ->searchable()
+                //     ->preload()
+                //     ->relationship('subbagian', 'nama', function ($query) {
+                //         $query->orderBy('nama', 'asc');
+                //     })
+                //     ->hiddenOn('create')
+                //     ->disabled(),
                 Forms\Components\FileUpload::make('file_temp')
                     ->label('File')
                     ->required(fn(string $context) => $context === 'create')
@@ -120,10 +120,6 @@ class FileDokumensRelationManager extends RelationManager
             })
             ->defaultSort('created_at', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('subbagian.nama')
-                    ->label('Subbagian')
-                    ->searchable()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama File')
                     ->searchable()

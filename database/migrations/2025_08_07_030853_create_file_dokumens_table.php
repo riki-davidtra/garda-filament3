@@ -29,17 +29,6 @@ return new class extends Migration
             $table->timestamp('restored_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
-
-            $table->index([
-                'dokumen_id',
-                'subbagian_id',
-                'dibuat_oleh',
-                'diperbarui_oleh',
-                'nama',
-                'tipe',
-                'ukuran',
-                'status',
-            ]);
         });
     }
 

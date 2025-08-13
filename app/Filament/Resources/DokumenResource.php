@@ -37,15 +37,34 @@ class DokumenResource extends Resource
                     ->relationship('jenisDokumen', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
                     })
+                    ->disabled(),
+                Forms\Components\TextInput::make('nama')
+                    ->label('Nama Dokumen')
+                    ->required()
+                    ->string()
+                    ->maxLength(255)
                     ->disabled($isDisabled),
                 Forms\Components\TextInput::make('tahun')
                     ->label('Tahun')
                     ->required()
-                    ->maxLength(4)
                     ->numeric()
+                    ->maxLength(4)
                     ->disabled($isDisabled),
-                Forms\Components\DateTimePicker::make('tenggat_waktu')
-                    ->label('Tenggat Waktu')
+                Forms\Components\Select::make('subkegiatan_id')
+                    ->label('Subkegiatan')
+                    ->nullable()
+                    ->searchable()
+                    ->preload()
+                    ->relationship('subkegiatan', 'nama', function ($query) {
+                        $query->orderBy('nama', 'asc');
+                    })
+                    ->disabled($isDisabled),
+                Forms\Components\DateTimePicker::make('waktu_unggah_mulai')
+                    ->label('Waktu Unggah Mulai')
+                    ->nullable()
+                    ->disabled($isDisabled),
+                Forms\Components\DateTimePicker::make('waktu_unggah_selesai')
+                    ->label('Waktu Unggah Selesai')
                     ->nullable()
                     ->disabled($isDisabled),
                 Forms\Components\RichEditor::make('keterangan')
@@ -73,25 +92,33 @@ class DokumenResource extends Resource
             })
             ->defaultSort('created_at', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('jenisDokumen.nama')
-                    ->label('Jenis Dokumen')
+                Tables\Columns\TextColumn::make('nama')
+                    ->label('Nama Dokumen')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tahun')
                     ->label('Tahun')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('tenggat_waktu')
-                    ->label('Tenggat Waktu')
-                    ->dateTime('d M Y H:i')
-                    ->color(
-                        fn($record) =>
-                        $record->tenggat_waktu >= now()
-                            ? 'success'
-                            :      'danger'
-                    )
+                Tables\Columns\TextColumn::make('subkegiatan.nama')
+                    ->label('Subkegiatan')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('waktu_unggah_mulai')
+                    ->label('Waktu Unggah')
+                    ->formatStateUsing(function ($record) {
+                        $mulai = $record->waktu_unggah_mulai?->format('Y-m-d H:i');
+                        $selesai = $record->waktu_unggah_selesai?->format('Y-m-d H:i');
+                        return "{$mulai} → {$selesai}";
+                    })
+                    ->color(fn($record) => match (true) {
+                        $record->waktu_unggah_mulai && now()->lt($record->waktu_unggah_mulai) => 'gray',
+                        $record->waktu_unggah_selesai && now()->gt($record->waktu_unggah_selesai) => 'danger',
+                        default => 'success',
+                    })
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('creator.name')
                     ->label('Dibuat Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -149,17 +176,9 @@ class DokumenResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\Action::make('infoMeta')
-                    ->label('Info')
-                    ->icon('heroicon-o-information-circle')
-                    ->color('info')
-                    ->modalHeading('Informasi Meta Data')
-                    ->modalWidth('xl')
-                    ->modalSubmitAction(false)
-                    ->modalCancelAction(false)
-                    ->modalContent(fn($record) => view('filament.components.info-meta', ['record' => $record])),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
+                    ->label('Unggah Dokumen')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
                         'record' => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),

@@ -71,9 +71,6 @@ class TemplatDokumenResource extends Resource
                     ->label('Jenis Dokumen')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('fileTemplatDokumens_count')
-                    ->label('Jumlah File')
-                    ->counts('fileTemplatDokumens'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()

@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             DokumenSeeder::class,
             PanduanSeeder::class,
             FaqSeeder::class,
+            TemplatDokumenSeeder::class,
         ];
 
         foreach ($seeders as $seeder) {

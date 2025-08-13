@@ -16,8 +16,12 @@ class Dokumen extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'deleted_at'  => 'datetime',
-        'restored_at' => 'datetime',
+        'waktu_unggah_mulai'   => 'datetime',
+        'waktu_unggah_selesai' => 'datetime',
+        'created_at'           => 'datetime',
+        'updated_at'           => 'datetime',
+        'deleted_at'           => 'datetime',
+        'restored_at'          => 'datetime',
     ];
 
     protected $dates = ['deleted_at'];
@@ -40,6 +44,11 @@ class Dokumen extends Model
     public function jenisDokumen()
     {
         return $this->belongsTo(JenisDokumen::class);
+    }
+
+    public function subkegiatan()
+    {
+        return $this->belongsTo(Subkegiatan::class);
     }
 
     public function fileDokumens()
