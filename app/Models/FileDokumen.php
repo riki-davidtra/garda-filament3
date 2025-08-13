@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -10,9 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class FileDokumen extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, Blameable;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'deleted_at'  => 'datetime',
+        'restored_at' => 'datetime',
+    ];
 
     protected $dates = ['deleted_at'];
 
@@ -31,13 +37,13 @@ class FileDokumen extends Model
         return 'uuid';
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function dokumen()
     {
         return $this->belongsTo(Dokumen::class);
+    }
+
+    public function subbagian()
+    {
+        return $this->belongsTo(Subbagian::class);
     }
 }

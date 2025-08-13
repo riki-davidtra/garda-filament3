@@ -32,15 +32,15 @@ class PanduanResource extends Resource
                     ->label('Judul')
                     ->required()
                     ->string()
-                    ->columnSpanFull()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpanFull(),
                 Forms\Components\RichEditor::make('deskripsi')
                     ->label('Deskripsi')
                     ->nullable()
-                    ->columnSpanFull()
                     ->maxLength(3000)
                     ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('panduan/deskripsi'),
+                    ->fileAttachmentsDirectory('panduan/deskripsi')
+                    ->columnSpanFull(),
                 Forms\Components\FileUpload::make('file')
                     ->label('File')
                     ->nullable()
@@ -66,7 +66,8 @@ class PanduanResource extends Resource
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     ])
                     ->previewable(true)
-                    ->maxSize(102400),
+                    ->maxSize(102400)
+                    ->columnSpanFull(),
             ]);
     }
 

@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('pengaduans', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
             $table->string('judul');
             $table->text('pesan');
             $table->text('tanggapan')->nullable();
             $table->enum('status', ['menunggu', 'proses', 'selesai'])->default('menunggu');
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

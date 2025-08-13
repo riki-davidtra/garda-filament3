@@ -33,8 +33,8 @@ class Subbagian extends Model
         return $this->hasMany(User::class);
     }
 
-    public function dokumens()
+    public function fileDokumen()
     {
-        return $this->hasMany(Dokumen::class);
+        return $this->hasMany(FileDokumen::class);
     }
 }

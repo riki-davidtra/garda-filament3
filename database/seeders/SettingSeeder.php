@@ -16,7 +16,6 @@ class SettingSeeder extends Seeder
     {
         $settings = [
             'konfigurasiSitus' => Setting::updateOrCreate(['name' => 'Konfigurasi Situs']),
-            'kontak'    => Setting::updateOrCreate(['name' => 'Kontak']),
         ];
 
         $settingItems = [
@@ -66,27 +65,6 @@ class SettingSeeder extends Seeder
     <meta property = "og:type" content        = "website" />
     <meta property = "og:url" content         = "https://example.com" />
     <meta property = "og:image" content       = "" />',
-            ],
-            [
-                'setting_id' => $settings['kontak']->id,
-                'name'       => 'Alamat',
-                'key'        => 'alamat',
-                'type'       => 'text',
-                'value'      => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum, voluptas!',
-            ],
-            [
-                'setting_id' => $settings['kontak']->id,
-                'name'       => 'Email',
-                'key'        => 'email',
-                'type'       => 'email',
-                'value'      => 'example@email.com',
-            ],
-            [
-                'setting_id' => $settings['kontak']->id,
-                'name'       => 'Nomor Telepon',
-                'key'        => 'nomor_telepon',
-                'type'       => 'number',
-                'value'      => '0899999999999',
             ],
         ];
         foreach ($settingItems as $settingItem) {

@@ -9,4 +9,21 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateDokumen extends CreateRecord
 {
     protected static string $resource = DokumenResource::class;
+
+    public ?int $jenis_dokumen_id = null;
+
+    public function mount(): void
+    {
+        parent::mount();
+
+        $this->jenis_dokumen_id = request()->query('jenis_dokumen_id');
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [
+            ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]) => 'Daftar Dokumen',
+            'Buat',
+        ];
+    }
 }

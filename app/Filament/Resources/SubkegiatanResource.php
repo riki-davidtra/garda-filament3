@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\JenisDokumenResource\Pages;
-use App\Filament\Resources\JenisDokumenResource\RelationManagers;
-use App\Models\JenisDokumen;
+use App\Filament\Resources\SubkegiatanResource\Pages;
+use App\Filament\Resources\SubkegiatanResource\RelationManagers;
+use App\Models\Subkegiatan;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,16 +13,16 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class JenisDokumenResource extends Resource
+class SubkegiatanResource extends Resource
 {
-    protected static ?string $model = JenisDokumen::class;
+    protected static ?string $model = Subkegiatan::class;
 
-    protected static ?string $navigationIcon   = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon   = 'heroicon-o-briefcase';
     protected static ?string $navigationGroup  = 'Data Master';
-    protected static ?string $navigationLabel  = 'Jenis Dokumen';
-    protected static ?string $pluralModelLabel = 'Daftar Jenis Dokumen';
-    protected static ?string $modelLabel       = 'Jenis Dokumen';
-    protected static ?int $navigationSort      = 23;
+    protected static ?string $navigationLabel  = 'Subkegiatan';
+    protected static ?string $pluralModelLabel = 'Daftar Subkegiatan';
+    protected static ?string $modelLabel       = 'Subkegiatan';
+    protected static ?int $navigationSort      = 22;
 
     public static function form(Form $form): Form
     {
@@ -85,9 +85,9 @@ class JenisDokumenResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListJenisDokumens::route('/'),
-            // 'create' => Pages\CreateJenisDokumen::route('/create'),
-            // 'edit' => Pages\EditJenisDokumen::route('/{record}/edit'),
+            'index'  => Pages\ListSubkegiatans::route('/'),
+            // 'create' => Pages\CreateSubkegiatan::route('/create'),
+            // 'edit'   => Pages\EditSubkegiatan::route('/{record}/edit'),
         ];
     }
 }

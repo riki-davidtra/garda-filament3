@@ -39,36 +39,24 @@ class PengaduanResource extends Resource
                     ->label('Judul')
                     ->required()
                     ->string()
-                    ->columnSpanFull()
                     ->maxLength(255)
+                    ->columnSpanFull()
                     ->disabledOn('edit'),
                 Forms\Components\RichEditor::make('pesan')
                     ->label('Pesan')
                     ->required()
-                    ->columnSpanFull()
                     ->maxLength(3000)
-                    ->toolbarButtons([
-                        'bold',
-                        'italic',
-                        'underline',
-                        'bulletList',
-                        'orderedList',
-                        'link',
-                    ])
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('pengaduan/pesan')
+                    ->columnSpanFull()
                     ->disabledOn('edit'),
                 Forms\Components\RichEditor::make('tanggapan')
                     ->label('Tanggapan')
                     ->nullable()
-                    ->columnSpanFull()
                     ->maxLength(3000)
-                    ->toolbarButtons([
-                        'bold',
-                        'italic',
-                        'underline',
-                        'bulletList',
-                        'orderedList',
-                        'link',
-                    ])
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('pengaduan/tanggapan')
+                    ->columnSpanFull()
                     ->hiddenOn('create'),
                 Forms\Components\Radio::make('status')
                     ->label('Status')
@@ -90,7 +78,7 @@ class PengaduanResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 $user = Auth::user();
                 if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
-                    $query->where('user_id', $user->id);
+                    $query->where('dikirim_oleh', $user->id);
                 }
             })
             ->defaultSort('created_at', 'desc')
@@ -101,7 +89,7 @@ class PengaduanResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pesan')
                     ->label('Pesan')
-                    ->limit(30)
+                    ->limit(50)
                     ->formatStateUsing(fn($state) => strip_tags($state))
                     ->searchable()
                     ->sortable(),
@@ -114,21 +102,26 @@ class PengaduanResource extends Resource
                         default    => 'secondary',
                     })
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Dibuat Oleh')
+                Tables\Columns\TextColumn::make('creator.name')
+                    ->label('Dikirim Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Dibuat Pada')
+                    ->label('Dikirim Pada')
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('updater.name')
+                    ->label('Dibalas Oleh')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Diperbarui Pada')
+                    ->label('Dibalas Pada')
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()

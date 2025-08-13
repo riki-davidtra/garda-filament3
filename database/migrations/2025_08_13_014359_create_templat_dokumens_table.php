@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('setting_items', function (Blueprint $table) {
+        Schema::create('templat_dokumens', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('setting_id')->constrained('settings')->restrictOnDelete();
-            $table->string('name');
-            $table->string('key');
-            $table->string('type');
-            $table->text('value')->nullable();
+            $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('setting_items');
+        Schema::dropIfExists('templat_dokumens');
     }
 };

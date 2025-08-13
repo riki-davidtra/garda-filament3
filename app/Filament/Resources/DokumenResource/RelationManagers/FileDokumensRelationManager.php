@@ -9,6 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class FileDokumensRelationManager extends RelationManager
 {
@@ -19,15 +20,28 @@ class FileDokumensRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
+        $isDisabled = !auth()->user()->hasRole(['Super Admin', 'admin', 'perencana']);
+
         return $form
             ->schema([
+                Forms\Components\Select::make('subbagian_id')
+                    ->label('Subbagian')
+                    ->nullable()
+                    ->searchable()
+                    ->preload()
+                    ->relationship('subbagian', 'nama', function ($query) {
+                        $query->orderBy('nama', 'asc');
+                    })
+                    ->hiddenOn('create')
+                    ->disabled(),
                 Forms\Components\FileUpload::make('file_temp')
-                    ->label('Unggah File')
-                    ->required()
+                    ->label('File')
+                    ->required(fn(string $context) => $context === 'create')
                     ->storeFiles(false)
                     ->disk('local')
                     ->directory('temp')
                     ->maxSize(2048)
+                    ->columnSpanFull()
                     ->acceptedFileTypes([
                         'application/pdf',
                         'application/msword',
@@ -53,7 +67,44 @@ class FileDokumensRelationManager extends RelationManager
                                     ->openUrlInNewTab()
                             );
                         }
-                    })
+                    }),
+                Forms\Components\TextInput::make('nama')
+                    ->label('Nama File')
+                    ->columnSpanFull()
+                    ->hiddenOn('create')
+                    ->disabled(),
+                Forms\Components\TextInput::make('tipe')
+                    ->label('Tipe')
+                    ->hiddenOn('create')
+                    ->disabled(),
+                Forms\Components\TextInput::make('ukuran')
+                    ->label('Ukuran')
+                    ->formatStateUsing(fn($state) => number_format($state / 1024, 2) . ' KB')
+                    ->hiddenOn('create')
+                    ->disabled(),
+                Forms\Components\RichEditor::make('keterangan')
+                    ->label('Keterangan')
+                    ->nullable()
+                    ->columnSpanFull()
+                    ->maxLength(3000)
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('dokumen/keterangan')
+                    ->hiddenOn('create')
+                    ->disabled($isDisabled),
+                Forms\Components\Radio::make('status')
+                    ->label('Status')
+                    ->required()
+                    ->inline()
+                    ->options([
+                        'baru'      => 'Baru',
+                        'revisi'    => 'Revisi',
+                        'terlambat' => 'Terlambat',
+                        'selesai'   => 'Selesai',
+                    ])
+                    ->default('baru')
+                    ->hiddenOn('create')
+                    ->disabled($isDisabled),
+
             ]);
     }
 
@@ -61,26 +112,37 @@ class FileDokumensRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('nama')
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = Auth::user();
+                if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
+                    $query->where('subbagian_id', $user->subbagian_id);
+                }
+            })
             ->defaultSort('created_at', 'desc')
             ->columns([
+                Tables\Columns\TextColumn::make('subbagian.nama')
+                    ->label('Subbagian')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama File')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tipe')
-                    ->label('Tipe')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('ukuran')
-                    ->label('Ukuran')
-                    ->sortable()
                     ->searchable()
-                    ->formatStateUsing(fn($state) => number_format($state / 1024, 2) . ' KB'),
-                Tables\Columns\TextColumn::make('user.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'baru'      => 'info',
+                        'revisi'    => 'warning',
+                        'terlambat' => 'danger',
+                        'selesai'   => 'success',
+                        default     => 'secondary',
+                    })
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('creator.name')
                     ->label('Dibuat Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
@@ -89,8 +151,39 @@ class FileDokumensRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('updater.name')
+                    ->label('Diperbarui Oleh')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
+                    ->dateTime()
+                    ->since()
+                    ->dateTimeTooltip()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('deleter.name')
+                    ->label('Dihapus Oleh')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('deleted_at')
+                    ->label('Dihapus Pada')
+                    ->dateTime()
+                    ->since()
+                    ->dateTimeTooltip()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('restorer.name')
+                    ->label('Dipulihkan Oleh')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('restored_at')
+                    ->label('Dipulihkan Pada')
                     ->dateTime()
                     ->since()
                     ->dateTimeTooltip()
@@ -111,6 +204,7 @@ class FileDokumensRelationManager extends RelationManager
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn($record) => route('file-dokumen.unduh', $record->id))
                     ->openUrlInNewTab(),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data)),
                 Tables\Actions\DeleteAction::make(),

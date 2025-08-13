@@ -3,6 +3,39 @@
          .fi-simple-header {
              display: none;
          }
+
+         .fi-simple-layout {
+             background: linear-gradient(-45deg,
+                     #c7d2fe,
+                     /* biru muda pastel */
+                     #d8b4fe,
+                     /* ungu muda pastel */
+                     #fbcfe8,
+                     /* pink muda pastel */
+                     #fde68a,
+                     /* kuning pastel */
+                     #bbf7d0,
+                     /* hijau pastel */
+                     #bae6fd
+                     /* biru laut pastel */
+                 );
+             background-size: 400% 400%;
+             animation: gradientShift 8s ease infinite;
+         }
+
+         @keyframes gradientShift {
+             0% {
+                 background-position: 0% 50%;
+             }
+
+             50% {
+                 background-position: 100% 50%;
+             }
+
+             100% {
+                 background-position: 0% 50%;
+             }
+         }
      </style>
 
      <div class="text-center">

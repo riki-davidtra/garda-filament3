@@ -32,15 +32,15 @@ class FaqResource extends Resource
                     ->label('Pertanyaan')
                     ->required()
                     ->string()
-                    ->columnSpanFull()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpanFull(),
                 Forms\Components\RichEditor::make('jawaban')
                     ->label('Jawaban')
                     ->required()
-                    ->columnSpanFull()
                     ->maxLength(3000)
                     ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('faq/jawaban'),
+                    ->fileAttachmentsDirectory('faq/jawaban')
+                    ->columnSpanFull(),
             ]);
     }
 

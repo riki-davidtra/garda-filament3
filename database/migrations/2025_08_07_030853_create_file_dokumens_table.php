@@ -14,14 +14,32 @@ return new class extends Migration
         Schema::create('file_dokumens', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
-            $table->foreignId('dokumen_id')->nullable()->constrained('dokumens', 'id')->nullOnDelete();
+            $table->foreignId('dokumen_id')->nullable()->constrained('dokumens')->nullOnDelete();
+            $table->foreignId('subbagian_id')->nullable()->constrained('subbagians')->nullOnDelete();
             $table->string('path')->nullable();
             $table->string('nama')->nullable();
             $table->string('tipe')->nullable();
             $table->string('ukuran')->nullable();
+            $table->text('keterangan')->nullable();
+            $table->enum('status', ['baru', 'revisi', 'terlambat', 'selesai'])->default('baru');
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('restored_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('restored_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index([
+                'dokumen_id',
+                'subbagian_id',
+                'dibuat_oleh',
+                'diperbarui_oleh',
+                'nama',
+                'tipe',
+                'ukuran',
+                'status',
+            ]);
         });
     }
 

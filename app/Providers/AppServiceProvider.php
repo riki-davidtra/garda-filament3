@@ -32,5 +32,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Panduan::observe(\App\Observers\PanduanObserver::class);
         \App\Models\Faq::observe(\App\Observers\FaqObserver::class);
         \App\Models\Pengaduan::observe(\App\Observers\PengaduanObserver::class);
+        \App\Models\TemplatDokumen::observe(\App\Observers\TemplatDokumenObserver::class);
+        \App\Models\FileTemplatDokumen::observe(\App\Observers\FileTemplatDokumenObserver::class);
     }
 }

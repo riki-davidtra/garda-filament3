@@ -85,14 +85,4 @@ class User extends Authenticatable implements HasAvatar
     {
         return $this->belongsTo(Subbagian::class);
     }
-
-    public function dokumens()
-    {
-        return $this->hasMany(Dokumen::class);
-    }
-
-    public function fileDokumens()
-    {
-        return $this->hasMany(FileDokumen::class);
-    }
 }

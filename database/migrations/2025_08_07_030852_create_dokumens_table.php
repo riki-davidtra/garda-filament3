@@ -14,15 +14,22 @@ return new class extends Migration
         Schema::create('dokumens', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
+            $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
             $table->string('tahun');
-            $table->foreignId('subbagian_id')->nullable()->constrained('subbagians', 'id')->nullOnDelete();
-            $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens', 'id')->nullOnDelete();
             $table->dateTime('tenggat_waktu')->nullable();
-            $table->enum('status', ['baru', 'revisi', 'terlambat', 'selesai'])->default('baru');
             $table->text('keterangan')->nullable();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('restored_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('restored_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index([
+                'jenis_dokumen_id',
+                'tahun'
+            ]);
         });
     }
 

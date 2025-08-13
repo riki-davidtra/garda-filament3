@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             SyncPermissionsSeeder::class,
             RolePermissionSeeder::class,
             SettingSeeder::class,
+            SubkegiatanSeeder::class,
             JenisDokumenSeeder::class,
             DokumenSeeder::class,
             PanduanSeeder::class,

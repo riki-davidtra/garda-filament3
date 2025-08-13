@@ -11,13 +11,6 @@ class DokumenObserver
         protected \App\Services\FileContentCleanupService $cleanupService
     ) {}
 
-    public function creating(Dokumen $dokumen): void
-    {
-        if (empty($dokumen->user_id)) {
-            $dokumen->user_id = Auth::user()->id;
-        }
-    }
-
     public function updating(Dokumen $dokumen): void
     {
 
