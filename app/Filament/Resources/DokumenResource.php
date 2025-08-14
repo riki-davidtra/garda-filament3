@@ -25,7 +25,11 @@ class DokumenResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $isDisabled = !auth()->user()->hasRole(['Super Admin', 'admin', 'perencana']);
+        $user = auth()->user();
+
+        $isSuperOrAdmin = $user->hasRole(['Super Admin', 'admin']);
+        $isPerencana    = $user->hasRole('perencana');
+        $isSubbagian    = $user->hasRole('subbagian');
 
         return $form
             ->schema([
@@ -37,44 +41,87 @@ class DokumenResource extends Resource
                     ->relationship('jenisDokumen', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
                     })
-                    ->disabled(),
+                    ->hiddenOn('create')
+                    ->disabled(!$isSuperOrAdmin),
+                Forms\Components\Select::make('subbagian_id')
+                    ->label('Subbagian')
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->relationship('subbagian', 'nama', function ($query) {
+                        $query->orderBy('nama', 'asc');
+                    })
+                    ->hiddenOn('create')
+                    ->disabled(!$isSuperOrAdmin),
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama Dokumen')
                     ->required()
                     ->string()
-                    ->maxLength(255)
-                    ->disabled($isDisabled),
+                    ->disabled(!$isSuperOrAdmin && !$isSubbagian),
                 Forms\Components\TextInput::make('tahun')
                     ->label('Tahun')
                     ->required()
                     ->numeric()
                     ->maxLength(4)
-                    ->disabled($isDisabled),
+                    ->disabled($isPerencana),
                 Forms\Components\Select::make('subkegiatan_id')
                     ->label('Subkegiatan')
-                    ->nullable()
+                    ->required()
                     ->searchable()
                     ->preload()
                     ->relationship('subkegiatan', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
                     })
-                    ->disabled($isDisabled),
-                Forms\Components\DateTimePicker::make('waktu_unggah_mulai')
-                    ->label('Waktu Unggah Mulai')
-                    ->nullable()
-                    ->disabled($isDisabled),
-                Forms\Components\DateTimePicker::make('waktu_unggah_selesai')
-                    ->label('Waktu Unggah Selesai')
-                    ->nullable()
-                    ->disabled($isDisabled),
+                    ->disabled(!$isSuperOrAdmin && !$isSubbagian),
                 Forms\Components\RichEditor::make('keterangan')
                     ->label('Keterangan')
                     ->nullable()
                     ->maxLength(3000)
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('dokumen/keterangan')
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'link',
+                        'bulletList',
+                        'orderedList',
+                        'undo',
+                        'redo',
+                    ])
                     ->columnSpanFull()
-                    ->disabled($isDisabled),
+                    ->disabled(!$isSuperOrAdmin && !$isSubbagian),
+                Forms\Components\Radio::make('status')
+                    ->label('Status')
+                    ->required()
+                    ->options([
+                        'Menunggu Persetujuan'        => 'Menunggu Persetujuan',
+                        'Diterima'                    => 'Diterima',
+                        'Ditolak'                     => 'Ditolak',
+                        'Revisi Menunggu Persetujuan' => 'Revisi Menunggu Persetujuan',
+                        'Revisi Diterima'             => 'Revisi Diterima',
+                        'Revisi Ditolak'              => 'Revisi Ditolak',
+                    ])
+                    ->default('Menunggu Persetujuan')
+                    ->hiddenOn('create')
+                    ->disabled(!$isSuperOrAdmin && !$isPerencana),
+                Forms\Components\RichEditor::make('komentar')
+                    ->label('Komentar')
+                    ->nullable()
+                    ->maxLength(3000)
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'link',
+                        'bulletList',
+                        'orderedList',
+                        'undo',
+                        'redo',
+                    ])
+                    ->columnSpanFull()
+                    ->hiddenOn('create')
+                    ->disabled(!$isSuperOrAdmin && !$isPerencana),
             ]);
     }
 
@@ -83,9 +130,14 @@ class DokumenResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query, $livewire) {
                 $jenisDokumenId = $livewire->jenis_dokumen_id ?? null;
+                $user = Auth::user();
 
                 if ($jenisDokumenId) {
                     $query->where('jenis_dokumen_id', $jenisDokumenId);
+                }
+
+                if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
+                    $query->where('subbagian_id', $user->subbagian_id);
                 }
 
                 return $query;
@@ -100,31 +152,28 @@ class DokumenResource extends Resource
                     ->label('Tahun')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('subkegiatan.nama')
-                    ->label('Subkegiatan')
+                Tables\Columns\TextColumn::make('subbagian.nama')
+                    ->label('Subbagian')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('waktu_unggah_mulai')
-                    ->label('Waktu Unggah')
-                    ->formatStateUsing(function ($record) {
-                        $mulai = $record->waktu_unggah_mulai?->format('Y-m-d H:i');
-                        $selesai = $record->waktu_unggah_selesai?->format('Y-m-d H:i');
-                        return "{$mulai} → {$selesai}";
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'Menunggu Persetujuan'        => 'warning',
+                        'Diterima'                    => 'success',
+                        'Ditolak'                     => 'danger',
+                        'Revisi Menunggu Persetujuan' => 'warning',
+                        'Revisi Diterima'             => 'success',
+                        'Revisi Ditolak'              => 'danger',
+                        default     => 'secondary',
                     })
-                    ->color(fn($record) => match (true) {
-                        $record->waktu_unggah_mulai && now()->lt($record->waktu_unggah_mulai) => 'gray',
-                        $record->waktu_unggah_selesai && now()->gt($record->waktu_unggah_selesai) => 'danger',
-                        default => 'success',
-                    })
-                    ->searchable()
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('creator.name')
+                Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dibuat Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                Tables\Columns\TextColumn::make('dibuat_pada')
                     ->label('Dibuat Pada')
                     ->dateTime()
                     ->since()
@@ -132,12 +181,12 @@ class DokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('updater.name')
+                Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Diperbarui Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('updated_at')
+                Tables\Columns\TextColumn::make('diperbarui_pada')
                     ->label('Diperbarui Pada')
                     ->dateTime()
                     ->since()
@@ -145,12 +194,12 @@ class DokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('deleter.name')
+                Tables\Columns\TextColumn::make('penghapus.name')
                     ->label('Dihapus Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('deleted_at')
+                Tables\Columns\TextColumn::make('dihapus_pada')
                     ->label('Dihapus Pada')
                     ->dateTime()
                     ->since()
@@ -158,12 +207,12 @@ class DokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('restorer.name')
+                Tables\Columns\TextColumn::make('pemulih.name')
                     ->label('Dipulihkan Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('restored_at')
+                Tables\Columns\TextColumn::make('dipulihkan_pada')
                     ->label('Dipulihkan Pada')
                     ->dateTime()
                     ->since()
@@ -173,6 +222,25 @@ class DokumenResource extends Resource
                     ->sortable(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('subbagian_id')
+                    ->label('Subbagian')
+                    ->relationship('subbagian', 'nama')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\Filter::make('tahun')
+                    ->form([
+                        Forms\Components\TextInput::make('tahun')
+                            ->label('Tahun')
+                            ->numeric()
+                            ->maxLength(4),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['tahun'], fn($q, $tahun) => $q->where('tahun', $tahun));
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return $data['tahun'] ? 'Tahun: ' . $data['tahun'] : null;
+                    }),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
@@ -180,7 +248,7 @@ class DokumenResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->label('Unggah Dokumen')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
-                        'record' => $record->uuid,
+                        'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
                     ])),
                 Tables\Actions\RestoreAction::make(),

@@ -7,28 +7,6 @@ use App\Models\Dokumen;
 
 class DokumenObserver
 {
-    public function __construct(
-        protected \App\Services\FileContentCleanupService $cleanupService
-    ) {}
-
-    public function updating(Dokumen $dokumen): void
-    {
-
-        if ($dokumen->isDirty('keterangan')) {
-            $oldContent = $dokumen->getOriginal('keterangan') ?? '';
-            $newContent = $dokumen->keterangan ?? '';
-
-            $oldFiles = $this->cleanupService->extractFilesFromContent($oldContent);
-            $newFiles = $this->cleanupService->extractFilesFromContent($newContent);
-
-            $deletedFiles = array_diff($oldFiles, $newFiles);
-
-            foreach ($deletedFiles as $fileUrl) {
-                $this->cleanupService->deleteFileByUrl($fileUrl);
-            }
-        }
-    }
-
     public function deleting(Dokumen $dokumen): void
     {
         if ($dokumen->isForceDeleting()) {
@@ -37,12 +15,6 @@ class DokumenObserver
             });
         } else {
             $dokumen->fileDokumens()->get()->each->delete();
-        }
-
-        if ($dokumen->isForceDeleting()) {
-            if (!empty($dokumen->keterangan)) {
-                $this->cleanupService->deleteFilesFromContent($dokumen->keterangan);
-            }
         }
     }
 

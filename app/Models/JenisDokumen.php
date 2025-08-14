@@ -13,6 +13,11 @@ class JenisDokumen extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'waktu_unggah_mulai'   => 'datetime',
+        'waktu_unggah_selesai' => 'datetime',
+    ];
+
     public function uniqueIds(): array
     {
         return ['uuid'];

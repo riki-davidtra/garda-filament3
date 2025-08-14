@@ -10,10 +10,6 @@ class FileDokumenObserver
 {
     public function creating(FileDokumen $fileDokumen): void
     {
-        if (empty($fileDokumen->subbagian_id)) {
-            $fileDokumen->subbagian_id = Auth::user()->subbagian_id;
-        }
-
         if ($fileDokumen->path && Storage::disk('local')->exists($fileDokumen->path)) {
             $fullPath = Storage::disk('local')->path($fileDokumen->path);
 

@@ -26,4 +26,23 @@ class CreateDokumen extends CreateRecord
             'Buat',
         ];
     }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (empty($data['jenis_dokumen_id'])) {
+            $data['jenis_dokumen_id'] = $this->jenis_dokumen_id;
+        }
+
+        $data['subbagian_id'] = auth()->check() ? auth()->user()->subbagian_id : null;
+
+        return $data;
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('edit', [
+            'record'           => $this->record->uuid,
+            'jenis_dokumen_id' => $this->jenis_dokumen_id,
+        ]);
+    }
 }

@@ -16,12 +16,10 @@ class Dokumen extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'waktu_unggah_mulai'   => 'datetime',
-        'waktu_unggah_selesai' => 'datetime',
-        'created_at'           => 'datetime',
-        'updated_at'           => 'datetime',
-        'deleted_at'           => 'datetime',
-        'restored_at'          => 'datetime',
+        'dibuat_pada'     => 'datetime',
+        'diperbarui_pada' => 'datetime',
+        'dihapus_pada'    => 'datetime',
+        'dipulihkan_pada' => 'datetime',
     ];
 
     protected $dates = ['deleted_at'];
@@ -39,6 +37,11 @@ class Dokumen extends Model
     public function getRouteKeyName()
     {
         return 'uuid';
+    }
+
+    public function subbagian()
+    {
+        return $this->belongsTo(Subbagian::class);
     }
 
     public function jenisDokumen()

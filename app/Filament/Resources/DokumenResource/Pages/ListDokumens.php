@@ -34,6 +34,7 @@ class ListDokumens extends ListRecords
                 ->url(fn() => DokumenResource::getUrl('create', [
                     'jenis_dokumen_id' => $this->jenis_dokumen_id,
                 ])),
+
         ];
     }
 

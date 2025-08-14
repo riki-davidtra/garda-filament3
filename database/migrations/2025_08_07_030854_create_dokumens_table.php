@@ -11,13 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengaduans', function (Blueprint $table) {
+        Schema::create('dokumens', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->string('judul');
-            $table->text('pesan');
-            $table->text('tanggapan')->nullable();
-            $table->enum('status', ['Menunggu', 'Proses', 'Selesai'])->default('Menunggu');
+            $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
+            $table->foreignId('subbagian_id')->nullable()->constrained('subbagians')->nullOnDelete();
+            $table->foreignId('subkegiatan_id')->nullable()->constrained('subkegiatans')->nullOnDelete();
+            $table->string('nama');
+            $table->string('tahun');
+            $table->text('keterangan')->nullable();
+            $table->enum('status', [
+                'Menunggu Persetujuan',
+                'Diterima',
+                'Ditolak',
+                'Revisi Menunggu Persetujuan',
+                'Revisi Diterima',
+                'Revisi Ditolak'
+            ])->default('Menunggu Persetujuan');
+            $table->text('komentar')->nullable();
             $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dibuat_pada')->nullable();
             $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();
@@ -26,6 +37,7 @@ return new class extends Migration
             $table->timestamp('dihapus_pada')->nullable();
             $table->foreignId('dipulihkan_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dipulihkan_pada')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -35,6 +47,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengaduans');
+        Schema::dropIfExists('dokumens');
     }
 };

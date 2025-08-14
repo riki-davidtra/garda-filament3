@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('nama');
+            $table->dateTime('waktu_unggah_mulai')->nullable();
+            $table->dateTime('waktu_unggah_selesai')->nullable();
+            $table->integer('batas_unggah')->default(0);
             $table->timestamps();
         });
     }

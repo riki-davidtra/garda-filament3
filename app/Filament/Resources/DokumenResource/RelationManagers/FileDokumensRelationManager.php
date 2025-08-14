@@ -20,27 +20,15 @@ class FileDokumensRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        $isDisabled = !auth()->user()->hasRole(['Super Admin', 'admin', 'perencana']);
-
         return $form
             ->schema([
-                // Forms\Components\Select::make('subbagian_id')
-                //     ->label('Subbagian')
-                //     ->nullable()
-                //     ->searchable()
-                //     ->preload()
-                //     ->relationship('subbagian', 'nama', function ($query) {
-                //         $query->orderBy('nama', 'asc');
-                //     })
-                //     ->hiddenOn('create')
-                //     ->disabled(),
                 Forms\Components\FileUpload::make('file_temp')
                     ->label('File')
                     ->required(fn(string $context) => $context === 'create')
                     ->storeFiles(false)
                     ->disk('local')
                     ->directory('temp')
-                    ->maxSize(2048)
+                    ->maxSize(10240)
                     ->columnSpanFull()
                     ->acceptedFileTypes([
                         'application/pdf',
@@ -82,29 +70,6 @@ class FileDokumensRelationManager extends RelationManager
                     ->formatStateUsing(fn($state) => number_format($state / 1024, 2) . ' KB')
                     ->hiddenOn('create')
                     ->disabled(),
-                Forms\Components\RichEditor::make('keterangan')
-                    ->label('Keterangan')
-                    ->nullable()
-                    ->columnSpanFull()
-                    ->maxLength(3000)
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('dokumen/keterangan')
-                    ->hiddenOn('create')
-                    ->disabled($isDisabled),
-                Forms\Components\Radio::make('status')
-                    ->label('Status')
-                    ->required()
-                    ->inline()
-                    ->options([
-                        'baru'      => 'Baru',
-                        'revisi'    => 'Revisi',
-                        'terlambat' => 'Terlambat',
-                        'selesai'   => 'Selesai',
-                    ])
-                    ->default('baru')
-                    ->hiddenOn('create')
-                    ->disabled($isDisabled),
-
             ]);
     }
 
@@ -112,34 +77,27 @@ class FileDokumensRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('nama')
-            ->modifyQueryUsing(function (Builder $query) {
-                $user = Auth::user();
-                if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
-                    $query->where('subbagian_id', $user->subbagian_id);
-                }
-            })
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama File')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'baru'      => 'info',
-                        'revisi'    => 'warning',
-                        'terlambat' => 'danger',
-                        'selesai'   => 'success',
-                        default     => 'secondary',
-                    })
+                Tables\Columns\TextColumn::make('tipe')
+                    ->label('Tipe')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('creator.name')
+                Tables\Columns\TextColumn::make('ukuran')
+                    ->label('Ukuran')
+                    ->formatStateUsing(fn($state) => number_format($state / 1024, 2) . ' KB')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dibuat Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                Tables\Columns\TextColumn::make('dibuat_pada')
                     ->label('Dibuat Pada')
                     ->dateTime()
                     ->since()
@@ -147,12 +105,12 @@ class FileDokumensRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('updater.name')
+                Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Diperbarui Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('updated_at')
+                Tables\Columns\TextColumn::make('diperbarui_pada')
                     ->label('Diperbarui Pada')
                     ->dateTime()
                     ->since()
@@ -160,12 +118,12 @@ class FileDokumensRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('deleter.name')
+                Tables\Columns\TextColumn::make('penghapus.name')
                     ->label('Dihapus Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('deleted_at')
+                Tables\Columns\TextColumn::make('dihapus_pada')
                     ->label('Dihapus Pada')
                     ->dateTime()
                     ->since()
@@ -173,12 +131,12 @@ class FileDokumensRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('restorer.name')
+                Tables\Columns\TextColumn::make('pemulih.name')
                     ->label('Dipulihkan Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('restored_at')
+                Tables\Columns\TextColumn::make('dipulihkan_pada')
                     ->label('Dipulihkan Pada')
                     ->dateTime()
                     ->since()
@@ -192,6 +150,8 @@ class FileDokumensRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
+                    ->label('Unggah File Dokumen')
+                    ->modalHeading('Unggah File Dokumen')
                     ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data)),
             ])
             ->actions([

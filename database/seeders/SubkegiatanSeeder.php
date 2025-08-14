@@ -18,8 +18,6 @@ class SubkegiatanSeeder extends Seeder
             ['nama' => 'Subkegiatan Kesehatan Masyarakat'],
             ['nama' => 'Subkegiatan Pengembangan Ekonomi'],
             ['nama' => 'Subkegiatan Lingkungan Hidup'],
-            ['nama' => 'Subkegiatan Sosial Budaya'],
-            ['nama' => 'Subkegiatan Keamanan dan Ketertiban'],
         ];
 
         foreach ($data as $item) {

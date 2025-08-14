@@ -27,9 +27,9 @@ class PengaduanResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) static::getModel()::whereIn('status', ['menunggu'])->count();
+        return (string) static::getModel()::whereIn('status', ['Menunggu'])->count();
     }
-    protected static ?string $navigationBadgeTooltip = 'Jumlah pengaduan dengan status menunggu.';
+    protected static ?string $navigationBadgeTooltip = 'Jumlah pengaduan dengan status Menunggu.';
 
     public static function form(Form $form): Form
     {
@@ -63,11 +63,11 @@ class PengaduanResource extends Resource
                     ->required()
                     ->inline()
                     ->options([
-                        'menunggu' => 'Menunggu',
+                        'Menunggu' => 'Menunggu',
                         'proses'   => 'Proses',
                         'selesai'  => 'Selesai',
                     ])
-                    ->default('menunggu')
+                    ->default('Menunggu')
                     ->hiddenOn('create'),
             ]);
     }
@@ -96,18 +96,18 @@ class PengaduanResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'menunggu' => 'warning',
+                        'Menunggu' => 'warning',
                         'proses'   => 'primary',
                         'selesai'  => 'success',
                         default    => 'secondary',
                     })
                     ->sortable(),
-                Tables\Columns\TextColumn::make('creator.name')
+                Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dikirim Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('dibuat_pada')
                     ->label('Dikirim Pada')
                     ->dateTime()
                     ->since()
@@ -115,12 +115,12 @@ class PengaduanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('updater.name')
+                Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Dibalas Oleh')
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('updated_at')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('diperbarui_pada')
                     ->label('Dibalas Pada')
                     ->dateTime()
                     ->since()

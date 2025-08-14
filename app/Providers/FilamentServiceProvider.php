@@ -32,12 +32,26 @@ class FilamentServiceProvider extends ServiceProvider
         $items = [];
 
         foreach (JenisDokumen::all() as $jenis) {
+            $countMenunggu = \App\Models\Dokumen::where('jenis_dokumen_id', $jenis->id)
+                ->whereIn('status', ['Menunggu Persetujuan', 'Revisi Menunggu Persetujuan'])
+                ->count();
+
             $items[] = NavigationItem::make($jenis->nama)
                 ->url(fn() => ListDokumens::getUrl(['jenis_dokumen_id' => $jenis->id]))
                 ->icon('heroicon-o-document-text')
-                ->group('Manajemen Dokumen')
+                ->group('Dokumen')
+                ->badge($countMenunggu > 0 ? (string) $countMenunggu : null)
+                ->badgeTooltip('Jumlah dokumen ' . $jenis->nama . ' dengan status Menunggu')
                 ->sort(22)
-                ->isActiveWhen(fn() => request()->routeIs('filament.admin.resources.dokumens.index') && (int)request('jenis_dokumen_id') === $jenis->id);
+                ->isActiveWhen(
+                    fn() =>
+                    request()->routeIs([
+                        'filament.admin.resources.dokumens.index',
+                        'filament.admin.resources.dokumens.create',
+                        'filament.admin.resources.dokumens.edit',
+                        'filament.admin.resources.dokumens.view',
+                    ]) && (int) request('jenis_dokumen_id') === $jenis->id
+                );
         }
 
         return $items;

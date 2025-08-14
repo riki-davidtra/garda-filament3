@@ -36,6 +36,14 @@
                  background-position: 0% 50%;
              }
          }
+
+         .fi-simple-main-ctn {
+             padding: 2rem;
+         }
+
+         .fi-simple-main {
+             border-radius: 1rem;
+         }
      </style>
 
      <div class="text-center">

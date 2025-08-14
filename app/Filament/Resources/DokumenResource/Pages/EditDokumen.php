@@ -36,13 +36,4 @@ class EditDokumen extends EditRecord
                 })
         ];
     }
-
-    protected function getFormActions(): array
-    {
-        if (! auth()->user()->hasRole(['Super Admin', 'admin', 'perencana'])) {
-            return [];
-        }
-
-        return parent::getFormActions();
-    }
 }

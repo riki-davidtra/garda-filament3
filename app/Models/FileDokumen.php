@@ -41,9 +41,4 @@ class FileDokumen extends Model
     {
         return $this->belongsTo(Dokumen::class);
     }
-
-    public function subbagian()
-    {
-        return $this->belongsTo(Subbagian::class);
-    }
 }

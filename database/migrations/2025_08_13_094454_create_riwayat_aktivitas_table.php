@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('riwayat_aktivitas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('dihapus_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('dipulihkan_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('dibuat_pada')->nullable();
+            $table->timestamp('diperbarui_pada')->nullable();
+            $table->timestamp('dihapus_pada')->nullable();
+            $table->timestamp('dipulihkan_pada')->nullable();
             $table->timestamps();
         });
     }

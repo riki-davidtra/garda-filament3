@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Dokumen;
 use App\Models\JenisDokumen;
+use App\Models\Subbagian;
 
 class DokumenSeeder extends Seeder
 {
@@ -14,38 +15,40 @@ class DokumenSeeder extends Seeder
     public function run(): void
     {
         $jenisDokumens = JenisDokumen::all();
+        $subbagians    = Subbagian::all();
 
         foreach ($jenisDokumens as $jenis) {
-            Dokumen::updateOrCreate(
-                [
-                    'jenis_dokumen_id' => $jenis->id,
-                    'nama'             => 'Nama Dokumen ' . $jenis->nama,
-                    'tahun'            => 2024,
-                    'subkegiatan_id'   => 1,
-                ],
-                [
-                    'waktu_unggah_mulai'   => now(),
-                    'waktu_unggah_selesai' => now()->addDays(10),
-                    'keterangan'           => 'Dokumen tahun 2024 untuk jenis ' . $jenis->nama,
-                ]
-            );
-        }
+            foreach ($subbagians as $subbagian) {
+                Dokumen::updateOrCreate(
+                    [
+                        'jenis_dokumen_id' => $jenis->id,
+                        'subbagian_id'     => $subbagian->id,
+                        'subkegiatan_id'   => 1,
+                        'nama'             => 'Nama Dokumen ' . $jenis->nama . ' - ' . $subbagian->nama,
+                        'tahun'            => 2024,
+                    ],
+                    [
+                        'keterangan' => 'Dokumen tahun 2024 untuk jenis ' . $jenis->nama . ' di subbagian ' . $subbagian->nama,
+                        'status'     => 'Menunggu Persetujuan',
+                        'komentar'   => '',
+                    ]
+                );
 
-        foreach ($jenisDokumens as $jenis) {
-            Dokumen::updateOrCreate(
-                [
-                    'jenis_dokumen_id' => $jenis->id,
-                    'nama'             => 'Nama Dokumen ' . $jenis->nama,
-                    'tahun'            => 2025,
-                    'subkegiatan_id'   => 1,
-                ],
-                [
-                    'waktu_unggah_mulai'   => now(),
-                    'waktu_unggah_selesai' => now()->addDays(10),
-                    'keterangan'           => 'Dokumen tahun 2025 untuk jenis ' . $jenis->nama,
-                    'created_by'           => 1,
-                ]
-            );
+                Dokumen::updateOrCreate(
+                    [
+                        'jenis_dokumen_id' => $jenis->id,
+                        'subbagian_id'     => $subbagian->id,
+                        'subkegiatan_id'   => 1,
+                        'nama'             => 'Nama Dokumen ' . $jenis->nama . ' - ' . $subbagian->nama,
+                        'tahun'            => 2025,
+                    ],
+                    [
+                        'keterangan' => 'Dokumen tahun 2025 untuk jenis ' . $jenis->nama . ' di subbagian ' . $subbagian->nama,
+                        'status'     => 'Menunggu Persetujuan',
+                        'komentar'   => '',
+                    ]
+                );
+            }
         }
     }
 }

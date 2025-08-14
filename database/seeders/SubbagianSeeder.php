@@ -18,8 +18,6 @@ class SubbagianSeeder extends Seeder
             ['nama' => 'Subbagian Pemerintahan Umum'],
             ['nama' => 'Subbagian Kerjasama Pemerintah Daerah'],
             ['nama' => 'Subbagian Pertanahan dan Kewilayahan'],
-            ['nama' => 'Subbagian Administrasi Kewilayahan'],
-            ['nama' => 'Subbagian Kelembagaan dan Analisis Jabatan'],
         ];
 
         foreach ($data as $item) {

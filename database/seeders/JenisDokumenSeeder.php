@@ -13,12 +13,42 @@ class JenisDokumenSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['nama' => 'RKA'],
-            ['nama' => 'DPA'],
-            ['nama' => 'RKAP'],
-            ['nama' => 'DPPA'],
-            ['nama' => 'LAKIP'],
-            ['nama' => 'Renja'],
+            [
+                'nama'                 => 'RKA',
+                'waktu_unggah_mulai'   => now(),
+                'waktu_unggah_selesai' => now()->addDays(10),
+                'batas_unggah'         => 2,
+            ],
+            [
+                'nama'                 => 'DPA',
+                'waktu_unggah_mulai'   => now(),
+                'waktu_unggah_selesai' => now()->addDays(10),
+                'batas_unggah'         => 2,
+            ],
+            [
+                'nama'                 => 'RKAP',
+                'waktu_unggah_mulai'   => now(),
+                'waktu_unggah_selesai' => now()->addDays(10),
+                'batas_unggah'         => 2,
+            ],
+            [
+                'nama'                 => 'DPPA',
+                'waktu_unggah_mulai'   => now(),
+                'waktu_unggah_selesai' => now()->addDays(10),
+                'batas_unggah'         => 2,
+            ],
+            [
+                'nama'                 => 'LAKIP',
+                'waktu_unggah_mulai'   => now(),
+                'waktu_unggah_selesai' => now()->addDays(10),
+                'batas_unggah'         => 2,
+            ],
+            [
+                'nama'                 => 'Renja',
+                'waktu_unggah_mulai'   => now(),
+                'waktu_unggah_selesai' => now()->addDays(10),
+                'batas_unggah'         => 2,
+            ],
         ];
 
         foreach ($data as $item) {

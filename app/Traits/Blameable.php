@@ -11,69 +11,58 @@ trait Blameable
     {
         static::creating(function ($model) {
             if (Auth::check()) {
-                $model->created_by = Auth::id();
+                $model->dibuat_oleh = Auth::id();
+                $model->dibuat_pada = now();
             }
-
-            $model->updated_by = null;
-            $model->updated_at = null;
         });
 
         static::updating(function ($model) {
             if (Auth::check()) {
-                $model->updated_by = Auth::id();
+                $model->diperbarui_oleh = Auth::id();
+                $model->diperbarui_pada = now();
             }
         });
 
         if (in_array(SoftDeletes::class, class_uses_recursive(static::class))) {
             static::deleting(function ($model) {
                 if (Auth::check()) {
-                    $model->deleted_by = Auth::id();
+                    $model->dihapus_oleh = Auth::id();
+                    $model->dihapus_pada = now();
+                    $model->saveQuietly();
                 }
-
-                if ($model->isFillable('restored_by')) {
-                    $model->restored_by = null;
-                }
-                if ($model->isFillable('restored_at')) {
-                    $model->restored_at = null;
-                }
-
-                $model->timestamps = false;
-                $model->saveQuietly();
             });
 
             static::restoring(function ($model) {
-                if (Auth::check() && $model->isFillable('restored_by')) {
-                    $model->restored_by = Auth::id();
+                if (Auth::check()) {
+                    if ($model->isFillable('dipulihkan_oleh')) {
+                        $model->dipulihkan_oleh = Auth::id();
+                    }
+                    if ($model->isFillable('dipulihkan_pada')) {
+                        $model->dipulihkan_pada = now();
+                    }
+                    $model->saveQuietly();
                 }
-
-                if ($model->isFillable('restored_at')) {
-                    $model->restored_at = now();
-                }
-
-                $model->deleted_by = null;
-                $model->deleted_at = null;
-                $model->timestamps = false;
             });
         }
     }
 
-    public function creator()
+    public function pembuat()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(\App\Models\User::class, 'dibuat_oleh');
     }
 
-    public function updater()
+    public function pembaru()
     {
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+        return $this->belongsTo(\App\Models\User::class, 'diperbarui_oleh');
     }
 
-    public function deleter()
+    public function penghapus()
     {
-        return $this->belongsTo(\App\Models\User::class, 'deleted_by');
+        return $this->belongsTo(\App\Models\User::class, 'dihapus_oleh');
     }
 
-    public function restorer()
+    public function pemulih()
     {
-        return $this->belongsTo(\App\Models\User::class, 'restored_by');
+        return $this->belongsTo(\App\Models\User::class, 'dipulihkan_oleh');
     }
 }
