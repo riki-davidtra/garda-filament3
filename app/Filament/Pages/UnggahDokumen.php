@@ -9,7 +9,7 @@ class UnggahDokumen extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-arrow-up-tray';
     protected static ?string $navigationGroup  = 'Dokumen';
-    protected static ?int $navigationSort      = 21;
+    protected static ?int $navigationSort      = 31;
 
     protected static string $view = 'filament.pages.unggah-dokumen';
 

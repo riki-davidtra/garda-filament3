@@ -42,7 +42,7 @@ class FilamentServiceProvider extends ServiceProvider
                 ->group('Dokumen')
                 ->badge($countMenunggu > 0 ? (string) $countMenunggu : null)
                 ->badgeTooltip('Jumlah dokumen ' . $jenis->nama . ' dengan status Menunggu')
-                ->sort(22)
+                ->sort(32)
                 ->isActiveWhen(
                     fn() =>
                     request()->routeIs([
