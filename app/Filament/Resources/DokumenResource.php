@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use App\Models\FileDokumen;
 
 class DokumenResource extends Resource
 {
@@ -63,6 +64,7 @@ class DokumenResource extends Resource
                     ->required()
                     ->numeric()
                     ->maxLength(4)
+                    ->default(date('Y'))
                     ->disabled($isPerencana),
                 Forms\Components\Select::make('subkegiatan_id')
                     ->label('Subkegiatan')
@@ -173,7 +175,9 @@ class DokumenResource extends Resource
                         return $data;
                     })
                     ->defaultItems(1)
-                    ->createItemButtonLabel('Tambah File Dokumen')
+                    ->maxItems(1)
+                    ->disableItemCreation()
+                    ->disableItemDeletion()
                     ->columnSpanFull()
                     ->visibleOn('create'),
             ]);

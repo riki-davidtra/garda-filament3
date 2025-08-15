@@ -21,18 +21,21 @@ class CreateDokumen extends CreateRecord
         // Mengambil parameter jenis_dokumen_id dari query string
         $this->jenis_dokumen_id = request()->query('jenis_dokumen_id');
 
-        // Batasi akses route berdasarkan rentang waktu unggah
-        $user = Auth::user();
+        // Batasi akses route berdasarkan rentang waktu unggah 
         $jenis = JenisDokumen::find($this->jenis_dokumen_id);
-        if (! $jenis) {
+
+        if (!$jenis) {
             abort(404, 'Jenis dokumen tidak ditemukan.');
         }
-        if ($user->hasRole('subbagian')) {
-            abort(403, 'Anda tidak diizinkan mengunggah dokumen ini.');
-        }
+
         $sekarang = now();
-        if (! $sekarang->between($jenis->waktu_unggah_mulai, $jenis->waktu_unggah_selesai)) {
-            abort(403, 'Unggah dokumen hanya diperbolehkan pada waktu tertentu.');
+
+        if ($sekarang->lt($jenis->waktu_unggah_mulai)) {
+            abort(403, 'Belum masuk waktu unggah untuk dokumen ini.');
+        }
+
+        if ($sekarang->gt($jenis->waktu_unggah_selesai)) {
+            abort(403, 'Waktu unggah dokumen ini sudah berakhir.');
         }
     }
 

@@ -1,33 +1,44 @@
 <x-filament-panels::page>
-    <div class="grid grid-cols-4 gap-6">
+    <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
         @foreach ($jenisDokumens as $jenis)
             @php
-                $bisaUnggah = now()->between($jenis->waktu_unggah_mulai, $jenis->waktu_unggah_selesai);
+                $sekarang = now();
+                $belumMulai = $sekarang->lt($jenis->waktu_unggah_mulai);
+                $sudahBerakhir = $sekarang->gt($jenis->waktu_unggah_selesai);
+                $bisaUnggah = $sekarang->between($jenis->waktu_unggah_mulai, $jenis->waktu_unggah_selesai);
             @endphp
 
-            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-lg transition">
+            <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center text-center border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+
                 {{-- Icon File --}}
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m-6-8h6M4 6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
-                </svg>
+                <div class="flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m-6-8h6M4 6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
+                    </svg>
+                </div>
 
                 {{-- Nama Jenis Dokumen --}}
-                <h3 class="text-lg font-semibold text-gray-700 text-center">{{ $jenis->nama }}</h3>
+                <h3 class="text-lg font-semibold text-gray-800">{{ $jenis->nama }}</h3>
 
                 {{-- Waktu Unggah --}}
-                <p class="text-sm text-gray-500 mt-1 text-center">
-                    Waktu unggah: {{ $jenis->waktu_unggah_mulai->format('d M Y H:i') }}
-                    s/d {{ $jenis->waktu_unggah_selesai->format('d M Y H:i') }}
+                <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                    {{ $jenis->waktu_unggah_mulai->locale('id')->translatedFormat('d M Y H:i') }}
+                    <span class="text-gray-400">s/d</span>
+                    {{ $jenis->waktu_unggah_selesai->locale('id')->translatedFormat('d M Y H:i') }}
                 </p>
 
-                {{-- Tombol Unggah --}}
+                {{-- Tombol / Pesan --}}
                 @if ($bisaUnggah)
-                    <a href="{{ route('filament.admin.resources.dokumens.create', ['jenis_dokumen_id' => $jenis->id]) }}" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                    <a href="{{ route('filament.admin.resources.dokumens.create', ['jenis_dokumen_id' => $jenis->id]) }}" class="mt-5 inline-block px-5 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-full shadow hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 focus:outline-none transition">
                         Unggah
                     </a>
-                @else
-                    <span class="mt-4 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg cursor-not-allowed">
-                        Tidak bisa unggah sekarang
+                @elseif ($belumMulai)
+                    <span class="cursor-not-allowed mt-5 inline-block px-5 py-2.5 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
+                        Belum masuk waktu unggah
+                    </span>
+                @elseif ($sudahBerakhir)
+                    <span class="cursor-not-allowed mt-5 inline-block px-5 py-2.5 bg-red-100 text-red-800 text-sm font-medium rounded-full">
+                        Waktu unggah berakhir
                     </span>
                 @endif
             </div>

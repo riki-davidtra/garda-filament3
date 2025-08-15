@@ -19,3 +19,7 @@ Route::get('/file-dokumen/unduh/{id}', function ($id) {
         ->header('Content-Type', 'application/octet-stream')
         ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
 })->name('file-dokumen.unduh');
+
+Route::get('/test-404', fn() => abort(404));
+Route::get('/test-403', fn() => abort(403));
+Route::get('/test-500', fn() => abort(500));
