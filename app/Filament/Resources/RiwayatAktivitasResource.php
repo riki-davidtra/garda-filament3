@@ -27,21 +27,116 @@ class RiwayatAktivitasResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Select::make('user_id')
+                    ->label('User')
+                    ->relationship('user', 'name')
+                    ->visibleOn('view')
+                    ->disabled(),
+                Forms\Components\TextInput::make('aksi')
+                    ->label('Aksi')
+                    ->visibleOn('view')
+                    ->disabled(),
+                Forms\Components\Textarea::make('deskripsi')
+                    ->label('Deskripsi')
+                    ->visibleOn('view')
+                    ->columnSpanFull()
+                    ->disabled(),
+                Forms\Components\TextInput::make('ip')
+                    ->label('IP Address')
+                    ->visibleOn('view')
+                    ->disabled(),
+                Forms\Components\TextInput::make('subjek_type')
+                    ->label('Subjek Type')
+                    ->visibleOn('view')
+                    ->disabled(),
+                Forms\Components\TextInput::make('subjek_id')
+                    ->label('Subjek ID')
+                    ->visibleOn('view')
+                    ->disabled(),
+                Forms\Components\TextInput::make('created_at')
+                    ->label('Waktu')
+                    ->visibleOn('view')
+                    ->disabled(),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('User')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('aksi')
+                    ->label('Aksi')
+                    ->badge()
+                    ->color(function ($record) {
+                        return match ($record->aksi) {
+                            'masuk'          => 'primary',
+                            'keluar'         => 'gray',
+                            'buat'           => 'success',
+                            'ubah'           => 'warning',
+                            'hapus'          => 'danger',
+                            'hapus permanen' => 'danger',
+                            'pulihkan'       => 'info',
+                            default          => 'gray',
+                        };
+                    })
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('deskripsi')
+                    ->label('Deskripsi')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('ip')
+                    ->label('IP Address'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Waktu')
+                    ->dateTime('Y-m-d H:i:s')
+                    ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('tanggal')
+                    ->form([
+                        Forms\Components\DatePicker::make('dari')
+                            ->label('Dari Tanggal')
+                            ->default(now()->format('Y-m-d')),
+                        Forms\Components\DatePicker::make('sampai')
+                            ->label('Sampai Tanggal')
+                            ->default(now()->format('Y-m-d')),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['dari'] ?? null, fn($q, $dari) => $q->whereDate('created_at', '>=', $dari))
+                            ->when($data['sampai'] ?? null, fn($q, $sampai) => $q->whereDate('created_at', '<=', $sampai));
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (($data['dari'] ?? null) && ($data['sampai'] ?? null)) {
+                            return "Dari {$data['dari']} sampai {$data['sampai']}";
+                        } elseif ($data['dari'] ?? null) {
+                            return "Dari {$data['dari']}";
+                        } elseif ($data['sampai'] ?? null) {
+                            return "Sampai {$data['sampai']}";
+                        }
+                        return null;
+                    }),
+                Tables\Filters\SelectFilter::make('aksi')->options([
+                    'masuk'          => 'Masuk',
+                    'keluar'         => 'Keluar',
+                    'buat'           => 'Buat',
+                    'ubah'           => 'Ubah',
+                    'hapus'          => 'Hapus',
+                    'hapus permanen' => 'Hapus Permanen',
+                    'pulihkan'       => 'Pulihkan',
+                ]),
+                Tables\Filters\SelectFilter::make('user_id')
+                    ->label('User')
+                    ->relationship('user', 'name')
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -60,9 +155,9 @@ class RiwayatAktivitasResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListRiwayatAktivitas::route('/'),
-            'create' => Pages\CreateRiwayatAktivitas::route('/create'),
-            'edit'   => Pages\EditRiwayatAktivitas::route('/{record}/edit'),
+            'index' => Pages\ListRiwayatAktivitas::route('/'),
+            // 'create' => Pages\CreateRiwayatAktivitas::route('/create'),
+            // 'edit'   => Pages\EditRiwayatAktivitas::route('/{record}/edit'),
         ];
     }
 }

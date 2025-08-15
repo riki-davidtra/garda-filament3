@@ -16,11 +16,13 @@ class EditDokumen extends EditRecord
     {
         parent::mount($record);
 
+        // Mengambil parameter jenis_dokumen_id dari query string
         $this->jenis_dokumen_id = request()->query('jenis_dokumen_id');
     }
 
     public function getBreadcrumbs(): array
     {
+        // Custom navigasi breadcrumbs untuk halaman ini
         return [
             ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]) => 'Daftar Dokumen',
             'Ubah',
@@ -29,6 +31,7 @@ class EditDokumen extends EditRecord
 
     protected function getHeaderActions(): array
     {
+        // Memberi parameter jenis_dokumen_id pada URL
         return [
             Actions\DeleteAction::make()
                 ->after(function () {

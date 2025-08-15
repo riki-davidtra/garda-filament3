@@ -6,4 +6,5 @@ return [
     App\Providers\FilamentServiceProvider::class,
     App\Providers\Filament\AdminPanelProvider::class,
     App\Providers\SettingServiceProvider::class,
+    App\Providers\EventServiceProvider::class,
 ];

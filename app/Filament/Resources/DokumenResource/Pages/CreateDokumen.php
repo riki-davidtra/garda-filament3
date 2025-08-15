@@ -5,6 +5,8 @@ namespace App\Filament\Resources\DokumenResource\Pages;
 use App\Filament\Resources\DokumenResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Auth;
+use App\Models\JenisDokumen;
 
 class CreateDokumen extends CreateRecord
 {
@@ -16,11 +18,27 @@ class CreateDokumen extends CreateRecord
     {
         parent::mount();
 
+        // Mengambil parameter jenis_dokumen_id dari query string
         $this->jenis_dokumen_id = request()->query('jenis_dokumen_id');
+
+        // Batasi akses route berdasarkan rentang waktu unggah
+        $user = Auth::user();
+        $jenis = JenisDokumen::find($this->jenis_dokumen_id);
+        if (! $jenis) {
+            abort(404, 'Jenis dokumen tidak ditemukan.');
+        }
+        if ($user->hasRole('subbagian')) {
+            abort(403, 'Anda tidak diizinkan mengunggah dokumen ini.');
+        }
+        $sekarang = now();
+        if (! $sekarang->between($jenis->waktu_unggah_mulai, $jenis->waktu_unggah_selesai)) {
+            abort(403, 'Unggah dokumen hanya diperbolehkan pada waktu tertentu.');
+        }
     }
 
     public function getBreadcrumbs(): array
     {
+        // Custom navigasi breadcrumbs untuk halaman ini
         return [
             ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]) => 'Daftar Dokumen',
             'Buat',
@@ -29,10 +47,10 @@ class CreateDokumen extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // Menyimpan jenis_dokumen_id & subbagian_id yang membuat dokumen
         if (empty($data['jenis_dokumen_id'])) {
             $data['jenis_dokumen_id'] = $this->jenis_dokumen_id;
         }
-
         $data['subbagian_id'] = auth()->check() ? auth()->user()->subbagian_id : null;
 
         return $data;
@@ -40,6 +58,7 @@ class CreateDokumen extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
+        // Menentukan URL redirect setelah dokumen berhasil dibuat.
         return $this->getResource()::getUrl('edit', [
             'record'           => $this->record->uuid,
             'jenis_dokumen_id' => $this->jenis_dokumen_id,

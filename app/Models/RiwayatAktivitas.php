@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,5 +27,15 @@ class RiwayatAktivitas extends Model
     public function getRouteKeyName()
     {
         return 'uuid';
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function subjek(): MorphTo
+    {
+        return $this->morphTo();
     }
 }
