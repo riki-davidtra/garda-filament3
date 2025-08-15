@@ -54,9 +54,7 @@ class JenisDokumenSeeder extends Seeder
         foreach ($data as $item) {
             JenisDokumen::updateOrCreate(
                 ['nama' => $item['nama']],
-                [
-                    'nama' => $item['nama'],
-                ]
+                $item
             );
         }
     }

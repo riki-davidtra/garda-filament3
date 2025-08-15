@@ -122,6 +122,60 @@ class DokumenResource extends Resource
                     ->columnSpanFull()
                     ->hiddenOn('create')
                     ->disabled(!$isSuperOrAdmin && !$isPerencana),
+
+                Forms\Components\Repeater::make('fileDokumens')
+                    ->label('File Dokumen')
+                    ->relationship()
+                    ->schema([
+                        Forms\Components\FileUpload::make('file_temp')
+                            ->label('File')
+                            ->required(fn(string $context) => $context === 'create')
+                            ->storeFiles(false)
+                            ->disk('local')
+                            ->directory('temp')
+                            ->maxSize(10240)
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-powerpoint',
+                                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                                'image/jpg',
+                                'image/jpeg',
+                                'image/png',
+                                'image/heic',
+                                'image/heif',
+                            ])
+                    ])
+                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data) {
+                        if (!empty($data['file_temp']) && $data['file_temp'] instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                            $file = $data['file_temp'];
+
+                            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                            $extension = $file->getClientOriginalExtension();
+                            $uniqueCode = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
+                            $path = 'file-dokumen/' . $originalName . '-' . $uniqueCode . '.' . $extension;
+
+                            $encryptedContent = encrypt(file_get_contents($file->getRealPath()));
+
+                            \Illuminate\Support\Facades\Storage::disk('local')->put($path, $encryptedContent);
+
+                            $data['path'] = $path;
+                            $data['nama'] = $file->getClientOriginalName();
+                            $data['tipe'] = $file->getMimeType();
+                            $data['ukuran'] = $file->getSize();
+                        }
+
+                        unset($data['file_temp']);
+
+                        return $data;
+                    })
+                    ->defaultItems(1)
+                    ->createItemButtonLabel('Tambah File Dokumen')
+                    ->columnSpanFull()
+                    ->visibleOn('create'),
             ]);
     }
 
@@ -246,7 +300,6 @@ class DokumenResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
-                    ->label('Unggah Dokumen')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),

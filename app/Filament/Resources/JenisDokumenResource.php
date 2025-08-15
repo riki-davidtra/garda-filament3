@@ -41,7 +41,7 @@ class JenisDokumenResource extends Resource
                     ->nullable(),
                 Forms\Components\TextInput::make('batas_unggah')
                     ->label('Batas Unggah')
-                    ->required()
+                    ->nullable()
                     ->numeric(),
             ]);
     }

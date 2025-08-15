@@ -16,16 +16,14 @@ class TemplatDokumenSeeder extends Seeder
 
         for ($i = 1; $i <= 5; $i++) {
             $templat = TemplatDokumen::create([
-                'uuid'             => Str::uuid(),
                 'jenis_dokumen_id' => $jenisIds ? $jenisIds[array_rand($jenisIds)] : null,
             ]);
 
             $fileCount = rand(1, 3);
             for ($j = 1; $j <= $fileCount; $j++) {
                 FileTemplatDokumen::create([
-                    'uuid'               => Str::uuid(),
                     'templat_dokumen_id' => $templat->id,
-                    'nama'               => "File Templat {$j} Templat {$i}",
+                    'nama'               => "File Templat {$j}",
                     'path'               => null,
                 ]);
             }
