@@ -31,13 +31,32 @@ class ListDokumens extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        // Memberi parameter jenis_dokumen_id pada URL
+        // hanya tampilkan tombol kalau bisa upload atau admin
+        if (! $this->jenis_dokumen_id) {
+            return [];
+        }
+
+        $jenis = \App\Models\JenisDokumen::find($this->jenis_dokumen_id);
+
+        if (! $jenis) {
+            return [];
+        }
+
+        $now  = now();
+        $user = \Filament\Facades\Filament::auth()->user();
+
+        $bisaUnggah    = $now->between($jenis->waktu_unggah_mulai, $jenis->waktu_unggah_selesai);
+        $isAdmin       = $user->hasRole('Super Admin') || $user->hasRole('Admin');
+
+        if (! $bisaUnggah && ! $isAdmin) {
+            return [];
+        }
+
         return [
             Actions\CreateAction::make()
                 ->url(fn() => DokumenResource::getUrl('create', [
                     'jenis_dokumen_id' => $this->jenis_dokumen_id,
                 ])),
-
         ];
     }
 
