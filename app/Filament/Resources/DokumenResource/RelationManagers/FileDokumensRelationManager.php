@@ -213,6 +213,8 @@ class FileDokumensRelationManager extends RelationManager
             \Illuminate\Support\Facades\Storage::disk('local')->put($path, $encryptedContent);
 
             $data['path'] = $path;
+
+            @unlink($file->getRealPath());
         }
 
         unset($data['file_temp']);

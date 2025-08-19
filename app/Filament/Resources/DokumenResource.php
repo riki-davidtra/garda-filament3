@@ -173,6 +173,8 @@ class DokumenResource extends Resource
                             $data['nama'] = $file->getClientOriginalName();
                             $data['tipe'] = $file->getMimeType();
                             $data['ukuran'] = $file->getSize();
+
+                            @unlink($file->getRealPath());
                         }
 
                         unset($data['file_temp']);
