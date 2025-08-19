@@ -7,6 +7,7 @@ use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 use App\Models\JenisDokumen;
+use Filament\Actions\Action;
 
 class CreateDokumen extends CreateRecord
 {
@@ -30,14 +31,13 @@ class CreateDokumen extends CreateRecord
 
         $user     = Auth::user();
         $sekarang = now();
-
         $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('Admin');
 
-        if (! $isAdmin && $sekarang->lt($jenis->waktu_unggah_mulai)) {
+        if (!$isAdmin && $sekarang->lt($jenis->waktu_unggah_mulai)) {
             abort(403, 'Belum masuk waktu unggah untuk dokumen ini.');
         }
 
-        if (! $isAdmin && $sekarang->gt($jenis->waktu_unggah_selesai)) {
+        if (!$isAdmin && $sekarang->gt($jenis->waktu_unggah_selesai)) {
             abort(403, 'Waktu unggah dokumen ini sudah berakhir.');
         }
     }
@@ -47,8 +47,14 @@ class CreateDokumen extends CreateRecord
         // Custom navigasi breadcrumbs untuk halaman ini
         return [
             ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]) => 'Daftar Dokumen',
-            'Buat',
+            'Unggah',
         ];
+    }
+
+    public function getTitle(): string
+    {
+        $jenis = JenisDokumen::find($this->jenis_dokumen_id);
+        return $jenis ? 'Unggah Dokumen ' . $jenis->nama : 'Unggah Dokumen';
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -61,6 +67,16 @@ class CreateDokumen extends CreateRecord
 
         return $data;
     }
+
+    protected function getCreateFormAction(): Action
+    {
+        // Ganti label tombol submit
+        return parent::getCreateFormAction()
+            ->label('Kirim');
+    }
+
+    // Hilangkan tombol create another
+    protected static bool $canCreateAnother = false;
 
     protected function getRedirectUrl(): string
     {

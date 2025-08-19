@@ -5,6 +5,8 @@ namespace App\Filament\Resources\DokumenResource\Pages;
 use App\Filament\Resources\DokumenResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
+use App\Models\JenisDokumen;
 
 class ListDokumens extends ListRecords
 {
@@ -29,6 +31,12 @@ class ListDokumens extends ListRecords
         ];
     }
 
+    public function getTitle(): string
+    {
+        $jenis = JenisDokumen::find($this->jenis_dokumen_id);
+        return $jenis ? 'Daftar Dokumen ' . $jenis->nama : 'Daftar Dokumen';
+    }
+
     protected function getHeaderActions(): array
     {
         // hanya tampilkan tombol kalau bisa upload atau admin
@@ -42,18 +50,21 @@ class ListDokumens extends ListRecords
             return [];
         }
 
-        $now  = now();
-        $user = \Filament\Facades\Filament::auth()->user();
+        $now        = now();
+        $mulai      = $jenis->waktu_unggah_mulai ? \Carbon\Carbon::parse($jenis->waktu_unggah_mulai) : null;
+        $selesai    = $jenis->waktu_unggah_selesai ? \Carbon\Carbon::parse($jenis->waktu_unggah_selesai) : null;
+        $bisaUnggah = ($mulai && $selesai) ? $now->between($mulai, $selesai) : false;
 
-        $bisaUnggah    = $now->between($jenis->waktu_unggah_mulai, $jenis->waktu_unggah_selesai);
-        $isAdmin       = $user->hasRole('Super Admin') || $user->hasRole('Admin');
+        $user    = Auth::user();
+        $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('admin');
 
-        if (! $bisaUnggah && ! $isAdmin) {
+        if (!$bisaUnggah && !$isAdmin) {
             return [];
         }
 
         return [
             Actions\CreateAction::make()
+                ->label('Unggah Dokumen')
                 ->url(fn() => DokumenResource::getUrl('create', [
                     'jenis_dokumen_id' => $this->jenis_dokumen_id,
                 ])),

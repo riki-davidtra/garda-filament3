@@ -5,6 +5,7 @@ namespace App\Filament\Resources\DokumenResource\Pages;
 use App\Filament\Resources\DokumenResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use App\Models\JenisDokumen;
 
 class EditDokumen extends EditRecord
 {
@@ -25,8 +26,14 @@ class EditDokumen extends EditRecord
         // Custom navigasi breadcrumbs untuk halaman ini
         return [
             ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]) => 'Daftar Dokumen',
-            'Ubah',
+            'Detail',
         ];
+    }
+
+    public function getTitle(): string
+    {
+        $jenis = JenisDokumen::find($this->jenis_dokumen_id);
+        return $jenis ? 'Detail Dokumen ' . $jenis->nama : 'Detail Dokumen';
     }
 
     protected function getHeaderActions(): array

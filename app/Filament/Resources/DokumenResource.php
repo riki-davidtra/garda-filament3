@@ -24,6 +24,15 @@ class DokumenResource extends Resource
         return false;
     }
 
+    public static function getTitle(?string $page = null, $record = null): string
+    {
+        return match ($page) {
+            'create' => 'Unggah Dokumen',
+            'edit' => $record ? 'Ubah Dokumen: ' . $record->nama : 'Ubah Dokumen',
+            default => 'Dokumen',
+        };
+    }
+
     public static function form(Form $form): Form
     {
         $user = auth()->user();
@@ -58,12 +67,12 @@ class DokumenResource extends Resource
                     ->label('Nama Dokumen')
                     ->required()
                     ->string()
+                    ->helperText('Contoh: Jenis Dokumen - [Nama Bagian] - [Nama Subbagian]')
                     ->disabled(!$isSuperOrAdmin && !$isSubbagian),
-                Forms\Components\TextInput::make('tahun')
+                Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
-                    ->numeric()
-                    ->maxLength(4)
+                    ->options(fn() => array_combine(range(date('Y'), 2020), range(date('Y'), 2020)))
                     ->default(date('Y'))
                     ->disabled($isPerencana),
                 Forms\Components\Select::make('subkegiatan_id')
@@ -135,7 +144,7 @@ class DokumenResource extends Resource
                             ->storeFiles(false)
                             ->disk('local')
                             ->directory('temp')
-                            ->maxSize(10240)
+                            ->maxSize(20480)
                             ->acceptedFileTypes([
                                 'application/pdf',
                                 'application/msword',
@@ -144,12 +153,8 @@ class DokumenResource extends Resource
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                                 'application/vnd.ms-powerpoint',
                                 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                                'image/jpg',
-                                'image/jpeg',
-                                'image/png',
-                                'image/heic',
-                                'image/heif',
                             ])
+                            ->helperText('Maks. 20MB. Format: PDF, Word, Excel, PowerPoint.')
                     ])
                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data) {
                         if (!empty($data['file_temp']) && $data['file_temp'] instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
@@ -210,8 +215,13 @@ class DokumenResource extends Resource
                     ->label('Tahun')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('subkegiatan.nama')
+                    ->label('Subkegiatan')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('subbagian.nama')
                     ->label('Subbagian')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
@@ -302,8 +312,17 @@ class DokumenResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('unduh_file')
+                    ->label('Unduh File')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(function ($record) {
+                        $fileTerbaru = $record->fileDokumens()->latest()->first();
+                        return $fileTerbaru ? route('file-dokumen.unduh', $fileTerbaru->id) : '#';
+                    })
+                    ->openUrlInNewTab()
+                    ->visible(fn($record) => $record->fileDokumens()->exists()),
                 Tables\Actions\EditAction::make()
+                    ->label('Detail Dokumen')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),

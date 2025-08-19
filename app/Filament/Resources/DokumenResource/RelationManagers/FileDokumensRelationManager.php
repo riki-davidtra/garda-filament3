@@ -16,6 +16,7 @@ class FileDokumensRelationManager extends RelationManager
     protected static ?string $title = 'Daftar File Dokumen';
     protected static ?string $label = 'File Dokumen';
     protected static ?string $navigationIcon = 'heroicon-o-paper-clip';
+    protected static bool $canCreate = false;
 
     public function form(Form $form): Form
     {
@@ -27,7 +28,7 @@ class FileDokumensRelationManager extends RelationManager
                     ->storeFiles(false)
                     ->disk('local')
                     ->directory('temp')
-                    ->maxSize(10240)
+                    ->maxSize(20480)
                     ->columnSpanFull()
                     ->acceptedFileTypes([
                         'application/pdf',
@@ -43,6 +44,7 @@ class FileDokumensRelationManager extends RelationManager
                         'image/heic',
                         'image/heif',
                     ])
+                    ->helperText('Maks. 20MB. Format: PDF, Word, Excel, PowerPoint.')
                     ->extraAttributes(['class' => 'flex flex-col'])
                     ->afterStateHydrated(function ($component, $state, $record) {
                         if ($record && $record->id) {
@@ -171,10 +173,11 @@ class FileDokumensRelationManager extends RelationManager
                         $jenis   = $dokumen?->jenisDokumen;
                         return $dokumen && $jenis
                             && $dokumen->fileDokumens()->count() < $jenis->batas_unggah;
-                    }),
+                    })
+                    ->createAnother(false),
             ])
             ->actions([
-                Tables\Actions\Action::make('unduh')
+                Tables\Actions\Action::make('unduh_file')
                     ->label('Unduh File')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn($record) => route('file-dokumen.unduh', $record->id))

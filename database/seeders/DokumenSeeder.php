@@ -24,7 +24,7 @@ class DokumenSeeder extends Seeder
                         'jenis_dokumen_id' => $jenis->id,
                         'subbagian_id'     => $subbagian->id,
                         'subkegiatan_id'   => 1,
-                        'nama'             => 'Nama Dokumen ' . $jenis->nama . ' - ' . $subbagian->nama,
+                        'nama'             => 'Nama Dokumen ' . $jenis->nama,
                         'tahun'            => 2024,
                     ],
                     [
@@ -39,7 +39,7 @@ class DokumenSeeder extends Seeder
                         'jenis_dokumen_id' => $jenis->id,
                         'subbagian_id'     => $subbagian->id,
                         'subkegiatan_id'   => 1,
-                        'nama'             => 'Nama Dokumen ' . $jenis->nama . ' - ' . $subbagian->nama,
+                        'nama'             => 'Nama Dokumen ' . $jenis->nama,
                         'tahun'            => 2025,
                     ],
                     [

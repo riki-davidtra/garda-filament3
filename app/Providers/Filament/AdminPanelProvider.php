@@ -77,7 +77,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->sidebarFullyCollapsibleOnDesktop()
-            ->sidebarWidth('16rem')
+            ->sidebarWidth('18rem')
             // ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->resources([\App\Filament\Resources\RoleResource::class, \App\Filament\Resources\PermissionResource::class])
             ->plugins([
