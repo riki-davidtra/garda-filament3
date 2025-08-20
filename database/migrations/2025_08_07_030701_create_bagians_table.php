@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subbagians', function (Blueprint $table) {
+        Schema::create('bagians', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('bagian_id')->nullable()->constrained('bagians')->nullOnDelete();
             $table->string('nama');
             $table->timestamps();
         });
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subbagians');
+        Schema::dropIfExists('bagians');
     }
 };

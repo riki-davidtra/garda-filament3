@@ -20,6 +20,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->string('username')->unique();
             $table->foreignId('subbagian_id')->nullable()->constrained('subbagians', 'id')->nullOnDelete();
+            $table->string('nip')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

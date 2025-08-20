@@ -77,14 +77,29 @@ class UserResource extends Resource
                             ->minLength(6)
                             ->revealable()
                             ->dehydrated(fn($state) => !empty($state)),
+                        Forms\Components\TextInput::make('nip')
+                            ->label('NIP')
+                            ->nullable()
+                            ->numeric(),
                         Forms\Components\Select::make('subbagian_id')
                             ->label('Subbagian')
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->relationship('subbagian', 'nama', function ($query) {
-                                $query->orderBy('nama', 'asc');
-                            }),
+                            ->relationship(
+                                'subbagian',
+                                'nama',
+                                fn($query) => $query
+                                    ->with('bagian')
+                                    ->orderBy(
+                                        \App\Models\Bagian::select('nama')
+                                            ->whereColumn('bagians.id', 'subbagians.bagian_id')
+                                    )
+                                    ->orderBy('nama')
+                            )
+                            ->getOptionLabelFromRecordUsing(
+                                fn($record) => "{$record->nama} - {$record->bagian->nama}"
+                            ),
                         Forms\Components\Select::make('roles')
                             ->label('Peran')
                             ->nullable()
@@ -119,8 +134,16 @@ class UserResource extends Resource
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('nip')
+                    ->label('NIP')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('subbagian.nama')
                     ->label('Subbagian')
+                    ->formatStateUsing(
+                        fn($record) =>
+                        "{$record->subbagian?->nama} - {$record->subbagian?->bagian?->nama}"
+                    )
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('roles.name')

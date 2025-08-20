@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Subbagian;
+use App\Models\Bagian;
 
 class SubbagianSeeder extends Seeder
 {
@@ -12,21 +13,27 @@ class SubbagianSeeder extends Seeder
      */
     public function run(): void
     {
+        $bagians = Bagian::all();
+
         $data = [
-            ['nama' => 'Subbagian Tata Pemerintahan'],
-            ['nama' => 'Subbagian Otonomi Daerah'],
-            ['nama' => 'Subbagian Pemerintahan Umum'],
-            ['nama' => 'Subbagian Kerjasama Pemerintah Daerah'],
-            ['nama' => 'Subbagian Pertanahan dan Kewilayahan'],
+            ['nama' => 'Subbagian Tata Usaha'],
+            ['nama' => 'Subbagian Kepegawaian'],
+            ['nama' => 'Subbagian Akuntansi'],
         ];
 
-        foreach ($data as $item) {
-            Subbagian::updateOrCreate(
-                ['nama' => $item['nama']],
-                [
-                    'nama' => $item['nama'],
-                ]
-            );
+        foreach ($bagians as $bagian) {
+            foreach ($data as $item) {
+                Subbagian::updateOrCreate(
+                    [
+                        'bagian_id' => $bagian->id,
+                        'nama'      => $item['nama'],
+                    ],
+                    [
+                        'bagian_id' => $bagian->id,
+                        'nama'      => $item['nama'],
+                    ]
+                );
+            }
         }
     }
 }

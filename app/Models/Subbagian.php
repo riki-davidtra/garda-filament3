@@ -28,6 +28,11 @@ class Subbagian extends Model
         return 'uuid';
     }
 
+    public function bagian()
+    {
+        return $this->belongsTo(Bagian::class);
+    }
+
     public function users()
     {
         return $this->hasMany(User::class);
@@ -36,5 +41,10 @@ class Subbagian extends Model
     public function dokumens()
     {
         return $this->hasMany(Dokumen::class);
+    }
+
+    public function jenisDokumens()
+    {
+        return $this->hasMany(JenisDokumen::class);
     }
 }

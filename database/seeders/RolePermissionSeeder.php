@@ -29,7 +29,7 @@ class RolePermissionSeeder extends Seeder
         $perencanaPermissions = [
             'view-any Dokumen',
             'view Dokumen',
-            // 'create Dokumen',
+            'create Dokumen',
             'update Dokumen',
             // 'delete Dokumen',
             // 'delete-any Dokumen',

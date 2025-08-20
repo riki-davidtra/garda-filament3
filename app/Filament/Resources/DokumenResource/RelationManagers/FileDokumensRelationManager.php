@@ -9,14 +9,14 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\FileDokumen;
 
 class FileDokumensRelationManager extends RelationManager
 {
     protected static string $relationship = 'fileDokumens';
-    protected static ?string $title = 'Daftar File Dokumen';
-    protected static ?string $label = 'File Dokumen';
-    protected static ?string $navigationIcon = 'heroicon-o-paper-clip';
-    protected static bool $canCreate = false;
+    protected static ?string $title       = 'Daftar File Dokumen';
+    protected static ?string $label       = 'File Dokumen';
+    protected static bool $canCreate      = false;
 
     public function form(Form $form): Form
     {
@@ -106,42 +106,43 @@ class FileDokumensRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('pembaru.name')
-                    ->label('Diperbarui Oleh')
+                Tables\Columns\TextColumn::make('pembuat.name')
+                    ->label('Dibuat Oleh')
+                    ->placeholder('-')
+                    ->description(
+                        fn(FileDokumen $record): string =>
+                        'NIP: ' . ($record->pembuat?->nip ?? '-') . ($record->dibuat_pada ? ' | ' . $record->dibuat_pada : '')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('diperbarui_pada')
-                    ->label('Diperbarui Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                Tables\Columns\TextColumn::make('pembaru.name')
+                    ->label('Diperbarui Oleh')
+                    ->placeholder('-')
+                    ->description(
+                        fn(FileDokumen $record): string =>
+                        'NIP: ' . ($record->pembaru?->nip ?? '-') . ($record->diperbarui_pada ? ' | ' . $record->diperbarui_pada : '')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('penghapus.name')
                     ->label('Dihapus Oleh')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('dihapus_pada')
-                    ->label('Dihapus Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                    ->placeholder('-')
+                    ->description(
+                        fn(FileDokumen $record): string =>
+                        'NIP: ' . ($record->penghapus?->nip ?? '-') . ($record->dihapus_pada ? ' | ' . $record->dihapus_pada : '')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pemulih.name')
                     ->label('Dipulihkan Oleh')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('dipulihkan_pada')
-                    ->label('Dipulihkan Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                    ->placeholder('-')
+                    ->description(
+                        fn(FileDokumen $record): string =>
+                        'NIP: ' . ($record->pemulih?->nip ?? '-') . ($record->dipulihkan_pada ? ' | ' . $record->dipulihkan_pada : '')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
@@ -161,7 +162,7 @@ class FileDokumensRelationManager extends RelationManager
 
                 return $current < $batas
                     ? "Anda sudah menggunakan {$current} dari {$batas} kesempatan unggah file."
-                    : "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
+                    :      "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
             })
             ->headerActions([
                 Tables\Actions\CreateAction::make()
@@ -203,16 +204,20 @@ class FileDokumensRelationManager extends RelationManager
         if (!empty($data['file_temp']) && $data['file_temp'] instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
             $file = $data['file_temp'];
 
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension = $file->getClientOriginalExtension();
+            $owner       = $this->getOwnerRecord();
+            $namaDokumen = $owner?->nama ?? 'dokumen';
+            $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
             $uniqueCode = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
-            $path = 'file-dokumen/' . $originalName . '-' . $uniqueCode . '.' . $extension;
+            $safeName    = \Illuminate\Support\Str::slug($namaDokumen) . "-v{$versi}" . "-{$uniqueCode}";
+            $extension   = $file->getClientOriginalExtension();
+            $path        = "file-dokumen/{$safeName}.{$extension}";
 
-            $encryptedContent = encrypt(file_get_contents($file->getRealPath()));
+            \Illuminate\Support\Facades\Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
 
-            \Illuminate\Support\Facades\Storage::disk('local')->put($path, $encryptedContent);
-
-            $data['path'] = $path;
+            $data['path']   = $path;
+            $data['nama']   = $safeName . '.' . $extension;
+            $data['tipe']   = $file->getMimeType();
+            $data['ukuran'] = $file->getSize();
 
             @unlink($file->getRealPath());
         }

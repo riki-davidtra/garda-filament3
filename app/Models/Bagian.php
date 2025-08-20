@@ -7,16 +7,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class JenisDokumen extends Model
+class Bagian extends Model
 {
     use HasFactory, HasUuids;
 
     protected $guarded = [];
-
-    protected $casts = [
-        'waktu_unggah_mulai'   => 'datetime',
-        'waktu_unggah_selesai' => 'datetime',
-    ];
 
     public function uniqueIds(): array
     {
@@ -33,13 +28,13 @@ class JenisDokumen extends Model
         return 'uuid';
     }
 
-    public function dokumens()
+    public function users()
     {
-        return $this->hasMany(Dokumen::class);
+        return $this->hasMany(User::class);
     }
 
-    public function subbagian()
+    public function subbagians()
     {
-        return $this->belongsTo(Subbagian::class);
+        return $this->hasMany(Subbagian::class);
     }
 }

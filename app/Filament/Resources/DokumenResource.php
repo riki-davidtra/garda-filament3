@@ -13,7 +13,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
-use App\Models\FileDokumen;
 
 class DokumenResource extends Resource
 {
@@ -22,15 +21,6 @@ class DokumenResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         return false;
-    }
-
-    public static function getTitle(?string $page = null, $record = null): string
-    {
-        return match ($page) {
-            'create' => 'Unggah Dokumen',
-            'edit' => $record ? 'Ubah Dokumen: ' . $record->nama : 'Ubah Dokumen',
-            default => 'Dokumen',
-        };
     }
 
     public static function form(Form $form): Form
@@ -58,23 +48,32 @@ class DokumenResource extends Resource
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->relationship('subbagian', 'nama', function ($query) {
-                        $query->orderBy('nama', 'asc');
-                    })
-                    ->hiddenOn('create')
+                    ->relationship(
+                        'subbagian',
+                        'nama',
+                        fn($query) => $query
+                            ->with('bagian')
+                            ->orderBy(
+                                \App\Models\Bagian::select('nama')
+                                    ->whereColumn('bagians.id', 'subbagians.bagian_id')
+                            )
+                            ->orderBy('nama')
+                    )
+                    ->getOptionLabelFromRecordUsing(
+                        fn($record) => "{$record->nama} - {$record->bagian->nama}"
+                    )
+                    ->hidden(fn() => $form->getOperation() === 'create')
                     ->disabled(!$isSuperOrAdmin),
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama Dokumen')
                     ->required()
                     ->string()
-                    ->helperText('Contoh: Jenis Dokumen - [Nama Bagian] - [Nama Subbagian]')
-                    ->disabled(!$isSuperOrAdmin && !$isSubbagian),
+                    ->helperText('Contoh: [Jenis Dokumen] - [Nama Bagian] - [Nama Subbagian]'),
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
                     ->options(fn() => array_combine(range(date('Y'), 2020), range(date('Y'), 2020)))
-                    ->default(date('Y'))
-                    ->disabled($isPerencana),
+                    ->default(date('Y')),
                 Forms\Components\Select::make('subkegiatan_id')
                     ->label('Subkegiatan')
                     ->required()
@@ -82,25 +81,12 @@ class DokumenResource extends Resource
                     ->preload()
                     ->relationship('subkegiatan', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
-                    })
-                    ->disabled(!$isSuperOrAdmin && !$isSubbagian),
-                Forms\Components\RichEditor::make('keterangan')
+                    }),
+                Forms\Components\Textarea::make('keterangan')
                     ->label('Keterangan')
                     ->nullable()
                     ->maxLength(3000)
-                    ->toolbarButtons([
-                        'bold',
-                        'italic',
-                        'underline',
-                        'strike',
-                        'link',
-                        'bulletList',
-                        'orderedList',
-                        'undo',
-                        'redo',
-                    ])
-                    ->columnSpanFull()
-                    ->disabled(!$isSuperOrAdmin && !$isSubbagian),
+                    ->columnSpanFull(),
                 Forms\Components\Radio::make('status')
                     ->label('Status')
                     ->required()
@@ -119,17 +105,6 @@ class DokumenResource extends Resource
                     ->label('Komentar')
                     ->nullable()
                     ->maxLength(3000)
-                    ->toolbarButtons([
-                        'bold',
-                        'italic',
-                        'underline',
-                        'strike',
-                        'link',
-                        'bulletList',
-                        'orderedList',
-                        'undo',
-                        'redo',
-                    ])
                     ->columnSpanFull()
                     ->hiddenOn('create')
                     ->disabled(!$isSuperOrAdmin && !$isPerencana),
@@ -156,22 +131,23 @@ class DokumenResource extends Resource
                             ])
                             ->helperText('Maks. 20MB. Format: PDF, Word, Excel, PowerPoint.')
                     ])
-                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data) {
+                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $record, $livewire) {
                         if (!empty($data['file_temp']) && $data['file_temp'] instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
                             $file = $data['file_temp'];
 
-                            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                            $extension = $file->getClientOriginalExtension();
+                            $owner       = $record ?? $livewire->getMountedActionRecord();
+                            $namaDokumen = $owner?->nama ?? 'dokumen';
+                            $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
                             $uniqueCode = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
-                            $path = 'file-dokumen/' . $originalName . '-' . $uniqueCode . '.' . $extension;
+                            $safeName    = \Illuminate\Support\Str::slug($namaDokumen) . "-v{$versi}" . "-{$uniqueCode}";
+                            $extension   = $file->getClientOriginalExtension();
+                            $path        = "file-dokumen/{$safeName}.{$extension}";
 
-                            $encryptedContent = encrypt(file_get_contents($file->getRealPath()));
+                            \Illuminate\Support\Facades\Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
 
-                            \Illuminate\Support\Facades\Storage::disk('local')->put($path, $encryptedContent);
-
-                            $data['path'] = $path;
-                            $data['nama'] = $file->getClientOriginalName();
-                            $data['tipe'] = $file->getMimeType();
+                            $data['path']   = $path;
+                            $data['nama']   = $safeName . '.' . $extension;
+                            $data['tipe']   = $file->getMimeType();
                             $data['ukuran'] = $file->getSize();
 
                             @unlink($file->getRealPath());
@@ -195,7 +171,7 @@ class DokumenResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query, $livewire) {
                 $jenisDokumenId = $livewire->jenis_dokumen_id ?? null;
-                $user = Auth::user();
+                $user           = Auth::user();
 
                 if ($jenisDokumenId) {
                     $query->where('jenis_dokumen_id', $jenisDokumenId);
@@ -223,6 +199,10 @@ class DokumenResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('subbagian.nama')
                     ->label('Subbagian')
+                    ->formatStateUsing(
+                        fn($record) =>
+                        "{$record->subbagian?->nama} - {$record->subbagian?->bagian?->nama}"
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
@@ -235,58 +215,46 @@ class DokumenResource extends Resource
                         'Revisi Menunggu Persetujuan' => 'warning',
                         'Revisi Diterima'             => 'success',
                         'Revisi Ditolak'              => 'danger',
-                        default     => 'secondary',
+                        default                       => 'secondary',
                     })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dibuat Oleh')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('dibuat_pada')
-                    ->label('Dibuat Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                    ->placeholder('-')
+                    ->description(
+                        fn(Dokumen $record): string =>
+                        'NIP: ' . ($record->pembuat?->nip ?? '-') . ($record->dibuat_pada ? ' | ' . $record->dibuat_pada : '')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Diperbarui Oleh')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('diperbarui_pada')
-                    ->label('Diperbarui Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                    ->placeholder('-')
+                    ->description(
+                        fn(Dokumen $record): string =>
+                        'NIP: ' . ($record->pembaru?->nip ?? '-') . ($record->diperbarui_pada ? ' | ' . $record->diperbarui_pada : '')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('penghapus.name')
                     ->label('Dihapus Oleh')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('dihapus_pada')
-                    ->label('Dihapus Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                    ->placeholder('-')
+                    ->description(
+                        fn(Dokumen $record): string =>
+                        'NIP: ' . ($record->penghapus?->nip ?? '-') . ($record->dihapus_pada ? ' | ' . $record->dihapus_pada : '')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pemulih.name')
                     ->label('Dipulihkan Oleh')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('dipulihkan_pada')
-                    ->label('Dipulihkan Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                    ->placeholder('-')
+                    ->description(
+                        fn(Dokumen $record): string =>
+                        'NIP: ' . ($record->pemulih?->nip ?? '-') . ($record->dipulihkan_pada ? ' | ' . $record->dipulihkan_pada : '')
+                    )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),

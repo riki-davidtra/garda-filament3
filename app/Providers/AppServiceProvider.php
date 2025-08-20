@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\User::observe(\App\Observers\UserObserver::class);
         \App\Models\Setting::observe(\App\Observers\SettingObserver::class);
         \App\Models\SettingItem::observe(\App\Observers\SettingItemObserver::class);
+        \App\Models\Bagian::observe(\App\Observers\BagianObserver::class);
         \App\Models\Dokumen::observe(\App\Observers\DokumenObserver::class);
         \App\Models\FileDokumen::observe(\App\Observers\FileDokumenObserver::class);
         \App\Models\Panduan::observe(\App\Observers\PanduanObserver::class);

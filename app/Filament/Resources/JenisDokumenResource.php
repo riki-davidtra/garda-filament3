@@ -43,6 +43,25 @@ class JenisDokumenResource extends Resource
                     ->label('Batas Unggah')
                     ->nullable()
                     ->numeric(),
+                Forms\Components\Select::make('subbagian_id')
+                    ->label('Subbagian')
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->relationship(
+                        'subbagian',
+                        'nama',
+                        fn($query) => $query
+                            ->with('bagian')
+                            ->orderBy(
+                                \App\Models\Bagian::select('nama')
+                                    ->whereColumn('bagians.id', 'subbagians.bagian_id')
+                            )
+                            ->orderBy('nama')
+                    )
+                    ->getOptionLabelFromRecordUsing(
+                        fn($record) => "{$record->nama} - {$record->bagian->nama}"
+                    ),
             ]);
     }
 
@@ -72,6 +91,14 @@ class JenisDokumenResource extends Resource
                 Tables\Columns\TextColumn::make('batas_unggah')
                     ->label('Batas Unggah')
                     ->badge()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('subbagian.nama')
+                    ->label('Subbagian')
+                    ->formatStateUsing(
+                        fn($record) =>
+                        "{$record->subbagian?->nama} - {$record->subbagian?->bagian?->nama}"
+                    )
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

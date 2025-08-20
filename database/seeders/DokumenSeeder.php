@@ -25,21 +25,6 @@ class DokumenSeeder extends Seeder
                         'subbagian_id'     => $subbagian->id,
                         'subkegiatan_id'   => 1,
                         'nama'             => 'Nama Dokumen ' . $jenis->nama,
-                        'tahun'            => 2024,
-                    ],
-                    [
-                        'keterangan' => 'Dokumen tahun 2024 untuk jenis ' . $jenis->nama . ' di subbagian ' . $subbagian->nama,
-                        'status'     => 'Menunggu Persetujuan',
-                        'komentar'   => '',
-                    ]
-                );
-
-                Dokumen::updateOrCreate(
-                    [
-                        'jenis_dokumen_id' => $jenis->id,
-                        'subbagian_id'     => $subbagian->id,
-                        'subkegiatan_id'   => 1,
-                        'nama'             => 'Nama Dokumen ' . $jenis->nama,
                         'tahun'            => 2025,
                     ],
                     [

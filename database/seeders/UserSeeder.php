@@ -31,6 +31,7 @@ class UserSeeder extends Seeder
                     'email'        => $item['username'] . '@email.com',
                     'password'     => bcrypt('password'),
                     'subbagian_id' => $item['subbagian_id'],
+                    'nip'          => str_pad((string)rand(0, 999999999999999999), 18, '0', STR_PAD_LEFT),
                 ]
             );
         }
