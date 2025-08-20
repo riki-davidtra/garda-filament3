@@ -43,6 +43,12 @@ class JenisDokumenResource extends Resource
                     ->label('Batas Unggah')
                     ->nullable()
                     ->numeric(),
+                Forms\Components\MultiSelect::make('roles')
+                    ->label('Akses Peran')
+                    ->nullable()
+                    ->relationship('roles', 'name')
+                    ->preload()
+                    ->searchable(),
             ]);
     }
 
@@ -71,6 +77,11 @@ class JenisDokumenResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('batas_unggah')
                     ->label('Batas Unggah')
+                    ->badge()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Akses Peran')
                     ->badge()
                     ->searchable()
                     ->sortable(),

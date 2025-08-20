@@ -29,16 +29,18 @@ class CreateDokumen extends CreateRecord
             abort(404, 'Jenis dokumen tidak ditemukan.');
         }
 
-        $user     = Auth::user();
         $sekarang = now();
-        $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('Admin');
 
-        if (!$isAdmin && $sekarang->lt($jenis->waktu_unggah_mulai)) {
+        if ($jenis->waktu_unggah_mulai?->gt($sekarang)) {
             abort(403, 'Belum masuk waktu unggah untuk dokumen ini.');
         }
 
-        if (!$isAdmin && $sekarang->gt($jenis->waktu_unggah_selesai)) {
+        if ($jenis->waktu_unggah_selesai?->lt($sekarang)) {
             abort(403, 'Waktu unggah dokumen ini sudah berakhir.');
+        }
+
+        if (!$jenis->waktu_unggah_mulai || !$jenis->waktu_unggah_selesai) {
+            abort(403, 'Waktu unggah untuk dokumen ini belum ditentukan.');
         }
     }
 

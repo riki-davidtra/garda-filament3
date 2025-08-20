@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use App\Models\JenisDokumen;
 
 class DokumenResource extends Resource
 {
@@ -23,13 +24,25 @@ class DokumenResource extends Resource
         return false;
     }
 
+    public static function canAccess(): bool
+    {
+        $user = Auth::user();
+        $jenisDokumenId = request()->query('jenis_dokumen_id');
+
+        return $user
+            && $user->roles->isNotEmpty()
+            && $jenisDokumenId
+            && JenisDokumen::where('id', $jenisDokumenId)
+            ->whereHas('roles', fn($query) => $query->whereIn('roles.id', $user->roles->pluck('id')))
+            ->exists();
+    }
+
     public static function form(Form $form): Form
     {
         $user = auth()->user();
 
         $isSuperOrAdmin = $user->hasRole(['Super Admin', 'admin']);
         $isPerencana    = $user->hasRole('perencana');
-        $isSubbagian    = $user->hasRole('subbagian');
 
         return $form
             ->schema([

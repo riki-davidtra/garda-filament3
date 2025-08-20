@@ -37,4 +37,9 @@ class JenisDokumen extends Model
     {
         return $this->hasMany(Dokumen::class);
     }
+
+    public function roles()
+    {
+        return $this->belongsToMany(\Spatie\Permission\Models\Role::class, 'jenis_dokumen_roles');
+    }
 }

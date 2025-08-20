@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Navigation\NavigationItem;
 use App\Models\JenisDokumen;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 
 class FilamentServiceProvider extends ServiceProvider
 {
@@ -24,10 +25,13 @@ class FilamentServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Filament::registerNavigationItems($this->getNavigationItems());
+        Filament::serving(function () {
+            $user = Auth::user();
+            Filament::registerNavigationItems($this->getNavigationItems($user));
+        });
     }
 
-    protected function getNavigationItems(): array
+    protected function getNavigationItems($user): array
     {
         $items = [];
 
@@ -46,7 +50,15 @@ class FilamentServiceProvider extends ServiceProvider
                 ])
             );
 
-        foreach (JenisDokumen::all() as $jenis) {
+        if (!$user) {
+            return [];
+        }
+
+        $jenisDokumens = JenisDokumen::whereHas('roles', function ($query) use ($user) {
+            $query->whereIn('roles.id', $user->roles->pluck('id'));
+        })->get();
+
+        foreach ($jenisDokumens as $jenis) {
             $count = \App\Models\Dokumen::where('jenis_dokumen_id', $jenis->id)
                 ->whereIn('status', ['Menunggu Persetujuan', 'Revisi Menunggu Persetujuan'])
                 ->count();
