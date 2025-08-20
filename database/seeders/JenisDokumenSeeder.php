@@ -20,7 +20,6 @@ class JenisDokumenSeeder extends Seeder
                 'waktu_unggah_mulai'   => now()->subDays(2),   // Mulai 2 hari lalu
                 'waktu_unggah_selesai' => now()->addDays(5),   // Selesai 5 hari lagi
                 'batas_unggah'         => 2,
-                'subbagian_id'         => 3,
             ],
             // Belum mulai
             [
@@ -28,7 +27,6 @@ class JenisDokumenSeeder extends Seeder
                 'waktu_unggah_mulai'   => now()->addDays(3),    // Mulai 3 hari lagi
                 'waktu_unggah_selesai' => now()->addDays(10),
                 'batas_unggah'         => 2,
-                'subbagian_id'         => 3,
             ],
             // Sudah berakhir
             [
@@ -36,7 +34,6 @@ class JenisDokumenSeeder extends Seeder
                 'waktu_unggah_mulai'   => now()->subDays(10),
                 'waktu_unggah_selesai' => now()->subDays(2),    // Selesai 2 hari lalu
                 'batas_unggah'         => 2,
-                'subbagian_id'         => 4,
             ],
             // Sedang berlangsung
             [
@@ -44,7 +41,6 @@ class JenisDokumenSeeder extends Seeder
                 'waktu_unggah_mulai'   => now()->subDay(),
                 'waktu_unggah_selesai' => now()->addDays(7),
                 'batas_unggah'         => 2,
-                'subbagian_id'         => 4,
             ],
             // null
             [
@@ -52,7 +48,6 @@ class JenisDokumenSeeder extends Seeder
                 'waktu_unggah_mulai'   => null,
                 'waktu_unggah_selesai' => null,
                 'batas_unggah'         => 2,
-                'subbagian_id'         => 4,
             ],
             // Sudah berakhir
             [
@@ -60,7 +55,6 @@ class JenisDokumenSeeder extends Seeder
                 'waktu_unggah_mulai'   => null,
                 'waktu_unggah_selesai' => null,
                 'batas_unggah'         => 2,
-                'subbagian_id'         => 4,
             ],
         ];
 

@@ -18,7 +18,6 @@ return new class extends Migration
             $table->dateTime('waktu_unggah_mulai')->nullable();
             $table->dateTime('waktu_unggah_selesai')->nullable();
             $table->integer('batas_unggah')->default(0);
-            $table->foreignId('subbagian_id')->nullable()->constrained('subbagians', 'id')->nullOnDelete();
             $table->timestamps();
         });
     }

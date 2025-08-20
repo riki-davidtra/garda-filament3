@@ -37,9 +37,4 @@ class JenisDokumen extends Model
     {
         return $this->hasMany(Dokumen::class);
     }
-
-    public function subbagian()
-    {
-        return $this->belongsTo(Subbagian::class);
-    }
 }
