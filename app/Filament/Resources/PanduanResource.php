@@ -55,6 +55,7 @@ class PanduanResource extends Resource
                     ->nullable()
                     ->disk('public')
                     ->directory('panduan')
+                    ->maxSize(102400)
                     ->acceptedFileTypes([
                         // Images
                         'image/jpeg',
@@ -74,8 +75,7 @@ class PanduanResource extends Resource
                         'application/vnd.ms-excel',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     ])
-                    ->previewable(true)
-                    ->maxSize(102400)
+                    ->helperText('Maks. 100 MB. Format: JPEG, PNG, GIF, WebP, MP4, WebM, OGG, PDF, Word, Excel.')
                     ->columnSpanFull(),
             ]);
     }

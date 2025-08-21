@@ -30,7 +30,6 @@ class FileDokumensRelationManager extends RelationManager
                     ->disk('local')
                     ->directory('temp')
                     ->maxSize(20480)
-                    ->columnSpanFull()
                     ->acceptedFileTypes([
                         'application/pdf',
                         'application/msword',
@@ -46,6 +45,7 @@ class FileDokumensRelationManager extends RelationManager
                         'image/heif',
                     ])
                     ->helperText('Maks. 20MB. Format: PDF, Word, Excel, PowerPoint.')
+                    ->columnSpanFull()
                     ->extraAttributes(['class' => 'flex flex-col'])
                     ->afterStateHydrated(function ($component, $state, $record) {
                         if ($record && $record->id) {
