@@ -89,17 +89,12 @@ class UserResource extends Resource
                             ->relationship(
                                 'subbagian',
                                 'nama',
-                                fn($query) => $query
-                                    ->with('bagian')
+                                fn($query) => $query->with('bagian')
                                     ->orderBy(
-                                        \App\Models\Bagian::select('nama')
-                                            ->whereColumn('bagians.id', 'subbagians.bagian_id')
-                                    )
-                                    ->orderBy('nama')
+                                        \App\Models\Bagian::select('nama')->whereColumn('bagians.id', 'subbagians.bagian_id')
+                                    )->orderBy('nama')
                             )
-                            ->getOptionLabelFromRecordUsing(
-                                fn($record) => "{$record->nama} - {$record->bagian->nama}"
-                            ),
+                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->bagian->nama} - {$record->nama}"),
                         Forms\Components\Select::make('roles')
                             ->label('Peran')
                             ->nullable()
@@ -142,7 +137,7 @@ class UserResource extends Resource
                     ->label('Subbagian')
                     ->formatStateUsing(
                         fn($record) =>
-                        "{$record->subbagian?->nama} - {$record->subbagian?->bagian?->nama}"
+                        "{$record->subbagian?->bagian?->nama} - {$record->subbagian?->nama}"
                     )
                     ->searchable()
                     ->sortable(),

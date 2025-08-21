@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Unique;
 
 class IndeksKinerjaUtamaResource extends Resource
 {
@@ -20,9 +21,9 @@ class IndeksKinerjaUtamaResource extends Resource
 
     protected static ?string $navigationIcon   = 'heroicon-o-document-text';
     protected static ?string $navigationGroup  = 'Formulir';
-    protected static ?string $navigationLabel  = 'IKU';
+    protected static ?string $navigationLabel  = 'Indeks KInerja Utama (IKU)';
     protected static ?string $pluralModelLabel = 'Daftar Indeks KInerja Utama (IKU)';
-    protected static ?string $modelLabel       = 'IKU';
+    protected static ?string $modelLabel       = 'Indeks KInerja Utama (IKU)';
     protected static ?int $navigationSort      = 41;
 
     public static function form(Form $form): Form
@@ -36,7 +37,21 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->preload()
                     ->relationship('indikator', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
-                    }),
+                    })
+                    ->unique(
+                        ignoreRecord: true,
+                        modifyRuleUsing: function (Unique $rule, callable $get) {
+                            return $rule
+                                ->where('periode', $get('periode'))
+                                ->where('dibuat_oleh', Auth::id())
+                                ->where(function ($query) {
+                                    $query->whereYear('dibuat_pada', now()->year);
+                                });
+                        }
+                    )
+                    ->validationMessages([
+                        'unique' => 'Indikator dan Periode untuk tahun ini sudah ada!',
+                    ]),
                 Forms\Components\Select::make('periode')
                     ->label('Periode')
                     ->required()
@@ -80,6 +95,13 @@ class IndeksKinerjaUtamaResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query, $livewire) {
+                $user           = Auth::user();
+                if (!$user->hasRole(['Super Admin', 'admin'])) {
+                    $query->where('dibuat_oleh', $user->id);
+                }
+                return $query;
+            })
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('indikator.nama')
@@ -91,7 +113,7 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->label('Periode')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('revisi_ke')
+                Tables\Columns\TextColumn::make('perubahan_ke')
                     ->label('Perubahan ke')
                     ->alignCenter()
                     ->searchable()
@@ -103,13 +125,14 @@ class IndeksKinerjaUtamaResource extends Resource
                         $bagian    = $user?->subbagian?->bagian?->nama;
                         $subbagian = $user?->subbagian?->nama;
                         $tanggal   = $record->dibuat_pada;
-                        $parts = [
-                            $user?->nip ? 'NIP: ' . $user?->nip : null,
-                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal ? $tanggal : null,
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal                                        : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pembaru.name')
@@ -119,13 +142,14 @@ class IndeksKinerjaUtamaResource extends Resource
                         $bagian    = $user?->subbagian?->bagian?->nama;
                         $subbagian = $user?->subbagian?->nama;
                         $tanggal   = $record->diperbarui_pada;
-                        $parts = [
-                            $user?->nip ? 'NIP: ' . $user?->nip : null,
-                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal ? $tanggal : null,
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal                                        : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('penghapus.name')
@@ -135,10 +159,10 @@ class IndeksKinerjaUtamaResource extends Resource
                         $bagian    = $user?->subbagian?->bagian?->nama;
                         $subbagian = $user?->subbagian?->nama;
                         $tanggal   = $record->dihapus_pada;
-                        $parts = [
-                            $user?->nip ? 'NIP: ' . $user?->nip : null,
-                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal ? $tanggal : null,
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal                                        : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -152,10 +176,10 @@ class IndeksKinerjaUtamaResource extends Resource
                         $bagian    = $user?->subbagian?->bagian?->nama;
                         $subbagian = $user?->subbagian?->nama;
                         $tanggal   = $record->dipulihkan_pada;
-                        $parts = [
-                            $user?->nip ? 'NIP: ' . $user?->nip : null,
-                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal ? $tanggal : null,
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal                                        : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -164,9 +188,27 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Tables\Actions\Action::make('unduh')
+                    ->label('Unduh')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(function ($record) {
+                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.iku', [
+                            'record' => $record,
+                        ])->setPaper('a4', 'landscape');
+
+                        $indikator = \Illuminate\Support\Str::slug($record->indikator?->nama ?? 'tanpa-indikator');
+                        $periode   = \Illuminate\Support\Str::slug($record->periode ?? 'tanpa-periode');
+                        $tahun     = $record->dibuat_pada?->format('Y') ?? date('Y');
+                        $fileName  = "iku-{$indikator}-{$periode}-{$tahun}.pdf";
+
+                        return response()->streamDownload(
+                            fn() => print($pdf->output()),
+                            $fileName
+                        );
+                    }),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\RestoreAction::make(),

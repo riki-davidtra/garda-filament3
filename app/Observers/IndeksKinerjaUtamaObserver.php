@@ -10,7 +10,7 @@ class IndeksKinerjaUtamaObserver
     public function updating(IndeksKinerjaUtama $indeksKinerjaUtama): void
     {
         if ($indeksKinerjaUtama->isDirty()) {
-            $indeksKinerjaUtama->revisi_ke = ($indeksKinerjaUtama->revisi_ke ?? 1) + 1;
+            $indeksKinerjaUtama->perubahan_ke = ($indeksKinerjaUtama->perubahan_ke ?? 1) + 1;
         }
     }
 
@@ -22,7 +22,7 @@ class IndeksKinerjaUtamaObserver
                 'user_id'     => $user->id,
                 'aksi'        => 'buat',
                 'jenis_data'  => 'Indeks Kinerja Utama',
-                'deskripsi'   => "User membuat formulir IKU: {$indeksKinerjaUtama->indikator->nama} - {$indeksKinerjaUtama->periode}",
+                'deskripsi'   => "User membuat data: {$indeksKinerjaUtama->indikator->nama} - {$indeksKinerjaUtama->periode}",
                 'detail_data' => json_encode($indeksKinerjaUtama->getAttributes(), JSON_PRETTY_PRINT),
                 'ip'          => request()->ip(),
                 'subjek_type' => IndeksKinerjaUtama::class,
@@ -44,7 +44,7 @@ class IndeksKinerjaUtamaObserver
                 'user_id'     => $user->id,
                 'aksi'        => 'ubah',
                 'jenis_data'  => 'Indeks Kinerja Utama',
-                'deskripsi'   => "User memperbarui formulir IKU: {$indeksKinerjaUtama->indikator->nama} - {$indeksKinerjaUtama->periode}",
+                'deskripsi'   => "User memperbarui data: {$indeksKinerjaUtama->indikator->nama} - {$indeksKinerjaUtama->periode}",
                 'detail_data' => json_encode($changes, JSON_PRETTY_PRINT),
                 'ip'          => request()->ip(),
                 'subjek_type' => IndeksKinerjaUtama::class,
@@ -63,7 +63,7 @@ class IndeksKinerjaUtamaObserver
                 'user_id'     => $user->id,
                 'aksi'        => $aksi,
                 'jenis_data'  => 'Indeks Kinerja Utama',
-                'deskripsi'   => "User menghapus permanen formulir IKU: {$indeksKinerjaUtama->indikator->nama} - {$indeksKinerjaUtama->periode}",
+                'deskripsi'   => "User meng{$aksi} data: {$indeksKinerjaUtama->indikator->nama} - {$indeksKinerjaUtama->periode}",
                 'detail_data' => json_encode($indeksKinerjaUtama->getAttributes(), JSON_PRETTY_PRINT),
                 'ip'          => request()->ip(),
                 'subjek_type' => IndeksKinerjaUtama::class,
@@ -80,7 +80,7 @@ class IndeksKinerjaUtamaObserver
                 'user_id'     => $user->id,
                 'aksi'        => 'pulihkan',
                 'jenis_data'  => 'Indeks Kinerja Utama',
-                'deskripsi'   => "User memulihkan formulir IKU: {$indeksKinerjaUtama->indikator->nama} - {$indeksKinerjaUtama->periode}",
+                'deskripsi'   => "User memulihkan data: {$indeksKinerjaUtama->indikator->nama} - {$indeksKinerjaUtama->periode}",
                 'detail_data' => json_encode($indeksKinerjaUtama->getAttributes(), JSON_PRETTY_PRINT),
                 'ip'          => request()->ip(),
                 'subjek_type' => IndeksKinerjaUtama::class,

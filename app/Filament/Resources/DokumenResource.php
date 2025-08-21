@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Models\JenisDokumen;
 
 class DokumenResource extends Resource
@@ -64,23 +65,19 @@ class DokumenResource extends Resource
                     ->relationship(
                         'subbagian',
                         'nama',
-                        fn($query) => $query
-                            ->with('bagian')
+                        fn($query) => $query->with('bagian')
                             ->orderBy(
-                                \App\Models\Bagian::select('nama')
-                                    ->whereColumn('bagians.id', 'subbagians.bagian_id')
-                            )
-                            ->orderBy('nama')
+                                \App\Models\Bagian::select('nama')->whereColumn('bagians.id', 'subbagians.bagian_id')
+                            )->orderBy('nama')
                     )
-                    ->getOptionLabelFromRecordUsing(
-                        fn($record) => "{$record->nama} - {$record->bagian->nama}"
-                    )
+                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->bagian->nama} - {$record->nama}")
                     ->hidden(fn() => $form->getOperation() === 'create')
                     ->disabled(!$isSuperOrAdmin),
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama Dokumen')
                     ->required()
                     ->string()
+                    ->maxLength(255)
                     ->helperText('Contoh: [Jenis Dokumen] - [Nama Bagian] - [Nama Subbagian]'),
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
@@ -183,17 +180,14 @@ class DokumenResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query, $livewire) {
-                $jenisDokumenId = $livewire->jenis_dokumen_id ?? null;
                 $user           = Auth::user();
-
+                $jenisDokumenId = $livewire->jenis_dokumen_id ?? null;
                 if ($jenisDokumenId) {
                     $query->where('jenis_dokumen_id', $jenisDokumenId);
                 }
-
                 if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
                     $query->where('subbagian_id', $user->subbagian_id);
                 }
-
                 return $query;
             })
             ->defaultSort('created_at', 'desc')
@@ -214,7 +208,7 @@ class DokumenResource extends Resource
                     ->label('Subbagian')
                     ->formatStateUsing(
                         fn($record) =>
-                        "{$record->subbagian?->nama} - {$record->subbagian?->bagian?->nama}"
+                        "{$record->subbagian?->bagian?->nama} - {$record->subbagian?->nama}"
                     )
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
@@ -330,8 +324,13 @@ class DokumenResource extends Resource
                         $fileTerbaru = $record->fileDokumens()->latest()->first();
                         return $fileTerbaru ? route('file-dokumen.unduh', $fileTerbaru->id) : '#';
                     })
-                    ->openUrlInNewTab()
-                    ->visible(fn($record) => $record->fileDokumens()->exists()),
+                    ->visible(function ($record) {
+                        $fileTerbaru = $record->fileDokumens()->latest()->first();
+                        return $fileTerbaru
+                            && $fileTerbaru->path
+                            && Storage::disk('local')->exists($fileTerbaru->path);
+                    })
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make()
                     ->label('Detail Dokumen')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [

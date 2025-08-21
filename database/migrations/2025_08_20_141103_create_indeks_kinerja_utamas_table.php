@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('nilai_bulan_1')->nullable();
             $table->unsignedSmallInteger('nilai_bulan_2')->nullable();
             $table->unsignedSmallInteger('nilai_bulan_3')->nullable();
-            $table->unsignedInteger('revisi_ke')->default(1);
+            $table->unsignedInteger('perubahan_ke')->default(1);
             $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dibuat_pada')->nullable();
             $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();

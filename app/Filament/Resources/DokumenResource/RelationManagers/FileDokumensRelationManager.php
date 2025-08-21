@@ -9,6 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
 use App\Models\FileDokumen;
 
 class FileDokumensRelationManager extends RelationManager
@@ -52,7 +53,14 @@ class FileDokumensRelationManager extends RelationManager
                                 \Filament\Forms\Components\Actions\Action::make('unduh')
                                     ->label('Unduh File')
                                     ->icon('heroicon-o-arrow-down-tray')
-                                    ->url(route('file-dokumen.unduh', $record->id))
+                                    ->url(function ($record) {
+                                        $path = $record->path;
+                                        return $path ? route('file-dokumen.unduh', $record->id) : '#';
+                                    })
+                                    ->visible(function ($record) {
+                                        $path = $record->path;
+                                        return $path && Storage::disk('local')->exists($path);
+                                    })
                                     ->openUrlInNewTab()
                             );
                         }
@@ -181,7 +189,14 @@ class FileDokumensRelationManager extends RelationManager
                 Tables\Actions\Action::make('unduh_file')
                     ->label('Unduh File')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn($record) => route('file-dokumen.unduh', $record->id))
+                    ->url(function ($record) {
+                        $path = $record->path;
+                        return $path ? route('file-dokumen.unduh', $record->id) : '#';
+                    })
+                    ->visible(function ($record) {
+                        $path = $record->path;
+                        return $path && Storage::disk('local')->exists($path);
+                    })
                     ->openUrlInNewTab(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()

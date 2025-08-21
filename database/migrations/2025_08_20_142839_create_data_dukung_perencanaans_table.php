@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('data_dukung_perencanaans', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
+            $table->string('nama');
+            $table->text('keterangan')->nullable();
+            $table->string('path')->nullable();
+            $table->unsignedInteger('perubahan_ke')->default(1);
             $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dibuat_pada')->nullable();
             $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();
