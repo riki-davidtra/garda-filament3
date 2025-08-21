@@ -83,7 +83,7 @@ class UserResource extends Resource
                             ->numeric(),
                         Forms\Components\Select::make('subbagian_id')
                             ->label('Subbagian')
-                            ->required()
+                            ->nullable()
                             ->searchable()
                             ->preload()
                             ->relationship(

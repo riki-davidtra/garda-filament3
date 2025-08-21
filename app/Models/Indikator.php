@@ -2,27 +2,16 @@
 
 namespace App\Models;
 
-use App\Traits\Blameable;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FileDokumen extends Model
+class Indikator extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes, Blameable;
+    use HasFactory, HasUuids;
 
     protected $guarded = [];
-
-    protected $casts = [
-        'dibuat_pada'     => 'datetime',
-        'diperbarui_pada' => 'datetime',
-        'dihapus_pada'    => 'datetime',
-        'dipulihkan_pada' => 'datetime',
-    ];
-
-    protected $dates = ['deleted_at'];
 
     public function uniqueIds(): array
     {
@@ -39,8 +28,8 @@ class FileDokumen extends Model
         return 'uuid';
     }
 
-    public function dokumen()
+    public function indeksKinerjaUtamas()
     {
-        return $this->belongsTo(Dokumen::class);
+        return $this->hasMany(IndeksKinerjaUtama::class);
     }
 }

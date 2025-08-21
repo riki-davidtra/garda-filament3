@@ -30,7 +30,9 @@ class DokumenObserver
             \App\Models\RiwayatAktivitas::create([
                 'user_id'     => $user->id,
                 'aksi'        => 'buat',
+                'jenis_data'  => 'Dokumen',
                 'deskripsi'   => "User membuat dokumen: {$dokumen->nama}",
+                'detail_data' => json_encode($dokumen->getAttributes(), JSON_PRETTY_PRINT),
                 'ip'          => request()->ip(),
                 'subjek_type' => Dokumen::class,
                 'subjek_id'   => $dokumen->id,
@@ -41,11 +43,18 @@ class DokumenObserver
     public function updated(Dokumen $dokumen): void
     {
         if (!app()->runningInConsole()) {
-            $user = Auth::user();
+            $user    = Auth::user();
+            $changes = [
+                'before' => $dokumen->getOriginal(),
+                'after'  => $dokumen->getDirty(),
+            ];
+
             \App\Models\RiwayatAktivitas::create([
                 'user_id'     => $user->id,
                 'aksi'        => 'ubah',
-                'deskripsi'   => "User mengubah dokumen: {$dokumen->nama}",
+                'jenis_data'  => 'Dokumen',
+                'deskripsi'   => "User memperbarui dokumen: {$dokumen->nama}",
+                'detail_data' => json_encode($changes, JSON_PRETTY_PRINT),
                 'ip'          => request()->ip(),
                 'subjek_type' => Dokumen::class,
                 'subjek_id'   => $dokumen->id,
@@ -62,7 +71,9 @@ class DokumenObserver
             \App\Models\RiwayatAktivitas::create([
                 'user_id'     => $user->id,
                 'aksi'        => $aksi,
-                'deskripsi'   => "User {$aksi} dokumen: {$dokumen->nama}",
+                'jenis_data'  => 'Dokumen',
+                'deskripsi'   => "User meng{$aksi} dokumen: {$dokumen->nama}",
+                'detail_data' => json_encode($dokumen->getAttributes(), JSON_PRETTY_PRINT),
                 'ip'          => request()->ip(),
                 'subjek_type' => Dokumen::class,
                 'subjek_id'   => $dokumen->id,
@@ -77,7 +88,9 @@ class DokumenObserver
             \App\Models\RiwayatAktivitas::create([
                 'user_id'     => $user->id,
                 'aksi'        => 'pulihkan',
+                'jenis_data'  => 'Dokumen',
                 'deskripsi'   => "User memulihkan dokumen: {$dokumen->nama}",
+                'detail_data' => json_encode($dokumen->getAttributes(), JSON_PRETTY_PRINT),
                 'ip'          => request()->ip(),
                 'subjek_type' => Dokumen::class,
                 'subjek_id'   => $dokumen->id,

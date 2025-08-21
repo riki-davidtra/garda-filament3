@@ -22,7 +22,7 @@ class PanduanResource extends Resource
     protected static ?string $navigationLabel  = 'Panduan';
     protected static ?string $pluralModelLabel = 'Daftar Panduan';
     protected static ?string $modelLabel       = 'Panduan';
-    protected static ?int $navigationSort      = 31;
+    protected static ?int $navigationSort      = 51;
 
     public static function form(Form $form): Form
     {

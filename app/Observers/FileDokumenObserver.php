@@ -46,4 +46,79 @@ class FileDokumenObserver
             }
         }
     }
+
+    public function created(FileDokumen $fileDokumen): void
+    {
+        if (!app()->runningInConsole()) {
+            $user = Auth::user();
+            \App\Models\RiwayatAktivitas::create([
+                'user_id'     => $user->id,
+                'aksi'        => 'buat',
+                'jenis_data'  => 'File Dokumen',
+                'deskripsi'   => "User membuat file dokumen: {$fileDokumen->nama}",
+                'detail_data' => json_encode($fileDokumen->getAttributes(), JSON_PRETTY_PRINT),
+                'ip'          => request()->ip(),
+                'subjek_type' => FileDokumen::class,
+                'subjek_id'   => $fileDokumen->id,
+            ]);
+        }
+    }
+
+    public function updated(FileDokumen $fileDokumen): void
+    {
+        if (!app()->runningInConsole()) {
+            $user    = Auth::user();
+            $changes = [
+                'before' => $fileDokumen->getOriginal(),
+                'after'  => $fileDokumen->getDirty(),
+            ];
+
+            \App\Models\RiwayatAktivitas::create([
+                'user_id'     => $user->id,
+                'aksi'        => 'ubah',
+                'jenis_data'  => 'File Dokumen',
+                'deskripsi'   => "User memperbarui file dokumen: {$fileDokumen->nama}",
+                'detail_data' => json_encode($changes, JSON_PRETTY_PRINT),
+                'ip'          => request()->ip(),
+                'subjek_type' => FileDokumen::class,
+                'subjek_id'   => $fileDokumen->id,
+            ]);
+        }
+    }
+
+    public function deleted(FileDokumen $fileDokumen): void
+    {
+        if (!app()->runningInConsole()) {
+            $user = Auth::user();
+            $aksi = $fileDokumen->isForceDeleting() ? 'hapus permanen' : 'hapus';
+
+            \App\Models\RiwayatAktivitas::create([
+                'user_id'     => $user->id,
+                'aksi'        => $aksi,
+                'jenis_data'  => 'File Dokumen',
+                'deskripsi'   => "User meng{$aksi} file dokumen: {$fileDokumen->nama}",
+                'detail_data' => json_encode($fileDokumen->getAttributes(), JSON_PRETTY_PRINT),
+                'ip'          => request()->ip(),
+                'subjek_type' => FileDokumen::class,
+                'subjek_id'   => $fileDokumen->id,
+            ]);
+        }
+    }
+
+    public function restored(FileDokumen $fileDokumen): void
+    {
+        if (!app()->runningInConsole()) {
+            $user = Auth::user();
+            \App\Models\RiwayatAktivitas::create([
+                'user_id'     => $user->id,
+                'aksi'        => 'pulihkan',
+                'jenis_data'  => 'File Dokumen',
+                'deskripsi'   => "User memulihkan file dokumen: {$fileDokumen->nama}",
+                'detail_data' => json_encode($fileDokumen->getAttributes(), JSON_PRETTY_PRINT),
+                'ip'          => request()->ip(),
+                'subjek_type' => FileDokumen::class,
+                'subjek_id'   => $fileDokumen->id,
+            ]);
+        }
+    }
 }

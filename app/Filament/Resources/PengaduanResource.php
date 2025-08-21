@@ -23,7 +23,7 @@ class PengaduanResource extends Resource
     protected static ?string $navigationLabel  = 'Pengaduan';
     protected static ?string $pluralModelLabel = 'Daftar Pengaduan';
     protected static ?string $modelLabel       = 'Pengaduan';
-    protected static ?int $navigationSort      = 33;
+    protected static ?int $navigationSort      = 53;
 
     public static function getNavigationBadge(): ?string
     {
@@ -89,7 +89,7 @@ class PengaduanResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pesan')
                     ->label('Pesan')
-                    ->limit(50)
+                    ->limit(35)
                     ->formatStateUsing(fn($state) => strip_tags($state))
                     ->searchable()
                     ->sortable(),

@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class RiwayatAktivitasResource extends Resource
 {
@@ -36,27 +37,28 @@ class RiwayatAktivitasResource extends Resource
                     ->label('Aksi')
                     ->visibleOn('view')
                     ->disabled(),
+                Forms\Components\TextInput::make('jenis_data')
+                    ->label('Jenis Data')
+                    ->visibleOn('view')
+                    ->disabled(),
                 Forms\Components\Textarea::make('deskripsi')
                     ->label('Deskripsi')
                     ->visibleOn('view')
                     ->columnSpanFull()
                     ->disabled(),
+                Forms\Components\Textarea::make('detail_data')
+                    ->label('Detail Data')
+                    ->visibleOn('view')
+                    ->columnSpanFull()
+                    ->disabled(),
                 Forms\Components\TextInput::make('ip')
-                    ->label('IP Address')
+                    ->label('Alamat IP')
                     ->visibleOn('view')
                     ->disabled(),
-                Forms\Components\TextInput::make('subjek_type')
-                    ->label('Subjek Type')
-                    ->visibleOn('view')
-                    ->disabled(),
-                Forms\Components\TextInput::make('subjek_id')
-                    ->label('Subjek ID')
-                    ->visibleOn('view')
-                    ->disabled(),
-                Forms\Components\TextInput::make('created_at')
-                    ->label('Waktu')
-                    ->visibleOn('view')
-                    ->disabled(),
+                Forms\Components\DateTimePicker::make('created_at')
+                    ->label('Waktu Dibuat')
+                    ->disabled()
+                    ->visibleOn('view'),
             ]);
     }
 
@@ -86,11 +88,15 @@ class RiwayatAktivitasResource extends Resource
                     })
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('jenis_data')
+                    ->label('Jenis Data')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('deskripsi')
                     ->label('Deskripsi')
-                    ->limit(50),
+                    ->limit(35),
                 Tables\Columns\TextColumn::make('ip')
-                    ->label('IP Address'),
+                    ->label('Alamat IP'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Waktu')
                     ->dateTime('Y-m-d H:i:s')

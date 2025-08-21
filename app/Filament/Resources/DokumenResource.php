@@ -233,41 +233,69 @@ class DokumenResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dibuat Oleh')
-                    ->placeholder('-')
-                    ->description(
-                        fn(Dokumen $record): string =>
-                        'NIP: ' . ($record->pembuat?->nip ?? '-') . ($record->dibuat_pada ? ' | ' . $record->dibuat_pada : '')
-                    )
+                    ->description(function ($record) {
+                        $user      = $record->pembuat;
+                        $bagian    = $user?->subbagian?->bagian?->nama;
+                        $subbagian = $user?->subbagian?->nama;
+                        $tanggal   = $record->dibuat_pada;
+                        $parts = [
+                            $user?->nip ? 'NIP: ' . $user?->nip : null,
+                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal ? $tanggal : null,
+                        ];
+                        return implode(' | ', array_filter($parts));
+                    })
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Diperbarui Oleh')
-                    ->placeholder('-')
-                    ->description(
-                        fn(Dokumen $record): string =>
-                        'NIP: ' . ($record->pembaru?->nip ?? '-') . ($record->diperbarui_pada ? ' | ' . $record->diperbarui_pada : '')
-                    )
+                    ->description(function ($record) {
+                        $user      = $record->pembaru;
+                        $bagian    = $user?->subbagian?->bagian?->nama;
+                        $subbagian = $user?->subbagian?->nama;
+                        $tanggal   = $record->diperbarui_pada;
+                        $parts = [
+                            $user?->nip ? 'NIP: ' . $user?->nip : null,
+                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal ? $tanggal : null,
+                        ];
+                        return implode(' | ', array_filter($parts));
+                    })
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('penghapus.name')
                     ->label('Dihapus Oleh')
-                    ->placeholder('-')
-                    ->description(
-                        fn(Dokumen $record): string =>
-                        'NIP: ' . ($record->penghapus?->nip ?? '-') . ($record->dihapus_pada ? ' | ' . $record->dihapus_pada : '')
-                    )
+                    ->description(function ($record) {
+                        $user      = $record->penghapus;
+                        $bagian    = $user?->subbagian?->bagian?->nama;
+                        $subbagian = $user?->subbagian?->nama;
+                        $tanggal   = $record->dihapus_pada;
+                        $parts = [
+                            $user?->nip ? 'NIP: ' . $user?->nip : null,
+                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal ? $tanggal : null,
+                        ];
+                        return implode(' | ', array_filter($parts));
+                    })
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pemulih.name')
                     ->label('Dipulihkan Oleh')
-                    ->placeholder('-')
-                    ->description(
-                        fn(Dokumen $record): string =>
-                        'NIP: ' . ($record->pemulih?->nip ?? '-') . ($record->dipulihkan_pada ? ' | ' . $record->dipulihkan_pada : '')
-                    )
+                    ->description(function ($record) {
+                        $user      = $record->pemulih;
+                        $bagian    = $user?->subbagian?->bagian?->nama;
+                        $subbagian = $user?->subbagian?->nama;
+                        $tanggal   = $record->dipulihkan_pada;
+                        $parts = [
+                            $user?->nip ? 'NIP: ' . $user?->nip : null,
+                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal ? $tanggal : null,
+                        ];
+                        return implode(' | ', array_filter($parts));
+                    })
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),

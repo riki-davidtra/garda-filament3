@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FileDokumen extends Model
+class DataDukungPerencanaan extends Model
 {
     use HasFactory, HasUuids, SoftDeletes, Blameable;
 
@@ -37,10 +37,5 @@ class FileDokumen extends Model
     public function getRouteKeyName()
     {
         return 'uuid';
-    }
-
-    public function dokumen()
-    {
-        return $this->belongsTo(Dokumen::class);
     }
 }

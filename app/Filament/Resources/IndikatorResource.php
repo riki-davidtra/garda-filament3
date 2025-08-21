@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FaqResource\Pages;
-use App\Filament\Resources\FaqResource\RelationManagers;
-use App\Models\Faq;
+use App\Filament\Resources\IndikatorResource\Pages;
+use App\Filament\Resources\IndikatorResource\RelationManagers;
+use App\Models\Indikator;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,45 +13,36 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class FaqResource extends Resource
+class IndikatorResource extends Resource
 {
-    protected static ?string $model = Faq::class;
+    protected static ?string $model = Indikator::class;
 
-    protected static ?string $navigationIcon   = 'heroicon-o-question-mark-circle';
-    protected static ?string $navigationGroup  = 'Panduan & Bantuan';
-    protected static ?string $navigationLabel  = 'FAQ';
-    protected static ?string $pluralModelLabel = 'Daftar FAQ';
-    protected static ?string $modelLabel       = 'FAQ';
-    protected static ?int $navigationSort      = 52;
+    protected static ?string $navigationIcon   = 'heroicon-o-chart-bar';
+    protected static ?string $navigationGroup  = 'Data Master';
+    protected static ?string $navigationLabel  = 'Indikator';
+    protected static ?string $pluralModelLabel = 'Daftar Indikator';
+    protected static ?string $modelLabel       = 'Indikator';
+    protected static ?int $navigationSort      = 23;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('pertanyaan')
-                    ->label('Pertanyaan')
+                Forms\Components\TextInput::make('nama')
+                    ->label('Nama')
                     ->required()
                     ->string()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-                Forms\Components\RichEditor::make('jawaban')
-                    ->label('Jawaban')
-                    ->required()
-                    ->maxLength(3000)
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('faq/jawaban')
-                    ->columnSpanFull(),
+                    ->maxLength(255),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->reorderable('order')
-            ->defaultSort('order', 'asc')
+            ->defaultSort('created_at', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('pertanyaan')
-                    ->label('Pertanyaan')
+                Tables\Columns\TextColumn::make('nama')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -75,7 +66,6 @@ class FaqResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -95,9 +85,9 @@ class FaqResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListFaqs::route('/'),
-            // 'create' => Pages\CreateFaq::route('/create'),
-            // 'edit' => Pages\EditFaq::route('/{record}/edit'),
+            'index'  => Pages\ListIndikators::route('/'),
+            // 'create' => Pages\CreateIndikator::route('/create'),
+            // 'edit'   => Pages\EditIndikator::route('/{record}/edit'),
         ];
     }
 }

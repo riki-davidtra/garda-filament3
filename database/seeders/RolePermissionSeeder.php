@@ -26,19 +26,25 @@ class RolePermissionSeeder extends Seeder
         $permissions = Permission::pluck('name')->toArray();
 
         $pimpinanPermissions  = [];
+
+        // 'view-any Dokumen',
+        // 'view Dokumen',
+        // 'create Dokumen',
+        // 'update Dokumen',
+        // 'delete Dokumen',
+        // 'delete-any Dokumen',
+        // 'reorder Dokumen',
+        // 'replicate Dokumen',
+        // 'restore Dokumen',
+        // 'restore-any Dokumen',
+        // 'force-delete Dokumen',
+        // 'force-delete-any Dokumen',
+
         $perencanaPermissions = [
             'view-any Dokumen',
             'view Dokumen',
             'create Dokumen',
             'update Dokumen',
-            // 'delete Dokumen',
-            // 'delete-any Dokumen',
-            // 'reorder Dokumen',
-            // 'replicate Dokumen',
-            // 'restore Dokumen',
-            // 'restore-any Dokumen',
-            // 'force-delete Dokumen',
-            // 'force-delete-any Dokumen',
 
             'view-any FileDokumen',
             'view FileDokumen',
@@ -55,20 +61,22 @@ class RolePermissionSeeder extends Seeder
 
             'view-any TemplatDokumen',
             'view TemplatDokumen',
+
+            'view-any IndeksKinerjaUtama',
+            'view IndeksKinerjaUtama',
+            'create IndeksKinerjaUtama',
+            'update IndeksKinerjaUtama',
+
+            'view-any DataDukungPerencanaan',
+            'view DataDukungPerencanaan',
+            'create DataDukungPerencanaan',
+            'update DataDukungPerencanaan',
         ];
         $subbagianPermissions = [
             'view-any Dokumen',
             'view Dokumen',
             'create Dokumen',
             'update Dokumen',
-            // 'delete Dokumen',
-            // 'delete-any Dokumen',
-            // 'reorder Dokumen',
-            // 'replicate Dokumen',
-            // 'restore Dokumen',
-            // 'restore-any Dokumen',
-            // 'force-delete Dokumen',
-            // 'force-delete-any Dokumen',
 
             'view-any FileDokumen',
             'view FileDokumen',

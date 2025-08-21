@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FileDokumen extends Model
+class IndeksKinerjaUtama extends Model
 {
     use HasFactory, HasUuids, SoftDeletes, Blameable;
 
@@ -39,8 +39,8 @@ class FileDokumen extends Model
         return 'uuid';
     }
 
-    public function dokumen()
+    public function indikator()
     {
-        return $this->belongsTo(Dokumen::class);
+        return $this->belongsTo(Indikator::class);
     }
 }

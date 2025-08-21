@@ -22,7 +22,7 @@ class JenisDokumenResource extends Resource
     protected static ?string $navigationLabel  = 'Jenis Dokumen';
     protected static ?string $pluralModelLabel = 'Daftar Jenis Dokumen';
     protected static ?string $modelLabel       = 'Jenis Dokumen';
-    protected static ?int $navigationSort      = 23;
+    protected static ?int $navigationSort      = 24;
 
     public static function form(Form $form): Form
     {

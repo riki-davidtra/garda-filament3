@@ -16,7 +16,9 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('aksi');
+            $table->string('jenis_data')->nullable();
             $table->text('deskripsi')->nullable();
+            $table->text('detail_data')->nullable();
             $table->ipAddress('ip')->nullable();
             $table->nullableMorphs('subjek');
             $table->timestamps();

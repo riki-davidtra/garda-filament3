@@ -22,7 +22,7 @@ class TemplatDokumenResource extends Resource
     protected static ?string $navigationLabel  = 'Templat Dokumen';
     protected static ?string $pluralModelLabel = 'Daftar Templat Dokumen';
     protected static ?string $modelLabel       = 'Templat Dokumen';
-    protected static ?int $navigationSort      = 34;
+    protected static ?int $navigationSort      = 54;
 
     public static function form(Form $form): Form
     {
