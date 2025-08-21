@@ -38,8 +38,17 @@ class FaqResource extends Resource
                     ->label('Jawaban')
                     ->required()
                     ->maxLength(3000)
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('faq/jawaban')
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'bulletList',
+                        'orderedList',
+                        'link',
+                        'undo',
+                        'redo',
+                    ])
                     ->columnSpanFull(),
             ]);
     }

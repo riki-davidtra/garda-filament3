@@ -38,8 +38,17 @@ class PanduanResource extends Resource
                     ->label('Deskripsi')
                     ->nullable()
                     ->maxLength(3000)
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('panduan/deskripsi')
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'bulletList',
+                        'orderedList',
+                        'link',
+                        'undo',
+                        'redo',
+                    ])
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('file')
                     ->label('File')
