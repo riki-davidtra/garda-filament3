@@ -38,7 +38,9 @@ class CatatLoginLogout
             RiwayatAktivitas::create([
                 'user_id'     => $user->id,
                 'aksi'        => $aksi,
+                'jenis_data'  => 'Pengguna',
                 'deskripsi'   => $deskripsi,
+                'detail_data' => null,
                 'ip'          => request()->ip(),
                 'subjek_type' => \App\Models\User::class,
                 'subjek_id'   => $user->id,
