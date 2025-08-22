@@ -61,16 +61,6 @@ class RolePermissionSeeder extends Seeder
 
             'view-any TemplatDokumen',
             'view TemplatDokumen',
-
-            'view-any IndeksKinerjaUtama',
-            'view IndeksKinerjaUtama',
-            'create IndeksKinerjaUtama',
-            'update IndeksKinerjaUtama',
-
-            'view-any DataDukungPerencanaan',
-            'view DataDukungPerencanaan',
-            'create DataDukungPerencanaan',
-            'update DataDukungPerencanaan',
         ];
         $subbagianPermissions = [
             'view-any Dokumen',
@@ -94,6 +84,16 @@ class RolePermissionSeeder extends Seeder
 
             'view-any TemplatDokumen',
             'view TemplatDokumen',
+
+            'view-any IndeksKinerjaUtama',
+            'view IndeksKinerjaUtama',
+            'create IndeksKinerjaUtama',
+            'update IndeksKinerjaUtama',
+
+            'view-any DataDukungPerencanaan',
+            'view DataDukungPerencanaan',
+            'create DataDukungPerencanaan',
+            'update DataDukungPerencanaan',
         ];
 
         // set permissions for role  
