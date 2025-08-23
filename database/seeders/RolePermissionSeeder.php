@@ -25,7 +25,7 @@ class RolePermissionSeeder extends Seeder
         // get permissions
         $permissions = Permission::pluck('name')->toArray();
 
-        $pimpinanPermissions  = [];
+        $pimpinanPermissions = [];
 
         // 'view-any Dokumen',
         // 'view Dokumen',
@@ -102,5 +102,21 @@ class RolePermissionSeeder extends Seeder
         $RolePimpinan->syncPermissions($pimpinanPermissions);
         $RolePerencana->syncPermissions($perencanaPermissions);
         $RoleSubbagian->syncPermissions($subbagianPermissions);
+
+        // set role for user
+        $roleMap = [
+            'superadmin' => 'Super Admin',
+            'admin'      => 'admin',
+            'pimpinan'   => 'pimpinan',
+            'perencana'  => 'perencana',
+            'subbagian'  => 'subbagian',
+        ];
+
+        foreach ($roleMap as $username => $role) {
+            $user = User::where('username', $username)->first();
+            if ($user) {
+                $user->syncRoles($role);
+            }
+        }
     }
 }

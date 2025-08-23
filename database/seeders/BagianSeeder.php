@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Bagian;
 use App\Models\Subbagian;
+use App\Models\User;
 
 class BagianSeeder extends Seeder
 {
@@ -42,6 +43,22 @@ class BagianSeeder extends Seeder
                     ['nama' => $subNama, 'bagian_id' => $bagian->id],
                     ['nama' => $subNama, 'bagian_id' => $bagian->id]
                 );
+            }
+        }
+
+        // Set subbagian for user
+        $userMap = [
+            'superadmin' => null,
+            'admin'      => null,
+            'pimpinan'   => null,
+            'perencana'  => null,
+            'subbagian'  => 1,
+        ];
+
+        foreach ($userMap as $username => $subbagianId) {
+            $user = User::where('username', $username)->first();
+            if ($user) {
+                $user->update(['subbagian_id' => $subbagianId]);
             }
         }
     }
