@@ -53,6 +53,7 @@ class PerkembanganJenisDokumenChart extends ApexChartWidget
             $data[] = $count;
         }
 
+        // dd($dateStart);
         // Generate warna random
         $randomColors = array_map(fn($_) => sprintf('#%06X', mt_rand(0, 0xFFFFFF)), $data);
 
