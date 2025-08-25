@@ -7,6 +7,8 @@ use Filament\Forms\Components\DatePicker;
 use Illuminate\Support\Carbon;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
+use App\Models\JenisDokumen;
+use App\Models\Dokumen;
 
 class PerkembanganJenisDokumenChart extends ApexChartWidget
 {
@@ -20,24 +22,38 @@ class PerkembanganJenisDokumenChart extends ApexChartWidget
         return [
             DatePicker::make('date_start')
                 ->label('Tanggal Mulai')
-                ->default(now()->subMonth())
+                ->default(Carbon::now()->startOfYear())
                 ->required(),
             DatePicker::make('date_end')
                 ->label('Tanggal Akhir')
-                ->default(now())
+                ->default(Carbon::now())
                 ->required(),
         ];
     }
 
     protected function getOptions(): array
     {
-        $dateStart = isset($this->filterFormData['date_start']) ? Carbon::parse($this->filterFormData['date_start']) : now()->subMonth();
-        $dateEnd = isset($this->filterFormData['date_end']) ? Carbon::parse($this->filterFormData['date_end']) : now();
+        $dateStart = isset($this->filterFormData['date_start']) ? Carbon::parse($this->filterFormData['date_start']) : Carbon::now()->startOfYear();
+        $dateEnd = isset($this->filterFormData['date_end']) ? Carbon::parse($this->filterFormData['date_end']) : Carbon::now();
 
-        $categories = ['Jenis A', 'Jenis B', 'Jenis C', 'Jenis D', 'Jenis E', 'Jenis F', 'Jenis G', 'Jenis H'];
-        $data = [75, 50, 90, 60, 80, 90, 100, 75];
+        // Ambil semua jenis dokumen
+        $jenisDokumens = JenisDokumen::all();
 
-        // Fungsi untuk generate warna hex random
+        $categories = [];
+        $data = [];
+
+        foreach ($jenisDokumens as $jenis) {
+            $categories[] = $jenis->nama; // sesuaikan field nama jenis dokumen
+
+            // Hitung jumlah dokumen dari jenis ini dalam rentang waktu
+            $count = Dokumen::where('jenis_dokumen_id', $jenis->id)
+                ->whereBetween('created_at', [$dateStart, $dateEnd])
+                ->count();
+
+            $data[] = $count;
+        }
+
+        // Generate warna random
         $randomColors = array_map(fn($_) => sprintf('#%06X', mt_rand(0, 0xFFFFFF)), $data);
 
         return [
@@ -47,7 +63,7 @@ class PerkembanganJenisDokumenChart extends ApexChartWidget
             ],
             'series' => [
                 [
-                    'name' => "Persentase Progres ({$dateStart->format('d M Y')} - {$dateEnd->format('d M Y')})",
+                    'name' => "Jumlah Dokumen ({$dateStart->format('d M Y')} - {$dateEnd->format('d M Y')})",
                     'data' => $data,
                 ],
             ],

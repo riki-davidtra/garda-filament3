@@ -78,7 +78,7 @@ class PengaduanResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 $user = Auth::user();
                 if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
-                    $query->where('dikirim_oleh', $user->id);
+                    $query->where('dibuat_oleh', $user->id);
                 }
             })
             ->defaultSort('created_at', 'desc')

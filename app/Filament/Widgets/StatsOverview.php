@@ -2,10 +2,14 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Dokumen;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
+use App\Models\JenisDokumen;
+use App\Models\Dokumen;
+use App\Models\Pengaduan;
 
 class StatsOverview extends BaseWidget
 {
@@ -13,20 +17,34 @@ class StatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
+        $user = Auth::user();
 
-        $targetDokumen = 500;
-        $totalDokumen = Dokumen::count();
+        $totalJenisDokumen = JenisDokumen::count();
 
-        $persentase = $targetDokumen > 0
-            ? round(($totalDokumen / $targetDokumen) * 100, 1)
-            : 0;
+        $totalDokumen = Dokumen::whereBetween('created_at', [
+            Carbon::now()->startOfYear(),
+            Carbon::now(),
+        ])->count();
+
+        $totalPengaduanMenunggu = Pengaduan::where('status', 'Menunggu')
+            ->when(!$user->hasRole(['Super Admin', 'admin', 'perencana']), function ($query) use ($user) {
+                $query->where('dibuat_oleh', $user->id);
+            })->count();
 
         return [
+            Stat::make('Total Jenis Dokumen', number_format($totalJenisDokumen))
+                ->description('Jumlah semua jenis dokumen yang ada')
+                ->color('primary')
+                ->chart(array_map(fn($_) => rand(0, 20), range(1, 7))),
             Stat::make('Total Dokumen Terkumpul', number_format($totalDokumen))
-                ->description("Terkumpul {$persentase}% dari target {$targetDokumen}")
-                ->descriptionIcon('heroicon-m-check-badge')
+                ->description("Jumlah dokumen yang sudah terkumpul tahun ini")
                 ->color('success')
-                ->chart([$totalDokumen, $targetDokumen - $totalDokumen]),
+                ->chart(array_map(fn($_) => rand(0, 20), range(1, 7))),
+            Stat::make('Total Pengaduan', number_format($totalPengaduanMenunggu))
+                ->description("Jumlah pengaduan dengan status Menunggu")
+                ->color('warning')
+                ->chart(array_map(fn($_) => rand(0, 20), range(1, 7)))
+                ->url(route('filament.admin.resources.pengaduans.index')),
         ];
     }
 }
