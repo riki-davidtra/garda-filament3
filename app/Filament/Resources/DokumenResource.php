@@ -27,15 +27,10 @@ class DokumenResource extends Resource
 
     public static function canAccess(): bool
     {
-        $user = Auth::user();
+        $user           = Auth::user();
         $jenisDokumenId = request()->query('jenis_dokumen_id');
 
-        return $user
-            && $user->roles->isNotEmpty()
-            && $jenisDokumenId
-            && JenisDokumen::where('id', $jenisDokumenId)
-            ->whereHas('roles', fn($query) => $query->whereIn('roles.id', $user->roles->pluck('id')))
-            ->exists();
+        return $user && $jenisDokumenId && JenisDokumen::where('id', $jenisDokumenId)->exists();
     }
 
     public static function form(Form $form): Form
@@ -148,7 +143,7 @@ class DokumenResource extends Resource
                             $owner       = $record ?? $livewire->getMountedActionRecord();
                             $namaDokumen = $owner?->nama ?? 'dokumen';
                             $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-                            $uniqueCode = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
+                            $uniqueCode  = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
                             $safeName    = \Illuminate\Support\Str::slug($namaDokumen) . "-v{$versi}" . "-{$uniqueCode}";
                             $extension   = $file->getClientOriginalExtension();
                             $path        = "file-dokumen/{$safeName}.{$extension}";
@@ -232,10 +227,10 @@ class DokumenResource extends Resource
                         $bagian    = $user?->subbagian?->bagian?->nama;
                         $subbagian = $user?->subbagian?->nama;
                         $tanggal   = $record->dibuat_pada;
-                        $parts = [
-                            $user?->nip ? 'NIP: ' . $user?->nip : null,
-                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal ? $tanggal : null,
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal                                        : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -249,10 +244,10 @@ class DokumenResource extends Resource
                         $bagian    = $user?->subbagian?->bagian?->nama;
                         $subbagian = $user?->subbagian?->nama;
                         $tanggal   = $record->diperbarui_pada;
-                        $parts = [
-                            $user?->nip ? 'NIP: ' . $user?->nip : null,
-                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal ? $tanggal : null,
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal                                        : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -266,10 +261,10 @@ class DokumenResource extends Resource
                         $bagian    = $user?->subbagian?->bagian?->nama;
                         $subbagian = $user?->subbagian?->nama;
                         $tanggal   = $record->dihapus_pada;
-                        $parts = [
-                            $user?->nip ? 'NIP: ' . $user?->nip : null,
-                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal ? $tanggal : null,
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal                                        : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -283,10 +278,10 @@ class DokumenResource extends Resource
                         $bagian    = $user?->subbagian?->bagian?->nama;
                         $subbagian = $user?->subbagian?->nama;
                         $tanggal   = $record->dipulihkan_pada;
-                        $parts = [
-                            $user?->nip ? 'NIP: ' . $user?->nip : null,
-                            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal ? $tanggal : null,
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal                                        : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -336,7 +331,12 @@ class DokumenResource extends Resource
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
-                    ])),
+                    ]))
+                    ->visible(function ($record) {
+                        $user         = Auth::user();
+                        $jenisDokumen = $record->jenisDokumen;
+                        return $user && $jenisDokumen && $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                    }),
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
             ])

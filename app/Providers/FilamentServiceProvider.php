@@ -54,9 +54,7 @@ class FilamentServiceProvider extends ServiceProvider
             return [];
         }
 
-        $jenisDokumens = JenisDokumen::whereHas('roles', function ($query) use ($user) {
-            $query->whereIn('roles.id', $user->roles->pluck('id'));
-        })->get();
+        $jenisDokumens = JenisDokumen::all();
 
         foreach ($jenisDokumens as $jenis) {
             $count = \App\Models\Dokumen::where('jenis_dokumen_id', $jenis->id)
