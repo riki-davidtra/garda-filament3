@@ -99,7 +99,7 @@ class RiwayatAktivitasResource extends Resource
                     ->label('Alamat IP'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Waktu')
-                    ->dateTime('Y-m-d H:i:s')
+                    ->dateTime('d-m-Y H:i')
                     ->sortable(),
             ])
             ->filters([
