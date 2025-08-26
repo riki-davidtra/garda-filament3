@@ -78,8 +78,8 @@ class JenisDokumenResource extends Resource
                 Tables\Columns\TextColumn::make('waktu_unggah_mulai')
                     ->label('Waktu Unggah')
                     ->formatStateUsing(function ($record) {
-                        $mulai = $record->waktu_unggah_mulai?->format('Y-m-d H:i');
-                        $selesai = $record->waktu_unggah_selesai?->format('Y-m-d H:i');
+                        $mulai = $record->waktu_unggah_mulai?->format('d-m-Y H:i');
+                        $selesai = $record->waktu_unggah_selesai?->format('d-m-Y H:i');
                         return "{$mulai} → {$selesai}";
                     })
                     ->color(fn($record) => match (true) {
@@ -119,17 +119,17 @@ class JenisDokumenResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
-                    ->dateTime()
+                    ->dateTime('d-m-Y H:i')
                     ->since()
-                    ->dateTimeTooltip()
+                    ->dateTimeTooltip('d-m-Y H:i')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
-                    ->dateTime()
+                    ->dateTime('d-m-Y H:i')
                     ->since()
-                    ->dateTimeTooltip()
+                    ->dateTimeTooltip('d-m-Y H:i')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),

@@ -104,27 +104,35 @@ class PengaduanResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dikirim Oleh')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('dibuat_pada')
-                    ->label('Dikirim Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                    ->description(function ($record) {
+                        $user      = $record->pembuat;
+                        $bagian    = $user?->subbagian?->bagian?->nama;
+                        $subbagian = $user?->subbagian?->nama;
+                        $tanggal   = $record->dibuat_pada;
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
+                        ];
+                        return implode(' | ', array_filter($parts));
+                    })
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Dibalas Oleh')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('diperbarui_pada')
-                    ->label('Dibalas Pada')
-                    ->dateTime()
-                    ->since()
-                    ->dateTimeTooltip()
+                    ->description(function ($record) {
+                        $user      = $record->pembaru;
+                        $bagian    = $user?->subbagian?->bagian?->nama;
+                        $subbagian = $user?->subbagian?->nama;
+                        $tanggal   = $record->diperbarui_pada;
+                        $parts     = [
+                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
+                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
+                        ];
+                        return implode(' | ', array_filter($parts));
+                    })
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),

@@ -234,7 +234,7 @@ class DokumenResource extends Resource
                         $parts     = [
                             $user?->nip ? 'NIP: ' . $user?->nip                           : null,
                             $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal    ? $tanggal                                        : null,
+                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -251,7 +251,7 @@ class DokumenResource extends Resource
                         $parts     = [
                             $user?->nip ? 'NIP: ' . $user?->nip                           : null,
                             $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal    ? $tanggal                                        : null,
+                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -268,7 +268,7 @@ class DokumenResource extends Resource
                         $parts     = [
                             $user?->nip ? 'NIP: ' . $user?->nip                           : null,
                             $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal    ? $tanggal                                        : null,
+                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })
@@ -285,7 +285,7 @@ class DokumenResource extends Resource
                         $parts     = [
                             $user?->nip ? 'NIP: ' . $user?->nip                           : null,
                             $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal    ? $tanggal                                        : null,
+                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
                         ];
                         return implode(' | ', array_filter($parts));
                     })

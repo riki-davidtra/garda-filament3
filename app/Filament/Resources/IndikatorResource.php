@@ -47,17 +47,17 @@ class IndikatorResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
-                    ->dateTime()
+                    ->dateTime('d-m-Y H:i')
                     ->since()
-                    ->dateTimeTooltip()
+                    ->dateTimeTooltip('d-m-Y H:i')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
-                    ->dateTime()
+                    ->dateTime('d-m-Y H:i')
                     ->since()
-                    ->dateTimeTooltip()
+                    ->dateTimeTooltip('d-m-Y H:i')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
