@@ -52,8 +52,14 @@ class TemplatDokumenResource extends Resource
                             ->directory('file-templat-dokumen')
                             ->enableOpen()
                             ->enableDownload()
-                            ->maxSize(2048)
-                            ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']),
+                            ->maxSize(20480)
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            ]),
                     ])
                     ->columnSpanFull()
                     ->itemLabel(fn(array $state): ?string => $state['nama_file'] ?? null)

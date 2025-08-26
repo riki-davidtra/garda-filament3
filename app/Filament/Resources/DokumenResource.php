@@ -12,9 +12,12 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\JenisDokumen;
+use App\Models\FormatFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\JenisDokumen;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Support\Str;
 
 class DokumenResource extends Resource
 {
@@ -125,30 +128,31 @@ class DokumenResource extends Resource
                             ->disk('local')
                             ->directory('temp')
                             ->maxSize(20480)
-                            ->acceptedFileTypes([
-                                'application/pdf',
-                                'application/msword',
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                'application/vnd.ms-excel',
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                'application/vnd.ms-powerpoint',
-                                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                            ])
-                            ->helperText('Maks. 20MB. Format: PDF, Word, Excel, PowerPoint.')
+                            ->acceptedFileTypes(function (callable $get) {
+                                $jenisDokumenId = request()->query('jenis_dokumen_id');
+                                if (!$jenisDokumenId) {
+                                    return [];
+                                }
+                                $dokumen = JenisDokumen::find($jenisDokumenId);
+                                if (!$dokumen || empty($dokumen->format_file)) {
+                                    return [];
+                                }
+                                return FormatFile::whereIn('id', $dokumen->format_file)->pluck('mime_types')->toArray();
+                            }),
                     ])
                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $record, $livewire) {
-                        if (!empty($data['file_temp']) && $data['file_temp'] instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                        if (!empty($data['file_temp']) && $data['file_temp'] instanceof TemporaryUploadedFile) {
                             $file = $data['file_temp'];
 
                             $owner       = $record ?? $livewire->getMountedActionRecord();
                             $namaDokumen = $owner?->nama ?? 'dokumen';
                             $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-                            $uniqueCode  = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
-                            $safeName    = \Illuminate\Support\Str::slug($namaDokumen) . "-v{$versi}" . "-{$uniqueCode}";
+                            $uniqueCode  = Str::padLeft(mt_rand(0, 9999), 6, '0');
+                            $safeName    = Str::slug($namaDokumen) . "-v{$versi}" . "-{$uniqueCode}";
                             $extension   = $file->getClientOriginalExtension();
                             $path        = "file-dokumen/{$safeName}.{$extension}";
 
-                            \Illuminate\Support\Facades\Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
+                            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
 
                             $data['path']   = $path;
                             $data['nama']   = $safeName . '.' . $extension;

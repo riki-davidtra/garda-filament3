@@ -26,15 +26,15 @@ class PerkembanganJenisDokumenChart extends ApexChartWidget
                 ->required(),
             DatePicker::make('date_end')
                 ->label('Tanggal Akhir')
-                ->default(Carbon::now())
+                ->default(Carbon::now()->endOfDay())
                 ->required(),
         ];
     }
 
     protected function getOptions(): array
     {
-        $dateStart = isset($this->filterFormData['date_start']) ? Carbon::parse($this->filterFormData['date_start']) : Carbon::now()->startOfYear();
-        $dateEnd = isset($this->filterFormData['date_end']) ? Carbon::parse($this->filterFormData['date_end']) : Carbon::now();
+        $dateStart = isset($this->filterFormData['date_start']) ? Carbon::parse($this->filterFormData['date_start'])->startOfDay() : Carbon::now()->startOfYear();
+        $dateEnd = isset($this->filterFormData['date_end']) ? Carbon::parse($this->filterFormData['date_end'])->endOfDay() : Carbon::now()->endOfDay();
 
         // Ambil semua jenis dokumen
         $jenisDokumens = JenisDokumen::all();

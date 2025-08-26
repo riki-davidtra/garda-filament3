@@ -75,7 +75,6 @@ class PanduanResource extends Resource
                         'application/vnd.ms-excel',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     ])
-                    ->helperText('Maks. 100 MB. Format: JPEG, PNG, GIF, WebP, MP4, WebM, OGG, PDF, Word, Excel.')
                     ->columnSpanFull(),
             ]);
     }

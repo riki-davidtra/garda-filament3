@@ -42,10 +42,24 @@ class JenisDokumenResource extends Resource
                 Forms\Components\TextInput::make('batas_unggah')
                     ->label('Batas Unggah')
                     ->nullable()
-                    ->numeric(),
-                Forms\Components\MultiSelect::make('roles')
+                    ->numeric()
+                    ->default(0),
+                Forms\Components\Select::make('format_file')
+                    ->label('Format File')
+                    ->nullable()
+                    ->multiple()
+                    ->options(\App\Models\FormatFile::all()->pluck('nama', 'id'))
+                    ->dehydrateStateUsing(fn($state) => array_map('intval', $state)),
+                Forms\Components\TextInput::make('maksimal_ukuran')
+                    ->label('Maks. Ukuran')
+                    ->nullable()
+                    ->numeric()
+                    ->suffix('KB')
+                    ->default(0),
+                Forms\Components\Select::make('roles')
                     ->label('Akses Peran')
                     ->nullable()
+                    ->multiple()
                     ->relationship('roles', 'name')
                     ->preload()
                     ->searchable(),
@@ -80,6 +94,24 @@ class JenisDokumenResource extends Resource
                     ->badge()
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('format_file')
+                    ->label('Format File')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $ids = $record->format_file ?? [];
+                        $names = \App\Models\FormatFile::whereIn('id', $ids)
+                            ->pluck('nama')
+                            ->toArray();
+                        return array_unique($names);
+                    })
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('maksimal_ukuran')
+                    ->label('Maks. Ukuran')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => $state ? number_format($state / 1024, 0) . ' MB' : '-')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Akses Peran')
                     ->badge()

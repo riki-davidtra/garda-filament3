@@ -29,22 +29,19 @@ class FileDokumensRelationManager extends RelationManager
                     ->storeFiles(false)
                     ->disk('local')
                     ->directory('temp')
-                    ->maxSize(20480)
-                    ->acceptedFileTypes([
-                        'application/pdf',
-                        'application/msword',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'application/vnd.ms-excel',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.ms-powerpoint',
-                        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                        'image/jpg',
-                        'image/jpeg',
-                        'image/png',
-                        'image/heic',
-                        'image/heif',
-                    ])
-                    ->helperText('Maks. 20MB. Format: PDF, Word, Excel, PowerPoint.')
+                    ->maxSize(function () {
+                        $dokumen = $this->getOwnerRecord();
+                        $jenis   = $dokumen?->jenisDokumen;
+                        return $jenis?->maksimal_ukuran ?? 20480;
+                    })
+                    ->acceptedFileTypes(function () {
+                        $dokumen = $this->getOwnerRecord();
+                        $jenis   = $dokumen?->jenisDokumen;
+                        if (! $jenis || empty($jenis->format_file)) {
+                            return [];
+                        }
+                        return \App\Models\FormatFile::whereIn('id', $jenis->format_file)->pluck('mime_types')->toArray();
+                    })
                     ->columnSpanFull()
                     ->extraAttributes(['class' => 'flex flex-col'])
                     ->afterStateHydrated(function ($component, $state, $record) {
@@ -170,7 +167,7 @@ class FileDokumensRelationManager extends RelationManager
 
                 return $current < $batas
                     ? "Anda sudah menggunakan {$current} dari {$batas} kesempatan unggah file."
-                    :      "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
+                    :       "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
             })
             ->headerActions([
                 Tables\Actions\CreateAction::make()
@@ -222,7 +219,7 @@ class FileDokumensRelationManager extends RelationManager
             $owner       = $this->getOwnerRecord();
             $namaDokumen = $owner?->nama ?? 'dokumen';
             $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-            $uniqueCode = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
+            $uniqueCode  = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
             $safeName    = \Illuminate\Support\Str::slug($namaDokumen) . "-v{$versi}" . "-{$uniqueCode}";
             $extension   = $file->getClientOriginalExtension();
             $path        = "file-dokumen/{$safeName}.{$extension}";

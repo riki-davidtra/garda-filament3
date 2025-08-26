@@ -56,7 +56,6 @@ class DataDukungPerencanaanResource extends Resource
                         'application/vnd.ms-powerpoint',
                         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                     ])
-                    ->helperText('Maks. 10MB. Format: PDF, Word, Excel, PowerPoint.')
                     ->columnSpanFull(),
             ]);
     }
