@@ -82,6 +82,9 @@ class AdminPanelProvider extends PanelProvider
             ->resources([\App\Filament\Resources\RoleResource::class, \App\Filament\Resources\PermissionResource::class])
             ->plugins([
                 FilamentEditProfilePlugin::make()
+                    ->customProfileComponents([
+                        \App\Livewire\CustomProfileComponent::class,
+                    ])
                     ->setNavigationLabel('My Profile')
                     ->setTitle('My Profile')
                     ->setIcon('heroicon-o-user')

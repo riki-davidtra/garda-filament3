@@ -80,7 +80,9 @@ class UserResource extends Resource
                         Forms\Components\TextInput::make('nip')
                             ->label('NIP')
                             ->nullable()
-                            ->numeric(),
+                            ->numeric()
+                            ->maxLength(18)
+                            ->unique(ignoreRecord: true),
                         Forms\Components\Select::make('subbagian_id')
                             ->label('Subbagian')
                             ->nullable()

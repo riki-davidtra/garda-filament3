@@ -33,6 +33,7 @@ class User extends Authenticatable implements HasAvatar
         'username',
         'nip',
         'subbagian_id',
+        'custom_fields',
     ];
 
     /**
@@ -54,7 +55,8 @@ class User extends Authenticatable implements HasAvatar
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'custom_fields'     => 'array',
         ];
     }
 
