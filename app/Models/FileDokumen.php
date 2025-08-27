@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasRiwayatAktivitas;
 use App\Traits\Blameable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class FileDokumen extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes, Blameable;
+    use HasFactory, HasUuids, SoftDeletes, Blameable, HasRiwayatAktivitas;
 
     protected $guarded = [];
 
@@ -42,5 +43,32 @@ class FileDokumen extends Model
     public function dokumen()
     {
         return $this->belongsTo(Dokumen::class);
+    }
+
+    public function getReadableAttributes(): array
+    {
+        $attrs = $this->getAttributes();
+
+        $relationsMap = [
+            'dokumen_id'      => ['relation' => 'dokumen', 'column' => 'nama'],
+            'dibuat_oleh'     => ['relation' => 'pembuat', 'column' => 'name'],
+            'diperbarui_oleh' => ['relation' => 'pembaru', 'column' => 'name'],
+            'dihapus_oleh'    => ['relation' => 'penghapus', 'column' => 'name'],
+            'dipulihkan_oleh' => ['relation' => 'pemulih', 'column' => 'name'],
+        ];
+
+        foreach ($relationsMap as $field => $config) {
+            if (isset($attrs[$field])) {
+                $related = $this->relationLoaded($config['relation'])
+                    ? $this->{$config['relation']}
+                    :  $this->{$config['relation']}()->first();
+                $attrs[$field] = [
+                    'id'    => $attrs[$field],
+                    'label' => $related?->{$config['column']} ?? $attrs[$field],
+                ];
+            }
+        }
+
+        return $attrs;
     }
 }

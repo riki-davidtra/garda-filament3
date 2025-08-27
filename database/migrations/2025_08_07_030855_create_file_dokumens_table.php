@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('nama')->nullable();
             $table->string('tipe')->nullable();
             $table->string('ukuran')->nullable();
+            $table->string('tag')->nullable();
             $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dibuat_pada')->nullable();
             $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();

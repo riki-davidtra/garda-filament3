@@ -52,14 +52,7 @@ class TemplatDokumenResource extends Resource
                             ->directory('file-templat-dokumen')
                             ->enableOpen()
                             ->enableDownload()
-                            ->maxSize(20480)
-                            ->acceptedFileTypes([
-                                'application/pdf',
-                                'application/msword',
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                'application/vnd.ms-excel',
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                            ]),
+                            ->maxSize(20480),
                     ])
                     ->columnSpanFull()
                     ->itemLabel(fn(array $state): ?string => $state['nama_file'] ?? null)
@@ -119,7 +112,7 @@ class TemplatDokumenResource extends Resource
     {
         return [
             'index' => Pages\ListTemplatDokumens::route('/'),
-            // 'create' => Pages\CreateTemplatDokumen::route('/create'),
+            'create' => Pages\CreateTemplatDokumen::route('/create'),
             // 'edit' => Pages\EditTemplatDokumen::route('/{record}/edit'),
         ];
     }

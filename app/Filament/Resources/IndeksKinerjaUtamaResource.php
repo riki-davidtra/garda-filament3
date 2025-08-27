@@ -21,9 +21,9 @@ class IndeksKinerjaUtamaResource extends Resource
 
     protected static ?string $navigationIcon   = 'heroicon-o-document-text';
     protected static ?string $navigationGroup  = 'Formulir';
-    protected static ?string $navigationLabel  = 'Indeks KInerja Utama (IKU)';
-    protected static ?string $pluralModelLabel = 'Daftar Indeks KInerja Utama (IKU)';
-    protected static ?string $modelLabel       = 'Indeks KInerja Utama (IKU)';
+    protected static ?string $navigationLabel  = 'Indeks Kinerja Utama (IKU)';
+    protected static ?string $pluralModelLabel = 'Daftar Indeks Kinerja Utama (IKU)';
+    protected static ?string $modelLabel       = 'Indeks Kinerja Utama (IKU)';
     protected static ?int $navigationSort      = 41;
 
     public static function form(Form $form): Form

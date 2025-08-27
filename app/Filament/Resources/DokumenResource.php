@@ -17,7 +17,6 @@ use App\Models\FormatFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use Illuminate\Support\Str;
 
 class DokumenResource extends Resource
 {
@@ -76,7 +75,7 @@ class DokumenResource extends Resource
                     ->required()
                     ->string()
                     ->maxLength(255)
-                    ->helperText('Contoh: [Jenis Dokumen] - [Nama Bagian] - [Nama Subbagian]'),
+                    ->helperText('Contoh: [RKA Perubahan] - [Rumah Tangga] - [Urusan Dalam]'),
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
@@ -128,13 +127,8 @@ class DokumenResource extends Resource
                             ->disk('local')
                             ->directory('temp')
                             ->maxSize(20480)
-                            ->acceptedFileTypes(function (callable $get) {
-                                $jenisDokumenId = request()->query('jenis_dokumen_id');
-                                if (!$jenisDokumenId) {
-                                    return [];
-                                }
-                                $dokumen = JenisDokumen::find($jenisDokumenId);
-                                if (!$dokumen || empty($dokumen->format_file)) {
+                            ->acceptedFileTypes(function ($get, $livewire) {
+                                if (!($dokumen = JenisDokumen::find($livewire->jenis_dokumen_id))?->format_file) {
                                     return [];
                                 }
                                 return FormatFile::whereIn('id', $dokumen->format_file)->pluck('mime_types')->toArray();
@@ -147,15 +141,14 @@ class DokumenResource extends Resource
                             $owner       = $record ?? $livewire->getMountedActionRecord();
                             $namaDokumen = $owner?->nama ?? 'dokumen';
                             $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-                            $uniqueCode  = Str::padLeft(mt_rand(0, 9999), 6, '0');
-                            $safeName    = Str::slug($namaDokumen) . "-v{$versi}" . "-{$uniqueCode}";
+                            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
                             $extension   = $file->getClientOriginalExtension();
-                            $path        = "file-dokumen/{$safeName}.{$extension}";
+                            $path        = "file-dokumen/{$fileName}.{$extension}";
 
                             Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
 
                             $data['path']   = $path;
-                            $data['nama']   = $safeName . '.' . $extension;
+                            $data['nama']   = $fileName . '.' . $extension;
                             $data['tipe']   = $file->getMimeType();
                             $data['ukuran'] = $file->getSize();
 
@@ -180,7 +173,7 @@ class DokumenResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query, $livewire) {
                 $user           = Auth::user();
-                $jenisDokumenId = $livewire->jenis_dokumen_id ?? null;
+                $jenisDokumenId = $livewire->jenis_dokumen_id;
                 if ($jenisDokumenId) {
                     $query->where('jenis_dokumen_id', $jenisDokumenId);
                 }

@@ -10,7 +10,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
-use App\Models\FileDokumen;
 
 class FileDokumensRelationManager extends RelationManager
 {
@@ -182,7 +181,7 @@ class FileDokumensRelationManager extends RelationManager
 
                 return $current < $batas
                     ? "Anda sudah menggunakan {$current} dari {$batas} kesempatan unggah file."
-                    :       "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
+                    :         "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
             })
             ->headerActions([
                 Tables\Actions\CreateAction::make()
@@ -234,15 +233,14 @@ class FileDokumensRelationManager extends RelationManager
             $owner       = $this->getOwnerRecord();
             $namaDokumen = $owner?->nama ?? 'dokumen';
             $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-            $uniqueCode  = \Illuminate\Support\Str::padLeft(mt_rand(0, 9999), 6, '0');
-            $safeName    = \Illuminate\Support\Str::slug($namaDokumen) . "-v{$versi}" . "-{$uniqueCode}";
+            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
             $extension   = $file->getClientOriginalExtension();
-            $path        = "file-dokumen/{$safeName}.{$extension}";
+            $path        = "file-dokumen/{$fileName}.{$extension}";
 
-            \Illuminate\Support\Facades\Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
+            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
 
             $data['path']   = $path;
-            $data['nama']   = $safeName . '.' . $extension;
+            $data['nama']   = $fileName . '.' . $extension;
             $data['tipe']   = $file->getMimeType();
             $data['ukuran'] = $file->getSize();
 

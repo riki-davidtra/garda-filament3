@@ -41,11 +41,11 @@ class RiwayatAktivitasResource extends Resource
                     ->label('Jenis Data')
                     ->visibleOn('view')
                     ->disabled(),
-                Forms\Components\Textarea::make('deskripsi')
-                    ->label('Deskripsi')
-                    ->visibleOn('view')
-                    ->columnSpanFull()
-                    ->disabled(),
+                // Forms\Components\Textarea::make('deskripsi')
+                //     ->label('Deskripsi')
+                //     ->visibleOn('view')
+                //     ->columnSpanFull()
+                //     ->disabled(),
                 Forms\Components\Textarea::make('detail_data')
                     ->label('Detail Data')
                     ->visibleOn('view')
@@ -92,9 +92,9 @@ class RiwayatAktivitasResource extends Resource
                     ->label('Jenis Data')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('deskripsi')
-                    ->label('Deskripsi')
-                    ->limit(35),
+                // Tables\Columns\TextColumn::make('deskripsi')
+                //     ->label('Deskripsi')
+                //     ->limit(35),
                 Tables\Columns\TextColumn::make('ip')
                     ->label('Alamat IP'),
                 Tables\Columns\TextColumn::make('created_at')

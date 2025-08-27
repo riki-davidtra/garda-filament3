@@ -12,19 +12,21 @@ class DataDukungPerencanaanObserver
     {
         // Enkripsi file
         if (!empty($dataDukungPerencanaan->path)) {
-            $file      = $dataDukungPerencanaan->path;
-            $safeName  = \Illuminate\Support\Str::slug($dataDukungPerencanaan->nama ?? 'data-dukung-perencanaan') . '-' . mt_rand(1000, 9999);
-            $extension = $file->getClientOriginalExtension();
-            $path      = "file-data-dukung-perencanaan/{$safeName}.{$extension}";
+            $file = $dataDukungPerencanaan->path;
 
-            // Enkripsi file
-            $contents = file_get_contents($file->getRealPath());
-            Storage::disk('local')->put($path, encrypt($contents));
+            $namaDokumen = $dataDukungPerencanaan->nama ?? 'data-dukung-perencanaan';
+            $versi       = 1;
+            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
+            $extension   = $file->getClientOriginalExtension();
+            $path        = "file-data-dukung-perencanaan/{$fileName}.{$extension}";
+
+            // Enkripsi file 
+            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
 
             // Simpan hanya path ke DB
             $dataDukungPerencanaan->path = $path;
 
-            // Hapus temporary file
+            // Hapus temporary filessssss
             @unlink($file->getRealPath());
         }
     }
@@ -39,13 +41,14 @@ class DataDukungPerencanaanObserver
         if (!empty($dataDukungPerencanaan->path) && $dataDukungPerencanaan->isDirty('path')) {
             $file = $dataDukungPerencanaan->path;
 
-            $safeName  = \Illuminate\Support\Str::slug($dataDukungPerencanaan->nama ?? 'data-dukung-perencanaan') . '-' . mt_rand(100000, 999999);
-            $extension = $file->getClientOriginalExtension();
-            $newPath   = "file-data-dukung-perencanaan/{$safeName}.{$extension}";
+            $namaDokumen = $dataDukungPerencanaan->nama ?? 'data-dukung-perencanaan';
+            $versi       = $dataDukungPerencanaan->perubahan_ke;
+            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
+            $extension   = $file->getClientOriginalExtension();
+            $path        = "file-data-dukung-perencanaan/{$fileName}.{$extension}";
 
             // Enkripsi file baru
-            $contents = file_get_contents($file->getRealPath());
-            Storage::disk('local')->put($newPath, encrypt($contents));
+            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
 
             // Hapus file lama kalau ada
             if ($dataDukungPerencanaan->getOriginal('path') && Storage::disk('local')->exists($dataDukungPerencanaan->getOriginal('path'))) {
@@ -53,7 +56,7 @@ class DataDukungPerencanaanObserver
             }
 
             // Simpan path baru ke DB
-            $dataDukungPerencanaan->path = $newPath;
+            $dataDukungPerencanaan->path = $path;
 
             // Hapus temporary file upload Livewire
             @unlink($file->getRealPath());
@@ -66,81 +69,6 @@ class DataDukungPerencanaanObserver
             if ($dataDukungPerencanaan->path && Storage::disk('local')->exists($dataDukungPerencanaan->path)) {
                 Storage::disk('local')->delete($dataDukungPerencanaan->path);
             }
-        }
-    }
-
-    public function created(DataDukungPerencanaan $dataDukungPerencanaan): void
-    {
-        if (!app()->runningInConsole()) {
-            $user = Auth::user();
-            \App\Models\RiwayatAktivitas::create([
-                'user_id'     => $user->id,
-                'aksi'        => 'buat',
-                'jenis_data'  => 'Data Dukung Perencanaan',
-                'deskripsi'   => "User membuat data: {$dataDukungPerencanaan->nama}",
-                'detail_data' => json_encode($dataDukungPerencanaan->getAttributes(), JSON_PRETTY_PRINT),
-                'ip'          => request()->ip(),
-                'subjek_type' => DataDukungPerencanaan::class,
-                'subjek_id'   => $dataDukungPerencanaan->id,
-            ]);
-        }
-    }
-
-    public function updated(DataDukungPerencanaan $dataDukungPerencanaan): void
-    {
-        if (!app()->runningInConsole()) {
-            $user    = Auth::user();
-            $changes = [
-                'before' => $dataDukungPerencanaan->getOriginal(),
-                'after'  => $dataDukungPerencanaan->getDirty(),
-            ];
-
-            \App\Models\RiwayatAktivitas::create([
-                'user_id'     => $user->id,
-                'aksi'        => 'ubah',
-                'jenis_data'  => 'Data Dukung Perencanaan',
-                'deskripsi'   => "User memperbarui data: {$dataDukungPerencanaan->nama}",
-                'detail_data' => json_encode($changes, JSON_PRETTY_PRINT),
-                'ip'          => request()->ip(),
-                'subjek_type' => DataDukungPerencanaan::class,
-                'subjek_id'   => $dataDukungPerencanaan->id,
-            ]);
-        }
-    }
-
-    public function deleted(DataDukungPerencanaan $dataDukungPerencanaan): void
-    {
-        if (!app()->runningInConsole()) {
-            $user = Auth::user();
-            $aksi = $dataDukungPerencanaan->isForceDeleting() ? 'hapus permanen' : 'hapus';
-
-            \App\Models\RiwayatAktivitas::create([
-                'user_id'     => $user->id,
-                'aksi'        => $aksi,
-                'jenis_data'  => 'Data Dukung Perencanaan',
-                'deskripsi'   => "User meng{$aksi} data: {$dataDukungPerencanaan->nama}",
-                'detail_data' => json_encode($dataDukungPerencanaan->getAttributes(), JSON_PRETTY_PRINT),
-                'ip'          => request()->ip(),
-                'subjek_type' => DataDukungPerencanaan::class,
-                'subjek_id'   => $dataDukungPerencanaan->id,
-            ]);
-        }
-    }
-
-    public function restored(DataDukungPerencanaan $dataDukungPerencanaan): void
-    {
-        if (!app()->runningInConsole()) {
-            $user = Auth::user();
-            \App\Models\RiwayatAktivitas::create([
-                'user_id'     => $user->id,
-                'aksi'        => 'pulihkan',
-                'jenis_data'  => 'Data Dukung Perencanaan',
-                'deskripsi'   => "User memulihkan data: {$dataDukungPerencanaan->nama}",
-                'detail_data' => json_encode($dataDukungPerencanaan->getAttributes(), JSON_PRETTY_PRINT),
-                'ip'          => request()->ip(),
-                'subjek_type' => DataDukungPerencanaan::class,
-                'subjek_id'   => $dataDukungPerencanaan->id,
-            ]);
         }
     }
 }
