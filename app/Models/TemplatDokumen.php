@@ -32,9 +32,4 @@ class TemplatDokumen extends Model
     {
         return $this->belongsTo(JenisDokumen::class);
     }
-
-    public function fileTemplatDokumens()
-    {
-        return $this->hasMany(FileTemplatDokumen::class);
-    }
 }

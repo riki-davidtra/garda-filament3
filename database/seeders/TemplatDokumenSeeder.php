@@ -12,21 +12,14 @@ class TemplatDokumenSeeder extends Seeder
 {
     public function run(): void
     {
-        $jenisIds = JenisDokumen::pluck('id')->toArray();
+        $jenisIds = JenisDokumen::all();
 
-        for ($i = 1; $i <= 5; $i++) {
-            $templat = TemplatDokumen::create([
-                'jenis_dokumen_id' => $jenisIds ? $jenisIds[array_rand($jenisIds)] : null,
+        foreach ($jenisIds as $item) {
+            TemplatDokumen::create([
+                'nama'             => "Templat {$item->nama}",
+                'jenis_dokumen_id' => $item->id,
+                'path'             => null,
             ]);
-
-            $fileCount = rand(1, 3);
-            for ($j = 1; $j <= $fileCount; $j++) {
-                FileTemplatDokumen::create([
-                    'templat_dokumen_id' => $templat->id,
-                    'nama'               => "File Templat {$j}",
-                    'path'               => null,
-                ]);
-            }
         }
     }
 }

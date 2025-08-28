@@ -29,14 +29,6 @@ class JenisDokumenSeeder extends Seeder
                 'maksimal_ukuran'      => 20480,
             ],
             [
-                'nama'                 => 'DPPA',
-                'waktu_unggah_mulai'   => now()->addDays(3),
-                'waktu_unggah_selesai' => now()->addDays(10),
-                'batas_unggah'         => 2,
-                'format_file'          => $formatFiles,
-                'maksimal_ukuran'      => 20480,
-            ],
-            [
                 'nama'                 => 'DPA Murni',
                 'waktu_unggah_mulai'   => now()->addDays(3),
                 'waktu_unggah_selesai' => now()->addDays(10),
@@ -97,7 +89,7 @@ class JenisDokumenSeeder extends Seeder
         foreach ($data as $item) {
             $dokumen = JenisDokumen::updateOrCreate(['nama' => $item['nama']], $item);
 
-            if (in_array($dokumen->nama, ['Dokumen Pengarahan', 'DPPA', 'DPA Murni', 'DPA Perubahan', 'DPA Pergeseran'])) {
+            if (in_array($dokumen->nama, ['Dokumen Pengarahan', 'DPA Murni', 'DPA Perubahan', 'DPA Pergeseran'])) {
                 $dokumen->roles()->sync([$superAdmin->id, $admin->id, $pimpinan->id, $perencana->id]);
             } else {
                 $dokumen->roles()->sync([$superAdmin->id, $admin->id, $pimpinan->id, $perencana->id, $userSubbagian->id]);

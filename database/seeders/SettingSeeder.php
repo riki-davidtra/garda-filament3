@@ -24,7 +24,7 @@ class SettingSeeder extends Seeder
                 'name'       => 'Nama Situs',
                 'key'        => 'site_name',
                 'type'       => 'text',
-                'value'      => 'GARDA',
+                'value'      => 'GARDA - BIRO UMUM',
             ],
             [
                 'setting_id' => $settings['konfigurasiSitus']->id,

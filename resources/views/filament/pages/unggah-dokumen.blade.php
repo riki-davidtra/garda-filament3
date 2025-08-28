@@ -8,6 +8,8 @@
                 $belumMulai = $mulai ? $sekarang->lt($mulai) : false;
                 $sudahBerakhir = $selesai ? $sekarang->gt($selesai) : false;
                 $bisaUnggah = $mulai && $selesai ? $sekarang->between($mulai, $selesai) : false;
+
+                $template = $jenis->templatDokumen;
             @endphp
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 flex flex-col items-center text-center border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
@@ -28,6 +30,19 @@
                         {{ \Carbon\Carbon::parse($jenis->waktu_unggah_selesai)->locale('id')->translatedFormat('d M Y H:i') }}
                     @endif
                 </p>
+
+                @if ($template && $template->path && Storage::disk('public')->exists($template->path))
+                    <div class="mt-1 flex gap-2 text-sm">
+                        <span>Unduh template </span>
+                        <a href="{{ Storage::url($template->path) }}" class="text-blue-600 hover:underline" download>
+                            di sini
+                        </a>
+                    </div>
+                @else
+                    <div class="mt-1 text-sm text-gray-500">
+                        Template belum tersedia
+                    </div>
+                @endif
 
                 @can('create Dokumen')
                     @if ($bisaUnggah)

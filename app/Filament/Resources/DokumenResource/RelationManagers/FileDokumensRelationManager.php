@@ -47,7 +47,7 @@ class FileDokumensRelationManager extends RelationManager
                         if ($record && $record->id) {
                             $component->hintAction(
                                 \Filament\Forms\Components\Actions\Action::make('unduh')
-                                    ->label('Unduh File')
+                                    ->label('Unduh')
                                     ->icon('heroicon-o-arrow-down-tray')
                                     ->url(function ($record) {
                                         $path = $record->path;
@@ -197,8 +197,8 @@ class FileDokumensRelationManager extends RelationManager
                     ->createAnother(false),
             ])
             ->actions([
-                Tables\Actions\Action::make('unduh_file')
-                    ->label('Unduh File')
+                Tables\Actions\Action::make('unduh')
+                    ->label('Unduh')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(function ($record) {
                         $path = $record->path;

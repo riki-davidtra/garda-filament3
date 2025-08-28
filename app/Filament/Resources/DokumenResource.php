@@ -39,7 +39,7 @@ class DokumenResource extends Resource
     {
         $user = auth()->user();
 
-        $isSuperOrAdmin = $user->hasRole(['Super Admin', 'admin']);
+        $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
         $isPerencana    = $user->hasRole('perencana');
 
         return $form
@@ -117,11 +117,11 @@ class DokumenResource extends Resource
                     ->disabled(!$isSuperOrAdmin && !$isPerencana),
 
                 Forms\Components\Repeater::make('fileDokumens')
-                    ->label('File Dokumen')
+                    ->label('')
                     ->relationship()
                     ->schema([
                         Forms\Components\FileUpload::make('file_temp')
-                            ->label('File')
+                            ->label('File Dokumen (Upload file sesuai template)')
                             ->required(fn(string $context) => $context === 'create')
                             ->storeFiles(false)
                             ->disk('local')
@@ -132,7 +132,7 @@ class DokumenResource extends Resource
                                     return [];
                                 }
                                 return FormatFile::whereIn('id', $dokumen->format_file)->pluck('mime_types')->toArray();
-                            }),
+                            })
                     ])
                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $record, $livewire) {
                         if (!empty($data['file_temp']) && $data['file_temp'] instanceof TemporaryUploadedFile) {
@@ -177,7 +177,7 @@ class DokumenResource extends Resource
                 if ($jenisDokumenId) {
                     $query->where('jenis_dokumen_id', $jenisDokumenId);
                 }
-                if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
+                if (!$user->hasAnyRole(['Super Admin', 'admin', 'perencana'])) {
                     $query->where('subbagian_id', $user->subbagian_id);
                 }
                 return $query;
@@ -292,6 +292,11 @@ class DokumenResource extends Resource
                     ->relationship('subbagian', 'nama')
                     ->searchable()
                     ->preload(),
+                Tables\Filters\SelectFilter::make('subkegiatan_id')
+                    ->label('Subkegiatan')
+                    ->relationship('subkegiatan', 'nama')
+                    ->searchable()
+                    ->preload(),
                 Tables\Filters\Filter::make('tahun')
                     ->form([
                         Forms\Components\TextInput::make('tahun')
@@ -306,11 +311,12 @@ class DokumenResource extends Resource
                     ->indicateUsing(function (array $data): ?string {
                         return $data['tahun'] ? 'Tahun: ' . $data['tahun'] : null;
                     }),
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make()
+                    ->visible(fn() => Auth::user()->hasAnyRole(['Super Admin', 'admin'])),
             ])
             ->actions([
-                Tables\Actions\Action::make('unduh_file')
-                    ->label('Unduh File')
+                Tables\Actions\Action::make('unduh')
+                    ->label('Unduh')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(function ($record) {
                         $fileTerbaru = $record->fileDokumens()->latest()->first();

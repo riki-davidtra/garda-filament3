@@ -27,7 +27,7 @@ class StatsOverview extends BaseWidget
         ])->count();
 
         $totalPengaduanMenunggu = Pengaduan::where('status', 'Menunggu')
-            ->when(!$user->hasRole(['Super Admin', 'admin', 'perencana']), function ($query) use ($user) {
+            ->when(!$user->hasAnyRole(['Super Admin', 'admin', 'perencana']), function ($query) use ($user) {
                 $query->where('dibuat_oleh', $user->id);
             })->count();
 

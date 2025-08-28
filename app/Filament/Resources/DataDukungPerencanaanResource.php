@@ -65,7 +65,7 @@ class DataDukungPerencanaanResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query, $livewire) {
                 $user = Auth::user();
-                if (!$user->hasRole(['Super Admin', 'admin', 'perencana'])) {
+                if (!$user->hasAnyRole(['Super Admin', 'admin', 'perencana'])) {
                     $query->where('dibuat_oleh', $user->id);
                 }
                 return $query;

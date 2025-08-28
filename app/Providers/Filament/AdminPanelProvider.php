@@ -46,16 +46,16 @@ class AdminPanelProvider extends PanelProvider
                 // 'success' => Color::Green,
                 // 'warning' => Color::Amber,
             ])
-            ->brandName(function () {
-                return App::make('settingItems')['site_name']->value ?? 'Site Name';
-            })
+            ->brandLogo(fn() => view('filament.components.brand-logo'))
+            // ->brandName('')
             ->favicon(function () {
                 return App::make('settingItems')['favicon']->value ?? asset('/assets/images/favicon.png');
             })
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                // Pages\Dashboard::class,
+                \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
