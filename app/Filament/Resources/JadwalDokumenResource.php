@@ -79,6 +79,10 @@ class JadwalDokumenResource extends Resource
                     })
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\IconColumn::make('aktif')
+                    ->label('Aktif')
+                    ->boolean()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime('d-m-Y H:i')
