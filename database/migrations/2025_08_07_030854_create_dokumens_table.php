@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
+            $table->foreignId('jadwal_dokumen_id')->nullable()->constrained('jadwal_dokumens')->nullOnDelete();
             $table->foreignId('subbagian_id')->nullable()->constrained('subbagians')->nullOnDelete();
             $table->foreignId('subkegiatan_id')->nullable()->constrained('subkegiatans')->nullOnDelete();
             $table->string('nama');

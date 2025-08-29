@@ -10,6 +10,9 @@ use App\Models\JenisDokumen;
 
 class TemplatDokumenSeeder extends Seeder
 {
+    /**
+     * Seed the application's database.
+     */
     public function run(): void
     {
         $jenisIds = JenisDokumen::all();

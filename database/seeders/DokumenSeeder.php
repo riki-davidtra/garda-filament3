@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Dokumen;
 use App\Models\JenisDokumen;
+use App\Models\JadwalDokumen;
 use App\Models\Subbagian;
 
 class DokumenSeeder extends Seeder
@@ -18,10 +19,13 @@ class DokumenSeeder extends Seeder
         $subbagians    = Subbagian::all();
 
         foreach ($jenisDokumens as $jenis) {
+            $jadwal = JadwalDokumen::where('jenis_dokumen_id', $jenis->id)->first();
+
             foreach ($subbagians as $subbagian) {
                 Dokumen::updateOrCreate(
                     [
                         'jenis_dokumen_id' => $jenis->id,
+                        'jadwal_dokumen_id' => $jadwal?->id,
                         'subbagian_id'     => $subbagian->id,
                         'subkegiatan_id'   => 1,
                         'nama'             => 'Nama Dokumen ' . $jenis->nama,

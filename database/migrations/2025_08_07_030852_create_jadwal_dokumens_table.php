@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jenis_dokumens', function (Blueprint $table) {
+        Schema::create('jadwal_dokumens', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->string('nama');
-            $table->integer('batas_unggah')->default(0);
-            $table->string('format_file')->nullable();
-            $table->integer('maksimal_ukuran')->default(20480);
+            $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
+            $table->dateTime('waktu_unggah_mulai')->nullable();
+            $table->dateTime('waktu_unggah_selesai')->nullable();
+            $table->boolean('aktif')->default(false);
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jenis_dokumens');
+        Schema::dropIfExists('jadwal_dokumens');
     }
 };

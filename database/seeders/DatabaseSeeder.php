@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             SubkegiatanSeeder::class,
             FormatFileSeeder::class,
             JenisDokumenSeeder::class,
+            jadwalDokumenSeeder::class,
             DokumenSeeder::class,
             PanduanSeeder::class,
             FaqSeeder::class,
