@@ -60,6 +60,7 @@ class JadwalDokumenSeeder extends Seeder
                 JadwalDokumen::updateOrCreate(
                     ['jenis_dokumen_id' => $jenis->id],
                     [
+                        'kode'                 => 'JD' . mt_rand(100000, 999999),
                         'waktu_unggah_mulai'   => $item['waktu_unggah_mulai'],
                         'waktu_unggah_selesai' => $item['waktu_unggah_selesai'],
                         'aktif'                => true,

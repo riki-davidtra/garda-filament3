@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('jadwal_dokumens', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
+            $table->string('kode')->unique();
             $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
             $table->dateTime('waktu_unggah_mulai')->nullable();
             $table->dateTime('waktu_unggah_selesai')->nullable();

@@ -39,35 +39,8 @@ class ListDokumens extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        // hanya tampilkan tombol kalau bisa upload atau admin
-        if (! $this->jenis_dokumen_id) {
-            return [];
-        }
-
-        $jenis = \App\Models\JenisDokumen::find($this->jenis_dokumen_id);
-
-        if (! $jenis) {
-            return [];
-        }
-
-        $now        = now();
-        $mulai      = $jenis->waktu_unggah_mulai ? \Carbon\Carbon::parse($jenis->waktu_unggah_mulai) : null;
-        $selesai    = $jenis->waktu_unggah_selesai ? \Carbon\Carbon::parse($jenis->waktu_unggah_selesai) : null;
-        $bisaUnggah = ($mulai && $selesai) ? $now->between($mulai, $selesai) : false;
-
-        $user    = Auth::user();
-        $isAdmin = $user->hasRole('Super Admin') || $user->hasRole('admin');
-
-        if (!$bisaUnggah && !$isAdmin) {
-            return [];
-        }
-
         return [
-            Actions\CreateAction::make()
-                ->label('Unggah Dokumen')
-                ->url(fn() => DokumenResource::getUrl('create', [
-                    'jenis_dokumen_id' => $this->jenis_dokumen_id,
-                ])),
+            // Actions\CreateAction::make(),
         ];
     }
 

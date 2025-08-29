@@ -50,6 +50,11 @@ class Dokumen extends Model
         return $this->belongsTo(JenisDokumen::class);
     }
 
+    public function jadwalDokumen()
+    {
+        return $this->belongsTo(JadwalDokumen::class);
+    }
+
     public function subkegiatan()
     {
         return $this->belongsTo(Subkegiatan::class);

@@ -12,13 +12,15 @@ class EditDokumen extends EditRecord
     protected static string $resource = DokumenResource::class;
 
     public ?int $jenis_dokumen_id = null;
+    public ?int $jadwal_dokumen_id = null;
 
     public function mount(string|int $record): void
     {
         parent::mount($record);
 
-        // Mengambil parameter jenis_dokumen_id dari query string
+        // Mengambil parameter jenis_dokumen_id & jadwal_dokumen_id dari query string
         $this->jenis_dokumen_id = request()->query('jenis_dokumen_id');
+        $this->jadwal_dokumen_id = request()->query('jadwal_dokumen_id');
     }
 
     public function getBreadcrumbs(): array

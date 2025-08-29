@@ -78,9 +78,9 @@ class UnggahDokumen extends Page implements Tables\Contracts\HasTable
                     ->button()
                     ->color('primary')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.create', [
-                        'jenis_dokumen_id' => $record->jenis_dokumen_id
+                        'jenis_dokumen_id'  => $record->jenis_dokumen_id,
+                        'jadwal_dokumen_id' => $record->id,
                     ]))
-                    ->openUrlInNewTab()
                     ->visible(
                         fn($record) => $record->waktu_unggah_mulai && $record->waktu_unggah_selesai &&  now()->between($record->waktu_unggah_mulai, $record->waktu_unggah_selesai)
                     )

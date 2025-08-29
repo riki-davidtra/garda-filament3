@@ -44,32 +44,6 @@ class DokumenResource extends Resource
 
         return $form
             ->schema([
-                Forms\Components\Select::make('jenis_dokumen_id')
-                    ->label('Jenis Dokumen')
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->relationship('jenisDokumen', 'nama', function ($query) {
-                        $query->orderBy('nama', 'asc');
-                    })
-                    ->hiddenOn('create')
-                    ->disabled(!$isSuperOrAdmin),
-                Forms\Components\Select::make('subbagian_id')
-                    ->label('Subbagian')
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->relationship(
-                        'subbagian',
-                        'nama',
-                        fn($query) => $query->with('bagian')
-                            ->orderBy(
-                                \App\Models\Bagian::select('nama')->whereColumn('bagians.id', 'subbagians.bagian_id')
-                            )->orderBy('nama')
-                    )
-                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->bagian->nama} - {$record->nama}")
-                    ->hidden(fn() => $form->getOperation() === 'create')
-                    ->disabled(!$isSuperOrAdmin),
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama Dokumen')
                     ->required()
@@ -94,27 +68,6 @@ class DokumenResource extends Resource
                     ->nullable()
                     ->maxLength(3000)
                     ->columnSpanFull(),
-                Forms\Components\Radio::make('status')
-                    ->label('Status')
-                    ->required()
-                    ->options([
-                        'Menunggu Persetujuan'        => 'Menunggu Persetujuan',
-                        'Diterima'                    => 'Diterima',
-                        'Ditolak'                     => 'Ditolak',
-                        'Revisi Menunggu Persetujuan' => 'Revisi Menunggu Persetujuan',
-                        'Revisi Diterima'             => 'Revisi Diterima',
-                        'Revisi Ditolak'              => 'Revisi Ditolak',
-                    ])
-                    ->default('Menunggu Persetujuan')
-                    ->hiddenOn('create')
-                    ->disabled(!$isSuperOrAdmin && !$isPerencana),
-                Forms\Components\RichEditor::make('komentar')
-                    ->label('Komentar')
-                    ->nullable()
-                    ->maxLength(3000)
-                    ->columnSpanFull()
-                    ->hiddenOn('create')
-                    ->disabled(!$isSuperOrAdmin && !$isPerencana),
 
                 Forms\Components\Repeater::make('fileDokumens')
                     ->label('')
@@ -122,7 +75,7 @@ class DokumenResource extends Resource
                     ->schema([
                         Forms\Components\FileUpload::make('file_temp')
                             ->label('File Dokumen (Upload file sesuai template)')
-                            ->required(fn(string $context) => $context === 'create')
+                            ->nullable()
                             ->storeFiles(false)
                             ->disk('local')
                             ->directory('temp')
@@ -165,6 +118,74 @@ class DokumenResource extends Resource
                     ->disableItemDeletion()
                     ->columnSpanFull()
                     ->visibleOn('create'),
+
+                Forms\Components\Fieldset::make('Relasi Data')
+                    ->schema([
+                        Forms\Components\Select::make('jenis_dokumen_id')
+                            ->label('Jenis Dokumen')
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->relationship('jenisDokumen', 'nama', function ($query) {
+                                $query->orderBy('nama', 'asc');
+                            })
+                            ->hiddenOn('create'),
+                        Forms\Components\Select::make('jadwal_dokumen_id')
+                            ->label('Kode Jadwal')
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->relationship('jadwalDokumen', 'kode', function ($query, $get) {
+                                $jenisId = $get('jenis_dokumen_id');
+                                if ($jenisId) {
+                                    $query->where('jenis_dokumen_id', $jenisId);
+                                }
+                                $query->orderBy('kode', 'asc');
+                            })
+                            ->hiddenOn('create'),
+                        Forms\Components\Select::make('subbagian_id')
+                            ->label('Subbagian')
+                            ->nullable()
+                            ->searchable()
+                            ->preload()
+                            ->relationship(
+                                'subbagian',
+                                'nama',
+                                fn($query) => $query->with('bagian')
+                                    ->orderBy(
+                                        \App\Models\Bagian::select('nama')->whereColumn('bagians.id', 'subbagians.bagian_id')
+                                    )->orderBy('nama')
+                            )
+                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->bagian->nama} - {$record->nama}")
+                            ->hiddenOn('create'),
+                    ])
+                    ->hiddenOn('create')
+                    ->visible($isSuperOrAdmin),
+
+                Forms\Components\Fieldset::make('Status Dokumen')
+                    ->schema([
+                        Forms\Components\Radio::make('status')
+                            ->label('Status')
+                            ->required()
+                            ->options([
+                                'Menunggu Persetujuan'        => 'Menunggu Persetujuan',
+                                'Diterima'                    => 'Diterima',
+                                'Ditolak'                     => 'Ditolak',
+                                'Revisi Menunggu Persetujuan' => 'Revisi Menunggu Persetujuan',
+                                'Revisi Diterima'             => 'Revisi Diterima',
+                                'Revisi Ditolak'              => 'Revisi Ditolak',
+                            ])
+                            ->default('Menunggu Persetujuan')
+                            ->hiddenOn('create')
+                            ->disabled(!$isSuperOrAdmin && !$isPerencana),
+                        Forms\Components\Textarea::make('komentar')
+                            ->label('Komentar')
+                            ->nullable()
+                            ->maxLength(3000)
+                            ->columnSpanFull()
+                            ->disabled(!$isSuperOrAdmin && !$isPerencana),
+                    ])
+                    ->hiddenOn('create'),
             ]);
     }
 

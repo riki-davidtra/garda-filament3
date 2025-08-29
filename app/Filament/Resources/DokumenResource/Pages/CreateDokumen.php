@@ -13,17 +13,19 @@ class CreateDokumen extends CreateRecord
 {
     protected static string $resource = DokumenResource::class;
 
-    public ?int $jenis_dokumen_id = null;
+    public ?int $jenis_dokumen_id  = null;
+    public ?int $jadwal_dokumen_id = null;
 
     public function mount(): void
     {
         parent::mount();
 
-        // Mengambil parameter jenis_dokumen_id dari query string
-        $this->jenis_dokumen_id = request()->query('jenis_dokumen_id');
+        // Mengambil parameter jenis_dokumen_id & jadwal_dokumen_id dari query string
+        $this->jenis_dokumen_id  = request()->query('jenis_dokumen_id');
+        $this->jadwal_dokumen_id = request()->query('jadwal_dokumen_id');
 
         // Batasi akses route berdasarkan rentang waktu unggah 
-        $jenis = JenisDokumen::find($this->jenis_dokumen_id);
+        $jenis = JenisDokumen::with('jadwalDokumens')->find($this->jenis_dokumen_id);
 
         if (!$jenis) {
             abort(404, 'Jenis dokumen tidak ditemukan.');
@@ -31,16 +33,32 @@ class CreateDokumen extends CreateRecord
 
         $sekarang = now();
 
-        if ($jenis->waktu_unggah_mulai?->gt($sekarang)) {
-            abort(403, 'Belum masuk waktu unggah untuk dokumen ini.');
-        }
+        // Jadwal aktif saat ini
+        $jadwalAktif = $jenis->jadwalDokumens
+            ->first(
+                fn($jadwal) =>
+                $jadwal->waktu_unggah_mulai &&
+                    $jadwal->waktu_unggah_selesai &&
+                    $sekarang->between($jadwal->waktu_unggah_mulai, $jadwal->waktu_unggah_selesai)
+            );
 
-        if ($jenis->waktu_unggah_selesai?->lt($sekarang)) {
-            abort(403, 'Waktu unggah dokumen ini sudah berakhir.');
-        }
+        // Validasi jadwal_dokumen_id jika dikirim di URL
+        if ($this->jadwal_dokumen_id) {
+            $jadwalDipilih = $jenis->jadwalDokumens
+                ->where('id', $this->jadwal_dokumen_id)
+                ->first();
 
-        if (!$jenis->waktu_unggah_mulai || !$jenis->waktu_unggah_selesai) {
-            abort(403, 'Waktu unggah untuk dokumen ini belum ditentukan.');
+            if (!$jadwalDipilih) {
+                abort(403, 'Jadwal dokumen tidak valid.');
+            }
+
+            // Pastikan jadwal yang dikirim masih aktif
+            if (! $sekarang->between($jadwalDipilih->waktu_unggah_mulai, $jadwalDipilih->waktu_unggah_selesai)) {
+                abort(403, 'Jadwal dokumen yang dipilih tidak aktif.');
+            }
+        } else {
+            // Kalau tidak dikirim, gunakan jadwal aktif otomatis (boleh null)
+            $this->jadwal_dokumen_id = null;
         }
     }
 
@@ -62,10 +80,9 @@ class CreateDokumen extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Menyimpan jenis_dokumen_id & subbagian_id yang membuat dokumen
-        if (empty($data['jenis_dokumen_id'])) {
-            $data['jenis_dokumen_id'] = $this->jenis_dokumen_id;
-        }
-        $data['subbagian_id'] = auth()->check() ? auth()->user()->subbagian_id : null;
+        $data['jenis_dokumen_id']  = $data['jenis_dokumen_id'] ?? $this->jenis_dokumen_id;
+        $data['jadwal_dokumen_id'] = $data['jadwal_dokumen_id'] ?? $this->jadwal_dokumen_id;
+        $data['subbagian_id']      = Auth::user()?->subbagian_id;
 
         return $data;
     }
@@ -73,8 +90,7 @@ class CreateDokumen extends CreateRecord
     protected function getCreateFormAction(): Action
     {
         // Ganti label tombol submit
-        return parent::getCreateFormAction()
-            ->label('Kirim');
+        return parent::getCreateFormAction()->label('Kirim');
     }
 
     // Hilangkan tombol create another
@@ -84,8 +100,8 @@ class CreateDokumen extends CreateRecord
     {
         // Menentukan URL redirect setelah dokumen berhasil dibuat.
         return $this->getResource()::getUrl('edit', [
-            'record'           => $this->record->uuid,
-            'jenis_dokumen_id' => $this->jenis_dokumen_id,
+            'record'            => $this->record->uuid,
+            'jenis_dokumen_id'  => $this->jenis_dokumen_id,
         ]);
     }
 }

@@ -28,6 +28,10 @@ class JadwalDokumenResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\DateTimePicker::make('kode')
+                    ->label('Kode')
+                    ->disabled()
+                    ->hiddenOn('create'),
                 Forms\Components\Select::make('jenis_dokumen_id')
                     ->label('Jenis Dokumen')
                     ->required()
@@ -53,6 +57,10 @@ class JadwalDokumenResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
+                Tables\Columns\TextColumn::make('kode')
+                    ->label('Kode')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('jenisDokumen.nama')
                     ->label('Jenis Dokumen')
                     ->searchable()
