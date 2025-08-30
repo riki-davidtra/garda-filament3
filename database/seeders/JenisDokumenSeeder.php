@@ -46,7 +46,7 @@ class JenisDokumenSeeder extends Seeder
             if (in_array($dokumen->nama, ['Dokumen Pengarahan', 'DPA Murni', 'DPA Perubahan', 'DPA Pergeseran'])) {
                 $dokumen->roles()->sync([$perencana->id]);
             } else {
-                $dokumen->roles()->sync([$perencana->id, $userSubbagian->id]);
+                $dokumen->roles()->sync([$userSubbagian->id]);
             }
         }
     }

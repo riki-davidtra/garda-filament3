@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 
 class DataDukungPerencanaanResource extends Resource
 {
@@ -30,38 +32,41 @@ class DataDukungPerencanaanResource extends Resource
     {
         return $form
             ->schema([
-                // Forms\Components\TextInput::make('nama')
-                //     ->label('Nama Data Dukung')
-                //     ->required()
-                //     ->string()
-                //     ->maxLength(255),
-
-                Forms\Components\Select::make('nama_select')
+                Forms\Components\Select::make('nama')
                     ->label('Nama Data Dukung')
+                    ->required()
                     ->options([
-                        'Option 1' => 'Option 1',
-                        'Option 2' => 'Option 2',
-                        'Option 3' => 'Option 3',
-                        'other'    => 'Lainnya',
+                        'Aset'                              => 'Aset',
+                        'Kepegawaian'                       => 'Kepegawaian',
+                        'Laporan Pengaduan Barang dan Jasa' => 'Laporan Pengaduan Barang dan Jasa',
+                        'lainnya'                           => 'Lainnya',
                     ])
-                    ->reactive()
-                    ->dehydrated(false), // jangan kirim ke DB
 
-                Forms\Components\TextInput::make('nama_lainnya')
+                    ->live()
+                    ->afterStateHydrated(function ($state, Set $set) {
+                        if ($state && !in_array($state, [
+                            'Aset',
+                            'Kepegawaian',
+                            'Laporan Pengaduan Barang dan Jasa'
+                        ])) {
+                            $set('nama', 'lainnya');
+                            $set('nama_input', $state);
+                        }
+                    }),
+
+                Forms\Components\TextInput::make('nama_input')
                     ->label('Nama Lainnya')
-                    ->visible(fn(Forms\Get $get) => $get('nama_select') === 'other')
-                    ->requiredIf('nama_select', 'other')
-                    ->dehydrated(false), // jangan kirim ke DB
-
-                // Field "nama" yang akan disimpan ke DB
-                Forms\Components\TextInput::make('nama')
-                    ->label('Nama Data Dukung')
-                    // ->hidden()
-                    ->dehydrated() // ini tetap dikirim ke DB
-                    ->default(function (Forms\Get $get) {
-                        $select = $get('nama_select');
-                        $other  = $get('nama_lainnya');
-                        return $select === 'other' ? $other : $select;
+                    ->required()
+                    ->maxLength(255)
+                    ->visible(fn(Get $get): bool => $get('nama') === 'lainnya')
+                    ->dehydrateStateUsing(
+                        fn($state, Get $get) =>
+                        $get('nama') === 'lainnya' ? $state : null
+                    )
+                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                        if ($get('nama') === 'lainnya') {
+                            $set('nama', $state);
+                        }
                     }),
 
                 Forms\Components\Textarea::make('keterangan')

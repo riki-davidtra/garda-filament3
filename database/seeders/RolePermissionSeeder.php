@@ -48,6 +48,7 @@ class RolePermissionSeeder extends Seeder
 
             'view-any FileDokumen',
             'view FileDokumen',
+            'create FileDokumen',
 
             'view-any Panduan',
             'view Panduan',

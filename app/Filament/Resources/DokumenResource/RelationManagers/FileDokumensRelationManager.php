@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class FileDokumensRelationManager extends RelationManager
 {
@@ -80,6 +81,11 @@ class FileDokumensRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        $user           = Auth::user();
+        $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
+        $isPerencana    = $user->hasRole('perencana');
+        $isSubbagian    = $user->hasRole('subbagian');
+
         return $table
             ->recordTitleAttribute('nama')
             ->defaultSort('created_at', 'desc')
@@ -171,30 +177,37 @@ class FileDokumensRelationManager extends RelationManager
             ])
             ->description(function () {
                 $dokumen = $this->getOwnerRecord();
-
                 if (!$dokumen || !$dokumen->jenisDokumen) {
                     return 'Belum ada informasi jenis dokumen.';
                 }
-
                 $current = $dokumen->fileDokumens()->count();
                 $batas   = $dokumen->jenisDokumen->batas_unggah;
-
-                return $current < $batas
-                    ? "Anda sudah menggunakan {$current} dari {$batas} kesempatan unggah file."
-                    :         "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
+                return $current < $batas ? "Dokumen ini sudah menggunakan {$current} dari {$batas} kesempatan unggah file." : "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
             })
             ->headerActions([
+                // Ditampilkan aksi jika tidak lewat batas unggah, user Super Admin/Admin, perencana atau memiliki role yang sesuai dengan jenis dokumen
                 Tables\Actions\CreateAction::make()
                     ->label('Unggah File Dokumen')
                     ->modalHeading('Unggah File Dokumen')
                     ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data))
+                    ->createAnother(false)
                     ->visible(function () {
                         $dokumen = $this->getOwnerRecord();
                         $jenis   = $dokumen?->jenisDokumen;
                         return $dokumen && $jenis
                             && $dokumen->fileDokumens()->count() < $jenis->batas_unggah;
                     })
-                    ->createAnother(false),
+                    ->visible(function () use ($user, $isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
+                        $dokumen = $this->getOwnerRecord();
+                        if (!$dokumen) return false;
+                        $jenisDokumen = $dokumen->jenisDokumen;
+                        if (!$jenisDokumen) return false;
+                        if ($dokumen->fileDokumens()->count() >= $jenisDokumen->batas_unggah) {
+                            return false;
+                        }
+                        return $user && $jenisDokumen->roles && $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                    }),
             ])
             ->actions([
                 Tables\Actions\Action::make('unduh')

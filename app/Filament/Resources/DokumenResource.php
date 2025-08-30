@@ -44,18 +44,29 @@ class DokumenResource extends Resource
 
         return $form
             ->schema([
+                // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama Dokumen')
                     ->required()
                     ->string()
                     ->maxLength(255)
-                    ->helperText('Contoh: [RKA Perubahan] - [Rumah Tangga] - [Urusan Dalam]'),
+                    ->helperText('Contoh: [RKA Perubahan] - [Rumah Tangga] - [Urusan Dalam]')
+                    ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
+                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
+                        return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                    }),
 
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
                     ->options(fn() => array_combine(range(date('Y'), 2020), range(date('Y'), 2020)))
-                    ->default(date('Y')),
+                    ->default(date('Y'))
+                    ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
+                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
+                        return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                    }),
 
                 Forms\Components\Select::make('subkegiatan_id')
                     ->label('Subkegiatan')
@@ -64,13 +75,23 @@ class DokumenResource extends Resource
                     ->preload()
                     ->relationship('subkegiatan', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
+                    })
+                    ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
+                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
+                        return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
                     }),
 
                 Forms\Components\Textarea::make('keterangan')
                     ->label('Keterangan')
                     ->nullable()
                     ->maxLength(3000)
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
+                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
+                        return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                    }),
 
                 // Tampilkan repeater unggah file dokumen hanya di create
                 Forms\Components\Repeater::make('fileDokumens')
@@ -386,15 +407,16 @@ class DokumenResource extends Resource
                     })
                     ->openUrlInNewTab(),
 
-                // Ditampilkan aksi jika user Super Admin/Admin atau memiliki role yang sesuai dengan jenis dokumen
+                // Ditampilkan aksi jika user Super Admin/Admin, perencana atau memiliki role yang sesuai dengan jenis dokumen
                 Tables\Actions\EditAction::make()
                     ->label('Detail Dokumen')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
                     ]))
-                    ->visible(function ($record) use ($user, $isSuperOrAdmin) {
+                    ->visible(function ($record) use ($user, $isSuperOrAdmin, $isPerencana) {
                         if ($isSuperOrAdmin) return true;
+                        if ($isPerencana) return true;
                         $jenisDokumen = $record->jenisDokumen;
                         return $user && $jenisDokumen && $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
                     }),
