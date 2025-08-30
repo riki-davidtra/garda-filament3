@@ -32,6 +32,7 @@ class TemplatDokumenResource extends Resource
                     ->label('Nama')
                     ->required()
                     ->maxLength(255),
+
                 Forms\Components\Select::make('jenis_dokumen_id')
                     ->label('Jenis Dokumen')
                     ->nullable()
@@ -41,6 +42,7 @@ class TemplatDokumenResource extends Resource
                         $query->orderBy('nama', 'asc');
                     })
                     ->unique(ignoreRecord: true),
+
                 Forms\Components\FileUpload::make('path')
                     ->label('File')
                     ->nullable()
@@ -71,10 +73,12 @@ class TemplatDokumenResource extends Resource
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('jenisDokumen.nama')
                     ->label('Jenis Dokumen')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime('d-m-Y H:i')
@@ -83,6 +87,7 @@ class TemplatDokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
                     ->dateTime('d-m-Y H:i')

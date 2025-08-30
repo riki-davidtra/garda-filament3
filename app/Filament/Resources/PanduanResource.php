@@ -34,6 +34,7 @@ class PanduanResource extends Resource
                     ->string()
                     ->maxLength(255)
                     ->columnSpanFull(),
+
                 Forms\Components\RichEditor::make('deskripsi')
                     ->label('Deskripsi')
                     ->nullable()
@@ -50,6 +51,7 @@ class PanduanResource extends Resource
                         'redo',
                     ])
                     ->columnSpanFull(),
+
                 Forms\Components\FileUpload::make('file')
                     ->label('File')
                     ->nullable()
@@ -89,6 +91,7 @@ class PanduanResource extends Resource
                     ->label('Judul')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime('d-m-Y H:i')
@@ -97,6 +100,7 @@ class PanduanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
                     ->dateTime('d-m-Y H:i')

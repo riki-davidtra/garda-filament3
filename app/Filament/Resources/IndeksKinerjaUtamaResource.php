@@ -52,6 +52,7 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->validationMessages([
                         'unique' => 'Indikator dan Periode untuk tahun ini sudah ada!',
                     ]),
+
                 Forms\Components\Select::make('periode')
                     ->label('Periode')
                     ->required()
@@ -109,6 +110,7 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->limit(35)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('periode')
                     ->label('Periode')
                     ->searchable()
@@ -118,6 +120,7 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->alignCenter()
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Diisi Oleh')
                     ->description(function ($record) {
@@ -135,6 +138,7 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Direvisi Oleh')
                     ->description(function ($record) {
@@ -152,6 +156,7 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('penghapus.name')
                     ->label('Dihapus Oleh')
                     ->description(function ($record) {
@@ -169,6 +174,7 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pemulih.name')
                     ->label('Dipulihkan Oleh')
                     ->description(function ($record) {
@@ -209,6 +215,7 @@ class IndeksKinerjaUtamaResource extends Resource
                             $fileName
                         );
                     }),
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\RestoreAction::make(),

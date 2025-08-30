@@ -61,6 +61,8 @@ class RolePermissionSeeder extends Seeder
 
             'view-any TemplatDokumen',
             'view TemplatDokumen',
+            'create TemplatDokumen',
+            'update TemplatDokumen',
         ];
         $subbagianPermissions = [
             'view-any Dokumen',

@@ -16,4 +16,15 @@ class EditDataDukungPerencanaan extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['nama'] = $data['nama_select'] === 'other'
+            ? ($data['nama_lainnya'] ?? null)
+            : ($data['nama_select'] ?? null);
+
+        unset($data['nama_select'], $data['nama_lainnya']);
+
+        return $data;
+    }
 }

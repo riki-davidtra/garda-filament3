@@ -39,6 +39,7 @@ class UserResource extends Resource
                     ->enableOpen()
                     ->enableDownload()
                     ->maxSize(2048),
+
                 Forms\Components\Grid::make(2)
                     ->schema([
                         Forms\Components\TextInput::make('name')
@@ -46,12 +47,14 @@ class UserResource extends Resource
                             ->required()
                             ->string()
                             ->maxLength(255),
+
                         Forms\Components\TextInput::make('username')
                             ->label('Username')
                             ->required()
                             ->string()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
+
                         Forms\Components\TextInput::make('email')
                             ->label('Email')
                             ->required()
@@ -59,6 +62,7 @@ class UserResource extends Resource
                             ->maxLength(255)
                             ->email()
                             ->unique(ignoreRecord: true),
+
                         Forms\Components\TextInput::make('password')
                             ->label('Password')
                             ->password()
@@ -69,6 +73,7 @@ class UserResource extends Resource
                             ->revealable()
                             ->autocomplete('new-password')
                             ->dehydrated(fn($state) => !empty($state)),
+
                         Forms\Components\TextInput::make('password_confirmation')
                             ->label('Konfirmasi Password')
                             ->password()
@@ -77,12 +82,14 @@ class UserResource extends Resource
                             ->minLength(6)
                             ->revealable()
                             ->dehydrated(fn($state) => !empty($state)),
+
                         Forms\Components\TextInput::make('nip')
                             ->label('NIP')
                             ->nullable()
                             ->numeric()
                             ->maxLength(18)
                             ->unique(ignoreRecord: true),
+
                         Forms\Components\Select::make('subbagian_id')
                             ->label('Subbagian')
                             ->nullable()
@@ -97,6 +104,7 @@ class UserResource extends Resource
                                     )->orderBy('nama')
                             )
                             ->getOptionLabelFromRecordUsing(fn($record) => "{$record->bagian->nama} - {$record->nama}"),
+
                         Forms\Components\Select::make('roles')
                             ->label('Peran')
                             ->nullable()
@@ -119,22 +127,27 @@ class UserResource extends Resource
                     ->height(50)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('username')
                     ->label('Username')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('nip')
                     ->label('NIP')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('subbagian.nama')
                     ->label('Subbagian')
                     ->formatStateUsing(
@@ -143,11 +156,13 @@ class UserResource extends Resource
                     )
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Peran')
                     ->badge()
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime('d-m-Y H:i')
@@ -156,6 +171,7 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
                     ->dateTime('d-m-Y H:i')

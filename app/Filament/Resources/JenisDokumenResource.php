@@ -33,23 +33,27 @@ class JenisDokumenResource extends Resource
                     ->required()
                     ->string()
                     ->maxLength(255),
+
                 Forms\Components\TextInput::make('batas_unggah')
                     ->label('Batas Unggah')
                     ->nullable()
                     ->numeric()
                     ->default(0),
+
                 Forms\Components\Select::make('format_file')
                     ->label('Format File')
                     ->nullable()
                     ->multiple()
                     ->options(\App\Models\FormatFile::all()->pluck('nama', 'id'))
                     ->dehydrateStateUsing(fn($state) => array_map('intval', $state)),
+
                 Forms\Components\TextInput::make('maksimal_ukuran')
                     ->label('Maks. Ukuran')
                     ->nullable()
                     ->numeric()
                     ->suffix('KB')
                     ->default(0),
+
                 Forms\Components\Select::make('roles')
                     ->label('Akses Peran')
                     ->nullable()
@@ -69,11 +73,13 @@ class JenisDokumenResource extends Resource
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('batas_unggah')
                     ->label('Batas Unggah')
                     ->badge()
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('format_file')
                     ->label('Format File')
                     ->badge()
@@ -86,17 +92,20 @@ class JenisDokumenResource extends Resource
                     })
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('maksimal_ukuran')
                     ->label('Maks. Ukuran')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state ? number_format($state / 1024, 0) . ' MB' : '-')
                     ->sortable()
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Akses Peran')
                     ->badge()
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime('d-m-Y H:i')
@@ -105,6 +114,7 @@ class JenisDokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
                     ->dateTime('d-m-Y H:i')

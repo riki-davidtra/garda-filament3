@@ -37,10 +37,10 @@ class DokumenResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $user = auth()->user();
-
+        $user           = Auth::user();
         $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
         $isPerencana    = $user->hasRole('perencana');
+        $isSubbagian    = $user->hasRole('subbagian');
 
         return $form
             ->schema([
@@ -50,11 +50,13 @@ class DokumenResource extends Resource
                     ->string()
                     ->maxLength(255)
                     ->helperText('Contoh: [RKA Perubahan] - [Rumah Tangga] - [Urusan Dalam]'),
+
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
                     ->options(fn() => array_combine(range(date('Y'), 2020), range(date('Y'), 2020)))
                     ->default(date('Y')),
+
                 Forms\Components\Select::make('subkegiatan_id')
                     ->label('Subkegiatan')
                     ->required()
@@ -63,12 +65,14 @@ class DokumenResource extends Resource
                     ->relationship('subkegiatan', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
                     }),
+
                 Forms\Components\Textarea::make('keterangan')
                     ->label('Keterangan')
                     ->nullable()
                     ->maxLength(3000)
                     ->columnSpanFull(),
 
+                // Tampilkan repeater unggah file dokumen hanya di create
                 Forms\Components\Repeater::make('fileDokumens')
                     ->label('')
                     ->relationship()
@@ -119,6 +123,7 @@ class DokumenResource extends Resource
                     ->columnSpanFull()
                     ->visibleOn('create'),
 
+                // Tampilkan relasi data jika roles Super Admin/Admin
                 Forms\Components\Fieldset::make('Relasi Data')
                     ->schema([
                         Forms\Components\Select::make('jenis_dokumen_id')
@@ -130,6 +135,7 @@ class DokumenResource extends Resource
                                 $query->orderBy('nama', 'asc');
                             })
                             ->hiddenOn('create'),
+
                         Forms\Components\Select::make('jadwal_dokumen_id')
                             ->label('Kode Jadwal')
                             ->required()
@@ -143,6 +149,7 @@ class DokumenResource extends Resource
                                 $query->orderBy('kode', 'asc');
                             })
                             ->hiddenOn('create'),
+
                         Forms\Components\Select::make('subbagian_id')
                             ->label('Subbagian')
                             ->nullable()
@@ -162,6 +169,7 @@ class DokumenResource extends Resource
                     ->hiddenOn('create')
                     ->visible($isSuperOrAdmin),
 
+                // Ditampilkan untuk Super Admin/Admin, atau tampil jika jenis dokumen terkait memiliki role 'subbagian'
                 Forms\Components\Fieldset::make('Status Dokumen')
                     ->schema([
                         Forms\Components\Radio::make('status')
@@ -178,6 +186,7 @@ class DokumenResource extends Resource
                             ->default('Menunggu Persetujuan')
                             ->hiddenOn('create')
                             ->disabled(!$isSuperOrAdmin && !$isPerencana),
+
                         Forms\Components\Textarea::make('komentar')
                             ->label('Komentar')
                             ->nullable()
@@ -185,20 +194,31 @@ class DokumenResource extends Resource
                             ->columnSpanFull()
                             ->disabled(!$isSuperOrAdmin && !$isPerencana),
                     ])
-                    ->hiddenOn('create'),
+                    ->hiddenOn('create')
+                    ->visible(function ($get, $livewire) use ($isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
+                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
+                        if (!$jenisDokumen) return false;
+                        return $jenisDokumen->roles->contains('name', 'subbagian');
+                    }),
             ]);
     }
 
     public static function table(Table $table): Table
     {
+        $user           = Auth::user();
+        $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
+        $isPerencana    = $user->hasRole('perencana');
+        $isSubbagian    = $user->hasRole('subbagian');
+
         return $table
-            ->modifyQueryUsing(function (Builder $query, $livewire) {
-                $user           = Auth::user();
+            // Filter query: batasi data berdasarkan jenis dokumen dan subbagian jika bukan Super Admin/Admin atau Perencana
+            ->modifyQueryUsing(function (Builder $query, $livewire) use ($user, $isSuperOrAdmin, $isPerencana) {
                 $jenisDokumenId = $livewire->jenis_dokumen_id;
                 if ($jenisDokumenId) {
                     $query->where('jenis_dokumen_id', $jenisDokumenId);
                 }
-                if (!$user->hasAnyRole(['Super Admin', 'admin', 'perencana'])) {
+                if (!$isSuperOrAdmin && !$isPerencana) {
                     $query->where('subbagian_id', $user->subbagian_id);
                 }
                 return $query;
@@ -209,23 +229,18 @@ class DokumenResource extends Resource
                     ->label('Nama Dokumen')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('tahun')
                     ->label('Tahun')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('subkegiatan.nama')
                     ->label('Subkegiatan')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('subbagian.nama')
-                    ->label('Subbagian')
-                    ->formatStateUsing(
-                        fn($record) =>
-                        "{$record->subbagian?->bagian?->nama} - {$record->subbagian?->nama}"
-                    )
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
+
+                // Ditampilkan untuk Super Admin/Admin, atau tampil jika jenis dokumen terkait memiliki role 'subbagian'
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -237,7 +252,22 @@ class DokumenResource extends Resource
                         'Revisi Ditolak'              => 'danger',
                         default                       => 'secondary',
                     })
+                    ->searchable()
+                    ->sortable()
+                    ->visible(function ($livewire) use ($isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
+                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
+                        if (!$jenisDokumen) return false;
+                        return $jenisDokumen->roles->contains('name', 'subbagian');
+                    }),
+
+                Tables\Columns\TextColumn::make('subbagian.nama')
+                    ->label('Subbagian')
+                    ->formatStateUsing(fn($record) => "{$record->subbagian?->bagian?->nama} - {$record->subbagian?->nama}")
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dibuat Oleh')
                     ->description(function ($record) {
@@ -255,6 +285,7 @@ class DokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Diperbarui Oleh')
                     ->description(function ($record) {
@@ -272,6 +303,7 @@ class DokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('penghapus.name')
                     ->label('Dihapus Oleh')
                     ->description(function ($record) {
@@ -289,6 +321,7 @@ class DokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pemulih.name')
                     ->label('Dipulihkan Oleh')
                     ->description(function ($record) {
@@ -313,11 +346,13 @@ class DokumenResource extends Resource
                     ->relationship('subbagian', 'nama')
                     ->searchable()
                     ->preload(),
+
                 Tables\Filters\SelectFilter::make('subkegiatan_id')
                     ->label('Subkegiatan')
                     ->relationship('subkegiatan', 'nama')
                     ->searchable()
                     ->preload(),
+
                 Tables\Filters\Filter::make('tahun')
                     ->form([
                         Forms\Components\TextInput::make('tahun')
@@ -332,10 +367,12 @@ class DokumenResource extends Resource
                     ->indicateUsing(function (array $data): ?string {
                         return $data['tahun'] ? 'Tahun: ' . $data['tahun'] : null;
                     }),
+
                 Tables\Filters\TrashedFilter::make()
-                    ->visible(fn() => Auth::user()->hasAnyRole(['Super Admin', 'admin'])),
+                    ->visible(fn() => $isSuperOrAdmin),
             ])
             ->actions([
+                // Tampilkan aksi hanya jika ada file dokumen terbaru yang tersedia di storage
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
                     ->icon('heroicon-o-arrow-down-tray')
@@ -345,22 +382,23 @@ class DokumenResource extends Resource
                     })
                     ->visible(function ($record) {
                         $fileTerbaru = $record->fileDokumens()->latest()->first();
-                        return $fileTerbaru
-                            && $fileTerbaru->path
-                            && Storage::disk('local')->exists($fileTerbaru->path);
+                        return $fileTerbaru && $fileTerbaru->path && Storage::disk('local')->exists($fileTerbaru->path);
                     })
                     ->openUrlInNewTab(),
+
+                // Ditampilkan aksi jika user Super Admin/Admin atau memiliki role yang sesuai dengan jenis dokumen
                 Tables\Actions\EditAction::make()
                     ->label('Detail Dokumen')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
                     ]))
-                    ->visible(function ($record) {
-                        $user         = Auth::user();
+                    ->visible(function ($record) use ($user, $isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
                         $jenisDokumen = $record->jenisDokumen;
                         return $user && $jenisDokumen && $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
                     }),
+
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
             ])

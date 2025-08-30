@@ -33,28 +33,28 @@ class RiwayatAktivitasResource extends Resource
                     ->relationship('user', 'name')
                     ->visibleOn('view')
                     ->disabled(),
+
                 Forms\Components\TextInput::make('aksi')
                     ->label('Aksi')
                     ->visibleOn('view')
                     ->disabled(),
+
                 Forms\Components\TextInput::make('jenis_data')
                     ->label('Jenis Data')
                     ->visibleOn('view')
                     ->disabled(),
-                // Forms\Components\Textarea::make('deskripsi')
-                //     ->label('Deskripsi')
-                //     ->visibleOn('view')
-                //     ->columnSpanFull()
-                //     ->disabled(),
+
                 Forms\Components\Textarea::make('detail_data')
                     ->label('Detail Data')
                     ->visibleOn('view')
                     ->columnSpanFull()
                     ->disabled(),
+
                 Forms\Components\TextInput::make('ip')
                     ->label('Alamat IP')
                     ->visibleOn('view')
                     ->disabled(),
+
                 Forms\Components\DateTimePicker::make('created_at')
                     ->label('Waktu Dibuat')
                     ->disabled()
@@ -71,6 +71,7 @@ class RiwayatAktivitasResource extends Resource
                     ->label('User')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('aksi')
                     ->label('Aksi')
                     ->badge()
@@ -88,18 +89,21 @@ class RiwayatAktivitasResource extends Resource
                     })
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('jenis_data')
                     ->label('Jenis Data')
                     ->searchable()
                     ->sortable(),
-                // Tables\Columns\TextColumn::make('deskripsi')
-                //     ->label('Deskripsi')
-                //     ->limit(35),
+
                 Tables\Columns\TextColumn::make('ip')
-                    ->label('Alamat IP'),
+                    ->label('Alamat IP')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Waktu')
                     ->dateTime('d-m-Y H:i')
+                    ->searchable()
                     ->sortable(),
             ])
             ->filters([
@@ -127,6 +131,7 @@ class RiwayatAktivitasResource extends Resource
                         }
                         return null;
                     }),
+
                 Tables\Filters\SelectFilter::make('aksi')->options([
                     'masuk'          => 'Masuk',
                     'keluar'         => 'Keluar',
@@ -136,6 +141,7 @@ class RiwayatAktivitasResource extends Resource
                     'hapus permanen' => 'Hapus Permanen',
                     'pulihkan'       => 'Pulihkan',
                 ]),
+
                 Tables\Filters\SelectFilter::make('user_id')
                     ->label('User')
                     ->relationship('user', 'name')

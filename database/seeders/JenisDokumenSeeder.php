@@ -36,7 +36,7 @@ class JenisDokumenSeeder extends Seeder
             $dokumen = JenisDokumen::updateOrCreate(
                 ['nama' => $nama],
                 [
-                    'batas_unggah'    => 2,
+                    'batas_unggah'    => 10,
                     'format_file'     => $formatFiles,
                     'maksimal_ukuran' => 20480,
                 ]
@@ -44,9 +44,9 @@ class JenisDokumenSeeder extends Seeder
 
             // Atur role
             if (in_array($dokumen->nama, ['Dokumen Pengarahan', 'DPA Murni', 'DPA Perubahan', 'DPA Pergeseran'])) {
-                $dokumen->roles()->sync([$superAdmin->id, $admin->id, $pimpinan->id, $perencana->id]);
+                $dokumen->roles()->sync([$perencana->id]);
             } else {
-                $dokumen->roles()->sync([$superAdmin->id, $admin->id, $pimpinan->id, $perencana->id, $userSubbagian->id]);
+                $dokumen->roles()->sync([$perencana->id, $userSubbagian->id]);
             }
         }
     }

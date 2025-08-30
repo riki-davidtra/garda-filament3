@@ -30,7 +30,16 @@ class UnggahDokumen extends Page implements Tables\Contracts\HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(JadwalDokumen::query()->with('jenisDokumen.templatDokumen')->where('aktif', true))
+            ->query(function () {
+                $user = Auth::user();
+                $query = JadwalDokumen::query()->with('jenisDokumen.templatDokumen')->where('aktif', true);
+                if (!$user->hasAnyRole(['Super Admin', 'admin'])) {
+                    $query->whereHas('jenisDokumen.roles', function ($q) use ($user) {
+                        $q->where('role_id', $user->roles->pluck('id'));
+                    });
+                }
+                return $query;
+            })
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\Layout\Stack::make([

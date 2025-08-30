@@ -42,6 +42,7 @@ class PengaduanResource extends Resource
                     ->maxLength(255)
                     ->columnSpanFull()
                     ->disabledOn('edit'),
+
                 Forms\Components\RichEditor::make('pesan')
                     ->label('Pesan')
                     ->required()
@@ -50,6 +51,7 @@ class PengaduanResource extends Resource
                     ->fileAttachmentsDirectory('pengaduan/pesan')
                     ->columnSpanFull()
                     ->disabledOn('edit'),
+
                 Forms\Components\RichEditor::make('tanggapan')
                     ->label('Tanggapan')
                     ->nullable()
@@ -58,6 +60,7 @@ class PengaduanResource extends Resource
                     ->fileAttachmentsDirectory('pengaduan/tanggapan')
                     ->columnSpanFull()
                     ->hiddenOn('create'),
+
                 Forms\Components\Radio::make('status')
                     ->label('Status')
                     ->required()
@@ -87,12 +90,14 @@ class PengaduanResource extends Resource
                     ->label('Judul')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pesan')
                     ->label('Pesan')
                     ->limit(35)
                     ->formatStateUsing(fn($state) => strip_tags($state))
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -102,6 +107,7 @@ class PengaduanResource extends Resource
                         default    => 'secondary',
                     })
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dikirim Oleh')
                     ->description(function ($record) {
@@ -119,6 +125,7 @@ class PengaduanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Dibalas Oleh')
                     ->description(function ($record) {

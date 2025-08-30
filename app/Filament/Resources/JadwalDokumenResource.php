@@ -32,6 +32,7 @@ class JadwalDokumenResource extends Resource
                     ->label('Kode')
                     ->disabled()
                     ->hiddenOn('create'),
+
                 Forms\Components\Select::make('jenis_dokumen_id')
                     ->label('Jenis Dokumen')
                     ->required()
@@ -40,12 +41,15 @@ class JadwalDokumenResource extends Resource
                     ->relationship('jenisDokumen', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
                     }),
+
                 Forms\Components\DateTimePicker::make('waktu_unggah_mulai')
                     ->label('Waktu Unggah Mulai')
                     ->nullable(),
+
                 Forms\Components\DateTimePicker::make('waktu_unggah_selesai')
                     ->label('Waktu Unggah Selesai')
                     ->nullable(),
+
                 Forms\Components\Toggle::make('aktif')
                     ->nullable()
                     ->default(true)
@@ -61,10 +65,12 @@ class JadwalDokumenResource extends Resource
                     ->label('Kode')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('jenisDokumen.nama')
                     ->label('Jenis Dokumen')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('waktu_unggah_mulai')
                     ->label('Waktu Unggah')
                     ->formatStateUsing(function ($record) {
@@ -79,10 +85,12 @@ class JadwalDokumenResource extends Resource
                     })
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\IconColumn::make('aktif')
                     ->label('Aktif')
                     ->boolean()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime('d-m-Y H:i')
@@ -91,6 +99,7 @@ class JadwalDokumenResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
                     ->dateTime('d-m-Y H:i')

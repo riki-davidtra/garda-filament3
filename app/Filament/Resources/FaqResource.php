@@ -34,6 +34,7 @@ class FaqResource extends Resource
                     ->string()
                     ->maxLength(255)
                     ->columnSpanFull(),
+
                 Forms\Components\RichEditor::make('jawaban')
                     ->label('Jawaban')
                     ->required()
@@ -63,6 +64,7 @@ class FaqResource extends Resource
                     ->label('Pertanyaan')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime('d-m-Y H:i')
@@ -71,6 +73,7 @@ class FaqResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diperbarui Pada')
                     ->dateTime('d-m-Y H:i')

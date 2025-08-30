@@ -30,19 +30,49 @@ class DataDukungPerencanaanResource extends Resource
     {
         return $form
             ->schema([
+                // Forms\Components\TextInput::make('nama')
+                //     ->label('Nama Data Dukung')
+                //     ->required()
+                //     ->string()
+                //     ->maxLength(255),
+
+                Forms\Components\Select::make('nama_select')
+                    ->label('Nama Data Dukung')
+                    ->options([
+                        'Option 1' => 'Option 1',
+                        'Option 2' => 'Option 2',
+                        'Option 3' => 'Option 3',
+                        'other'    => 'Lainnya',
+                    ])
+                    ->reactive()
+                    ->dehydrated(false), // jangan kirim ke DB
+
+                Forms\Components\TextInput::make('nama_lainnya')
+                    ->label('Nama Lainnya')
+                    ->visible(fn(Forms\Get $get) => $get('nama_select') === 'other')
+                    ->requiredIf('nama_select', 'other')
+                    ->dehydrated(false), // jangan kirim ke DB
+
+                // Field "nama" yang akan disimpan ke DB
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama Data Dukung')
-                    ->required()
-                    ->string()
-                    ->maxLength(255),
+                    // ->hidden()
+                    ->dehydrated() // ini tetap dikirim ke DB
+                    ->default(function (Forms\Get $get) {
+                        $select = $get('nama_select');
+                        $other  = $get('nama_lainnya');
+                        return $select === 'other' ? $other : $select;
+                    }),
+
                 Forms\Components\Textarea::make('keterangan')
                     ->label('Keterangan')
                     ->nullable()
                     ->maxLength(3000)
                     ->columnSpanFull(),
+
                 Forms\Components\FileUpload::make('path')
                     ->label('File Dokumen')
-                    ->required()
+                    ->nullable()
                     ->storeFiles(false)
                     ->disk('local')
                     ->directory('temp')
@@ -76,16 +106,19 @@ class DataDukungPerencanaanResource extends Resource
                     ->label('Nama Data Dukung')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->limit(35)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('perubahan_ke')
                     ->label('Perubahan ke')
                     ->alignCenter()
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Diisi Oleh')
                     ->description(function ($record) {
@@ -103,6 +136,7 @@ class DataDukungPerencanaanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pembaru.name')
                     ->label('Direvisi Oleh')
                     ->description(function ($record) {
@@ -120,6 +154,7 @@ class DataDukungPerencanaanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('penghapus.name')
                     ->label('Dihapus Oleh')
                     ->description(function ($record) {
@@ -137,6 +172,7 @@ class DataDukungPerencanaanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('pemulih.name')
                     ->label('Dipulihkan Oleh')
                     ->description(function ($record) {
@@ -171,6 +207,7 @@ class DataDukungPerencanaanResource extends Resource
                         return $path && Storage::disk('local')->exists($path);
                     })
                     ->openUrlInNewTab(),
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\RestoreAction::make(),
