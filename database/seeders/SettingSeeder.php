@@ -35,13 +35,6 @@ class SettingSeeder extends Seeder
             ],
             [
                 'setting_id' => $settings['konfigurasiSitus']->id,
-                'name'       => 'URL Situs Web',
-                'key'        => 'website_url',
-                'type'       => 'url',
-                'value'      => 'http://127.0.0.1:8000/',
-            ],
-            [
-                'setting_id' => $settings['konfigurasiSitus']->id,
                 'name'       => 'Logo',
                 'key'        => 'logo',
                 'type'       => 'file',
@@ -53,18 +46,6 @@ class SettingSeeder extends Seeder
                 'key'        => 'favicon',
                 'type'       => 'file',
                 'value'      => null,
-            ],
-            [
-                'setting_id' => $settings['konfigurasiSitus']->id,
-                'name'       => 'Meta',
-                'key'        => 'meta',
-                'type'       => 'textarea',
-                'value'      => '<meta name="description" content="" />
-    <meta property = "og:title" content       = "SITE NAME" />
-    <meta property = "og:description" content = "" />
-    <meta property = "og:type" content        = "website" />
-    <meta property = "og:url" content         = "https://example.com" />
-    <meta property = "og:image" content       = "" />',
             ],
         ];
         foreach ($settingItems as $settingItem) {
