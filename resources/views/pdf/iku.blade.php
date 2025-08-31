@@ -83,22 +83,22 @@
     <table>
         <tr>
             <th rowspan="2">Indikator</th>
-            <th rowspan="2">Tahun</th>
-            <th rowspan="2">Periode</th>
-            <th colspan="3">Bulan</th>
+            <th rowspan="2" style="text-align: center;">Tahun</th>
+            <th rowspan="2" style="text-align: center;">Periode</th>
+            <th colspan="3" style="text-align: center;">Bulan</th>
         </tr>
         <tr>
             @foreach ($months as $bulan)
-                <th>{{ $bulan }}</th>
+                <th style="text-align: center;">{{ $bulan }}</th>
             @endforeach
         </tr>
         <tr>
             <td>{{ $record->indikator?->nama }}</td>
-            <td>{{ $record->tahun }}</td>
-            <td>{{ $record->periode }}</td>
-            <td>{{ $record->nilai_bulan_1 }}</td>
-            <td>{{ $record->nilai_bulan_2 }}</td>
-            <td>{{ $record->nilai_bulan_3 }}</td>
+            <td style="text-align: center;">{{ $record->tahun }}</td>
+            <td style="text-align: center;">{{ $record->periode }}</td>
+            <td style="text-align: center;">{{ $record->nilai_bulan_1 }}</td>
+            <td style="text-align: center;">{{ $record->nilai_bulan_2 }}</td>
+            <td style="text-align: center;">{{ $record->nilai_bulan_3 }}</td>
         </tr>
     </table>
 
