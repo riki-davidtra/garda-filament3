@@ -52,7 +52,7 @@ class DokumenResource extends Resource
                     ->maxLength(255)
                     ->helperText('Contoh: [RKA Perubahan] - [Rumah Tangga] - [Urusan Dalam]')
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return true;
+                        if ($isSuperOrAdmin) return false;
                         $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
                         return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
                     }),
@@ -63,7 +63,7 @@ class DokumenResource extends Resource
                     ->options(fn() => array_combine(range(date('Y'), 2020), range(date('Y'), 2020)))
                     ->default(date('Y'))
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return true;
+                        if ($isSuperOrAdmin) return false;
                         $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
                         return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
                     }),
@@ -77,7 +77,7 @@ class DokumenResource extends Resource
                         $query->orderBy('nama', 'asc');
                     })
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return true;
+                        if ($isSuperOrAdmin) return false;
                         $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
                         return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
                     }),
@@ -88,7 +88,7 @@ class DokumenResource extends Resource
                     ->maxLength(3000)
                     ->columnSpanFull()
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return true;
+                        if ($isSuperOrAdmin) return false;
                         $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
                         return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
                     }),
