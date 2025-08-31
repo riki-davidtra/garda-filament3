@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('indikator_id')->nullable()->constrained('indikators')->nullOnDelete();
+            $table->string('tahun');
             $table->enum('periode', ['Triwulan I', 'Triwulan II', 'Triwulan III', 'Triwulan IV']);
             $table->unsignedSmallInteger('nilai_bulan_1')->nullable();
             $table->unsignedSmallInteger('nilai_bulan_2')->nullable();

@@ -83,6 +83,7 @@
     <table>
         <tr>
             <th rowspan="2">Indikator</th>
+            <th rowspan="2">Tahun</th>
             <th rowspan="2">Periode</th>
             <th colspan="3">Bulan</th>
         </tr>
@@ -93,6 +94,7 @@
         </tr>
         <tr>
             <td>{{ $record->indikator?->nama }}</td>
+            <td>{{ $record->tahun }}</td>
             <td>{{ $record->periode }}</td>
             <td>{{ $record->nilai_bulan_1 }}</td>
             <td>{{ $record->nilai_bulan_2 }}</td>

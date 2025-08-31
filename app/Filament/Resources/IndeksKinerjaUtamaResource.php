@@ -43,15 +43,19 @@ class IndeksKinerjaUtamaResource extends Resource
                         modifyRuleUsing: function (Unique $rule, callable $get) {
                             return $rule
                                 ->where('periode', $get('periode'))
-                                ->where('dibuat_oleh', Auth::id())
-                                ->where(function ($query) {
-                                    $query->whereYear('dibuat_pada', now()->year);
-                                });
+                                ->where('tahun', $get('tahun'))
+                                ->where('dibuat_oleh', Auth::id());
                         }
                     )
                     ->validationMessages([
                         'unique' => 'Indikator dan Periode untuk tahun ini sudah ada!',
                     ]),
+
+                Forms\Components\Select::make('tahun')
+                    ->label('Tahun')
+                    ->required()
+                    ->options(fn() => array_combine(range(date('Y'), 2020), range(date('Y'), 2020)))
+                    ->default(date('Y')),
 
                 Forms\Components\Select::make('periode')
                     ->label('Periode')
@@ -115,6 +119,12 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->label('Periode')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('tahun')
+                    ->label('Tahun')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('perubahan_ke')
                     ->label('Perubahan ke')
                     ->alignCenter()
@@ -205,9 +215,9 @@ class IndeksKinerjaUtamaResource extends Resource
                             'record' => $record,
                         ])->setPaper('a4', 'landscape');
 
-                        $indikator = \Illuminate\Support\Str::slug($record->indikator?->nama ?? 'tanpa-indikator');
-                        $periode   = \Illuminate\Support\Str::slug($record->periode ?? 'tanpa-periode');
-                        $tahun     = $record->dibuat_pada?->format('Y') ?? date('Y');
+                        $indikator = \Illuminate\Support\Str::slug($record->indikator?->nama ?? 'indikator');
+                        $periode   = \Illuminate\Support\Str::slug($record->periode ?? 'periode');
+                        $tahun     = $record->tahun ?? date('Y');
                         $fileName  = "iku-{$indikator}-{$periode}-{$tahun}.pdf";
 
                         return response()->streamDownload(

@@ -190,6 +190,13 @@ class FileDokumensRelationManager extends RelationManager
                     ->label('Unggah File Dokumen')
                     ->modalHeading('Unggah File Dokumen')
                     ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data))
+                    ->after(function ($record, $livewire) {
+                        $owner = $this->getOwnerRecord();
+                        if ($owner) {
+                            $owner->status = 'Revisi Menunggu Persetujuan';
+                            $owner->save();
+                        }
+                    })
                     ->createAnother(false)
                     ->visible(function () {
                         $dokumen = $this->getOwnerRecord();

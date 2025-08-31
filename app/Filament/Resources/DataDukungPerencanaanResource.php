@@ -38,16 +38,15 @@ class DataDukungPerencanaanResource extends Resource
                     ->options([
                         'Aset'                              => 'Aset',
                         'Kepegawaian'                       => 'Kepegawaian',
-                        'Laporan Pengaduan Barang dan Jasa' => 'Laporan Pengaduan Barang dan Jasa',
+                        'Laporan Pengadaaan Barang dan Jasa' => 'Laporan Pengadaaan Barang dan Jasa',
                         'lainnya'                           => 'Lainnya',
                     ])
-
                     ->live()
                     ->afterStateHydrated(function ($state, Set $set) {
                         if ($state && !in_array($state, [
                             'Aset',
                             'Kepegawaian',
-                            'Laporan Pengaduan Barang dan Jasa'
+                            'Laporan Pengadaaan Barang dan Jasa'
                         ])) {
                             $set('nama', 'lainnya');
                             $set('nama_input', $state);
