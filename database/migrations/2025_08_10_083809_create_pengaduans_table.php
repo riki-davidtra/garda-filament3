@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('judul');
             $table->text('pesan');
             $table->text('tanggapan')->nullable();
-            $table->enum('status', ['Menunggu', 'Proses', 'Selesai'])->default('Menunggu');
+            $table->enum('status', ['menunggu', 'proses', 'selesai'])->default('menunggu');
             $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dibuat_pada')->nullable();
             $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();

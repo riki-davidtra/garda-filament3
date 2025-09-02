@@ -66,11 +66,11 @@ class PengaduanResource extends Resource
                     ->required()
                     ->inline()
                     ->options([
-                        'Menunggu' => 'Menunggu',
+                        'menunggu' => 'Menunggu',
                         'proses'   => 'Proses',
                         'selesai'  => 'Selesai',
                     ])
-                    ->default('Menunggu')
+                    ->default('menunggu')
                     ->hiddenOn('create'),
             ]);
     }
@@ -101,7 +101,7 @@ class PengaduanResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'Menunggu' => 'warning',
+                        'menunggu' => 'warning',
                         'proses'   => 'primary',
                         'selesai'  => 'success',
                         default    => 'secondary',
