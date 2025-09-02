@@ -107,10 +107,10 @@ class TemplatDokumenResource extends Resource
                     ->label('Unduh')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn($record) => route('template.unduh', $record->id))
-                    ->visible(function ($record) {
-                        return $record && $record->path && Storage::disk('public')->exists($record->path);
-                    })
-                    ->openUrlInNewTab(),
+                    ->openUrlInNewTab()
+                    ->visible(fn($record) => filled($record?->path) && Storage::disk('public')->exists($record->path)),
+
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

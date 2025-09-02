@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Unique;
+use Illuminate\Support\Facades\Storage;
 
 class IndeksKinerjaUtamaResource extends Resource
 {
@@ -210,21 +211,9 @@ class IndeksKinerjaUtamaResource extends Resource
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->action(function ($record) {
-                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.iku', [
-                            'record' => $record,
-                        ])->setPaper('a4', 'landscape');
-
-                        $indikator = \Illuminate\Support\Str::slug($record->indikator?->nama ?? 'indikator');
-                        $periode   = \Illuminate\Support\Str::slug($record->periode ?? 'periode');
-                        $tahun     = $record->tahun ?? date('Y');
-                        $fileName  = "iku-{$indikator}-{$periode}-{$tahun}.pdf";
-
-                        return response()->streamDownload(
-                            fn() => print($pdf->output()),
-                            $fileName
-                        );
-                    }),
+                    ->url(fn($record) => route('iku.unduh', $record->id))
+                    ->openUrlInNewTab()
+                    ->visible(fn($record) => filled($record)),
 
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

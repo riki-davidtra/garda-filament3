@@ -118,7 +118,7 @@
         Diunduh pada: {{ date('d-m-Y H:i:s') }}<br>
         Oleh: {{ $diunduh_oleh }}
         <br><br>
-        @BAPEDA | Biro Umum Setda Kalimantan Tengah
+        Biro Umum Setda Prov Kalteng
     </div>
 </body>
 

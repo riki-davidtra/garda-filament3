@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use App\Models\FormatFile;
 
 class FileDokumensRelationManager extends RelationManager
 {
@@ -30,38 +32,17 @@ class FileDokumensRelationManager extends RelationManager
                     ->disk('local')
                     ->directory('temp')
                     ->maxSize(function () {
-                        $dokumen = $this->getOwnerRecord();
-                        $jenis   = $dokumen?->jenisDokumen;
-                        return $jenis?->maksimal_ukuran ?? 20480;
+                        $dokumen      = $this->getOwnerRecord();
+                        $jenisDokumen = $dokumen?->jenisDokumen;
+                        return $jenisDokumen?->maksimal_ukuran ?? 20480;
                     })
                     ->acceptedFileTypes(function () {
-                        $dokumen = $this->getOwnerRecord();
-                        $jenis   = $dokumen?->jenisDokumen;
-                        if (! $jenis || empty($jenis->format_file)) {
-                            return [];
-                        }
-                        return \App\Models\FormatFile::whereIn('id', $jenis->format_file)->pluck('mime_types')->toArray();
+                        $dokumen      = $this->getOwnerRecord();
+                        $jenisDokumen = $dokumen?->jenisDokumen;
+                        $mimeTypes    = FormatFile::whereIn('id', $jenisDokumen->format_file ?? [])->pluck('mime_types')->toArray();
+                        return $mimeTypes;
                     })
-                    ->columnSpanFull()
-                    ->extraAttributes(['class' => 'flex flex-col'])
-                    ->afterStateHydrated(function ($component, $state, $record) {
-                        if ($record && $record->id) {
-                            $component->hintAction(
-                                \Filament\Forms\Components\Actions\Action::make('unduh')
-                                    ->label('Unduh')
-                                    ->icon('heroicon-o-arrow-down-tray')
-                                    ->url(function ($record) {
-                                        $path = $record->path;
-                                        return $path ? route('file-dokumen.unduh', $record->id) : '#';
-                                    })
-                                    ->visible(function ($record) {
-                                        $path = $record->path;
-                                        return $path && Storage::disk('local')->exists($path);
-                                    })
-                                    ->openUrlInNewTab()
-                            );
-                        }
-                    }),
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama File')
                     ->columnSpanFull()
@@ -199,36 +180,27 @@ class FileDokumensRelationManager extends RelationManager
                     })
                     ->createAnother(false)
                     ->visible(function () {
-                        $dokumen = $this->getOwnerRecord();
-                        $jenis   = $dokumen?->jenisDokumen;
-                        return $dokumen && $jenis
-                            && $dokumen->fileDokumens()->count() < $jenis->batas_unggah;
+                        $dokumen      = $this->getOwnerRecord();
+                        $jenisDokumen = $dokumen?->jenisDokumen;
+                        return $dokumen && $jenisDokumen && $dokumen->fileDokumens()->count() < $jenisDokumen->batas_unggah;
                     })
                     ->visible(function () use ($user, $isSuperOrAdmin) {
                         if ($isSuperOrAdmin) return true;
-                        $dokumen = $this->getOwnerRecord();
-                        if (!$dokumen) return false;
+                        $dokumen      = $this->getOwnerRecord();
                         $jenisDokumen = $dokumen->jenisDokumen;
-                        if (!$jenisDokumen) return false;
-                        if ($dokumen->fileDokumens()->count() >= $jenisDokumen->batas_unggah) {
-                            return false;
-                        }
-                        return $user && $jenisDokumen->roles && $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                        if ($dokumen->fileDokumens()->count() >= $jenisDokumen->batas_unggah) return false;
+                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
+                        return $aksesPeranDokumen->isNotEmpty();
                     }),
             ])
             ->actions([
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(function ($record) {
-                        $path = $record->path;
-                        return $path ? route('file-dokumen.unduh', $record->id) : '#';
-                    })
-                    ->visible(function ($record) {
-                        $path = $record->path;
-                        return $path && Storage::disk('local')->exists($path);
-                    })
-                    ->openUrlInNewTab(),
+                    ->url(fn($record) => route('file-dokumen.unduh', $record->id))
+                    ->openUrlInNewTab()
+                    ->visible(fn($record) => filled($record?->path) && Storage::disk('local')->exists($record->path)),
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data)),
@@ -247,7 +219,7 @@ class FileDokumensRelationManager extends RelationManager
 
     private function handleEncryptedUpload(array $data): array
     {
-        if (!empty($data['file_temp']) && $data['file_temp'] instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+        if (!empty($data['file_temp']) && $data['file_temp'] instanceof TemporaryUploadedFile) {
             $file = $data['file_temp'];
 
             $owner       = $this->getOwnerRecord();

@@ -36,10 +36,10 @@ class DataDukungPerencanaanResource extends Resource
                     ->label('Nama Data Dukung')
                     ->required()
                     ->options([
-                        'Aset'                              => 'Aset',
-                        'Kepegawaian'                       => 'Kepegawaian',
+                        'Aset'                               => 'Aset',
+                        'Kepegawaian'                        => 'Kepegawaian',
                         'Laporan Pengadaaan Barang dan Jasa' => 'Laporan Pengadaaan Barang dan Jasa',
-                        'lainnya'                           => 'Lainnya',
+                        'lainnya'                            => 'Lainnya',
                     ])
                     ->live()
                     ->afterStateHydrated(function ($state, Set $set) {
@@ -202,15 +202,9 @@ class DataDukungPerencanaanResource extends Resource
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(function ($record) {
-                        $path = $record->path;
-                        return $path ? route('file-data-dukung-perencanaan.unduh', $record->id) : '#';
-                    })
-                    ->visible(function ($record) {
-                        $path = $record->path;
-                        return $path && Storage::disk('local')->exists($path);
-                    })
-                    ->openUrlInNewTab(),
+                    ->url(fn($record) => route('file-data-dukung-perencanaan.unduh', $record->id))
+                    ->openUrlInNewTab()
+                    ->visible(fn($record) => filled($record?->path) && Storage::disk('local')->exists($record->path)),
 
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
