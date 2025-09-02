@@ -28,7 +28,7 @@ class JadwalDokumenResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\DateTimePicker::make('kode')
+                Forms\Components\TextInput::make('kode')
                     ->label('Kode')
                     ->disabled()
                     ->hiddenOn('create'),

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('batas_unggah')->default(0);
             $table->string('format_file')->nullable();
             $table->integer('maksimal_ukuran')->default(20480);
+            $table->boolean('mode_status')->default(false);
             $table->timestamps();
         });
     }

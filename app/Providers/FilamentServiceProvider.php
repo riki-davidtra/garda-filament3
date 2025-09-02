@@ -57,14 +57,8 @@ class FilamentServiceProvider extends ServiceProvider
         $jenisDokumens = JenisDokumen::all();
 
         foreach ($jenisDokumens as $jenis) {
-            $count = \App\Models\Dokumen::where('jenis_dokumen_id', $jenis->id)
-                ->whereIn('status', ['Menunggu Persetujuan', 'Revisi Menunggu Persetujuan'])
-                ->count();
-
-            $items[] = NavigationItem::make($jenis->nama)
+            $navItem = NavigationItem::make($jenis->nama)
                 ->group('Dokumen')
-                ->badge($count > 0 ? (string)$count : null)
-                ->badgeTooltip('Jumlah dokumen ' . $jenis->nama . ' dengan status Menunggu')
                 ->url(fn() => ListDokumens::getUrl(['jenis_dokumen_id' => $jenis->id]))
                 ->sort(33)
                 ->isActiveWhen(
@@ -76,6 +70,17 @@ class FilamentServiceProvider extends ServiceProvider
                         'filament.admin.resources.dokumens.view',
                     ]) && (int) request('jenis_dokumen_id') === $jenis->id
                 );
+
+            $count = \App\Models\Dokumen::where('jenis_dokumen_id', $jenis->id)
+                ->whereIn('status', ['Menunggu Persetujuan', 'Revisi Menunggu Persetujuan'])
+                ->count();
+
+            if ($jenis->mode_status && $count > 0) {
+                $navItem->badge((string)$count)
+                    ->badgeTooltip('Jumlah dokumen ' . $jenis->nama . ' dengan status Menunggu');
+            }
+
+            $items[] = $navItem;
         }
 
         return $items;

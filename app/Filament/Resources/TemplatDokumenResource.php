@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TemplatDokumenResource extends Resource
 {
@@ -101,7 +102,15 @@ class TemplatDokumenResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                // Tampilkan aksi hanya jika ada file dokumen terbaru yang tersedia di storage
+                Tables\Actions\Action::make('unduh')
+                    ->label('Unduh')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(fn($record) => route('template.unduh', $record->id))
+                    ->visible(function ($record) {
+                        return $record && $record->path && Storage::disk('public')->exists($record->path);
+                    })
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

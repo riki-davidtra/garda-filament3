@@ -54,6 +54,10 @@ class JenisDokumenResource extends Resource
                     ->suffix('KB')
                     ->default(0),
 
+                Forms\Components\Toggle::make('mode_status')
+                    ->nullable()
+                    ->default(false),
+
                 Forms\Components\Select::make('roles')
                     ->label('Akses Peran')
                     ->nullable()
@@ -99,6 +103,11 @@ class JenisDokumenResource extends Resource
                     ->formatStateUsing(fn($state) => $state ? number_format($state / 1024, 0) . ' MB' : '-')
                     ->sortable()
                     ->searchable(),
+
+                Tables\Columns\IconColumn::make('mode_status')
+                    ->label('Mode Status')
+                    ->boolean()
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Akses Peran')

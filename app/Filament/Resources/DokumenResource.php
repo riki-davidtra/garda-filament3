@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\JenisDokumen;
 use App\Models\FormatFile;
+use App\Models\Bagian;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -31,8 +32,16 @@ class DokumenResource extends Resource
     {
         $user           = Auth::user();
         $jenisDokumenId = request()->query('jenis_dokumen_id');
-
         return $user && $jenisDokumenId && JenisDokumen::where('id', $jenisDokumenId)->exists();
+    }
+
+    protected static ?JenisDokumen $jenisDokumen = null;
+    public static function getJenisDokumen($id = null): ?JenisDokumen
+    {
+        if (!static::$jenisDokumen && $id) {
+            static::$jenisDokumen = JenisDokumen::find($id);
+        }
+        return static::$jenisDokumen;
     }
 
     public static function form(Form $form): Form
@@ -53,10 +62,12 @@ class DokumenResource extends Resource
                     ->helperText('Contoh: [RKA Perubahan] - [Rumah Tangga] - [Urusan Dalam]')
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
                         if ($isSuperOrAdmin) return false;
-                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
-                        return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                        $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
+                        return $aksesPeranDokumen->isEmpty();
                     }),
 
+                // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
@@ -64,10 +75,12 @@ class DokumenResource extends Resource
                     ->default(date('Y'))
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
                         if ($isSuperOrAdmin) return false;
-                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
-                        return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                        $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
+                        return $aksesPeranDokumen->isEmpty();
                     }),
 
+                // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\Select::make('subkegiatan_id')
                     ->label('Subkegiatan')
                     ->required()
@@ -78,10 +91,12 @@ class DokumenResource extends Resource
                     })
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
                         if ($isSuperOrAdmin) return false;
-                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
-                        return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                        $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
+                        return $aksesPeranDokumen->isEmpty();
                     }),
 
+                // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\Textarea::make('keterangan')
                     ->label('Keterangan')
                     ->nullable()
@@ -89,8 +104,9 @@ class DokumenResource extends Resource
                     ->columnSpanFull()
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
                         if ($isSuperOrAdmin) return false;
-                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
-                        return $user && $jenisDokumen && !$user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                        $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
+                        return $aksesPeranDokumen->isEmpty();
                     }),
 
                 // Tampilkan repeater unggah file dokumen hanya di create
@@ -106,10 +122,9 @@ class DokumenResource extends Resource
                             ->directory('temp')
                             ->maxSize(20480)
                             ->acceptedFileTypes(function ($get, $livewire) {
-                                if (!($dokumen = JenisDokumen::find($livewire->jenis_dokumen_id))?->format_file) {
-                                    return [];
-                                }
-                                return FormatFile::whereIn('id', $dokumen->format_file)->pluck('mime_types')->toArray();
+                                $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                                $mimeTypes    = FormatFile::whereIn('id', $jenisDokumen->format_file ?? [])->pluck('mime_types')->toArray();
+                                return $mimeTypes;
                             })
                     ])
                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $record, $livewire) {
@@ -179,10 +194,7 @@ class DokumenResource extends Resource
                             ->relationship(
                                 'subbagian',
                                 'nama',
-                                fn($query) => $query->with('bagian')
-                                    ->orderBy(
-                                        \App\Models\Bagian::select('nama')->whereColumn('bagians.id', 'subbagians.bagian_id')
-                                    )->orderBy('nama')
+                                fn($query) => $query->with('bagian')->orderBy(Bagian::select('nama')->whereColumn('bagians.id', 'subbagians.bagian_id'))->orderBy('nama')
                             )
                             ->getOptionLabelFromRecordUsing(fn($record) => "{$record->bagian->nama} - {$record->nama}")
                             ->hiddenOn('create'),
@@ -190,7 +202,7 @@ class DokumenResource extends Resource
                     ->hiddenOn('create')
                     ->visible($isSuperOrAdmin),
 
-                // Ditampilkan untuk Super Admin/Admin, atau tampil jika jenis dokumen terkait memiliki role 'subbagian'
+                // Tampilkan jika mode status nya aktif pada dokumen ini
                 Forms\Components\Fieldset::make('Status Dokumen')
                     ->schema([
                         Forms\Components\Radio::make('status')
@@ -216,11 +228,9 @@ class DokumenResource extends Resource
                             ->disabled(!$isSuperOrAdmin && !$isPerencana),
                     ])
                     ->hiddenOn('create')
-                    ->visible(function ($get, $livewire) use ($isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return true;
-                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
-                        if (!$jenisDokumen) return false;
-                        return $jenisDokumen->roles->contains('name', 'subbagian');
+                    ->visible(function ($get, $livewire) {
+                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        return $jenisDokumen->mode_status;
                     }),
             ]);
     }
@@ -233,13 +243,16 @@ class DokumenResource extends Resource
         $isSubbagian    = $user->hasRole('subbagian');
 
         return $table
-            // Filter query: batasi data berdasarkan jenis dokumen dan subbagian jika bukan Super Admin/Admin atau Perencana
+            // Filter query: batasi data berdasarkan jenis dokumen dan subbagian jika bukan Super Admin/Admin atau Perencana dan memiliki akses role pada dokumen ini
             ->modifyQueryUsing(function (Builder $query, $livewire) use ($user, $isSuperOrAdmin, $isPerencana) {
                 $jenisDokumenId = $livewire->jenis_dokumen_id;
                 if ($jenisDokumenId) {
                     $query->where('jenis_dokumen_id', $jenisDokumenId);
                 }
-                if (!$isSuperOrAdmin && !$isPerencana) {
+
+                $jenisDokumen      = self::getJenisDokumen($jenisDokumenId);
+                $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
+                if (!$isSuperOrAdmin && !$isPerencana && $aksesPeranDokumen->isNotEmpty()) {
                     $query->where('subbagian_id', $user->subbagian_id);
                 }
                 return $query;
@@ -275,11 +288,9 @@ class DokumenResource extends Resource
                     })
                     ->searchable()
                     ->sortable()
-                    ->visible(function ($livewire) use ($isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return true;
-                        $jenisDokumen = JenisDokumen::find($livewire->jenis_dokumen_id);
-                        if (!$jenisDokumen) return false;
-                        return $jenisDokumen->roles->contains('name', 'subbagian');
+                    ->visible(function ($livewire) {
+                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        return $jenisDokumen->mode_status;
                     }),
 
                 Tables\Columns\TextColumn::make('subbagian.nama')
@@ -407,7 +418,7 @@ class DokumenResource extends Resource
                     })
                     ->openUrlInNewTab(),
 
-                // Ditampilkan aksi jika user Super Admin/Admin, perencana atau memiliki role yang sesuai dengan jenis dokumen
+                // Tampilkan jika admin atau perencana atau memiliki akses peran pada dokumen ini
                 Tables\Actions\EditAction::make()
                     ->label('Detail Dokumen')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
@@ -415,10 +426,10 @@ class DokumenResource extends Resource
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
                     ]))
                     ->visible(function ($record) use ($user, $isSuperOrAdmin, $isPerencana) {
-                        if ($isSuperOrAdmin) return true;
-                        if ($isPerencana) return true;
-                        $jenisDokumen = $record->jenisDokumen;
-                        return $user && $jenisDokumen && $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'))->isNotEmpty();
+                        if ($isSuperOrAdmin || $isPerencana) return true;
+                        $jenisDokumen      = $record->jenisDokumen;
+                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
+                        return $aksesPeranDokumen->isNotEmpty();
                     }),
 
                 Tables\Actions\RestoreAction::make(),

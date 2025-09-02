@@ -21,8 +21,15 @@ class JenisDokumenSeeder extends Seeder
             ->pluck('id')
             ->toArray();
 
-        $data = [
-            'Dokumen Pengarahan',
+        $dataModeFalse = [
+            'Pengarahan',
+            'DPA Murni',
+            'DPA Perubahan',
+            'DPA Pergeseran',
+        ];
+
+        $dataAll = [
+            'Pengarahan',
             'DPA Murni',
             'DPA Perubahan',
             'DPA Pergeseran',
@@ -32,21 +39,24 @@ class JenisDokumenSeeder extends Seeder
             'Laporan Realisasi',
         ];
 
-        foreach ($data as $nama) {
+        foreach ($dataAll as $nama) {
+            $isModeStatusTrue = !in_array($nama, $dataModeFalse);
+
             $dokumen = JenisDokumen::updateOrCreate(
                 ['nama' => $nama],
                 [
                     'batas_unggah'    => 10,
                     'format_file'     => $formatFiles,
                     'maksimal_ukuran' => 20480,
+                    'mode_status'     => $isModeStatusTrue,
                 ]
             );
 
             // Atur role
-            if (in_array($dokumen->nama, ['Dokumen Pengarahan', 'DPA Murni', 'DPA Perubahan', 'DPA Pergeseran'])) {
-                $dokumen->roles()->sync([$perencana->id]);
-            } else {
+            if ($isModeStatusTrue) {
                 $dokumen->roles()->sync([$userSubbagian->id]);
+            } else {
+                $dokumen->roles()->sync([$perencana->id]);
             }
         }
     }

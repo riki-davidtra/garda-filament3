@@ -12,7 +12,7 @@ class JadwalDokumenSeeder extends Seeder
     {
         $data = [
             [
-                'nama'                 => 'Dokumen Pengarahan',
+                'nama'                 => 'Pengarahan',
                 'waktu_unggah_mulai'   => now()->subDays(2),
                 'waktu_unggah_selesai' => now()->addDays(5),
             ],
