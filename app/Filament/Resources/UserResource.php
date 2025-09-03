@@ -90,6 +90,12 @@ class UserResource extends Resource
                             ->maxLength(18)
                             ->unique(ignoreRecord: true),
 
+                        Forms\Components\TextInput::make('nomor_whatsapp')
+                            ->label('Nomor WhatsApp')
+                            ->nullable()
+                            ->numeric()
+                            ->maxLength(15),
+
                         Forms\Components\Select::make('subbagian_id')
                             ->label('Subbagian')
                             ->nullable()
@@ -145,6 +151,11 @@ class UserResource extends Resource
 
                 Tables\Columns\TextColumn::make('nip')
                     ->label('NIP')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('nomor_whatsapp')
+                    ->label('Nomor WhatsApp')
                     ->searchable()
                     ->sortable(),
 

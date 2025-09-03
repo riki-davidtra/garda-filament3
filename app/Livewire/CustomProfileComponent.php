@@ -25,7 +25,8 @@ class CustomProfileComponent extends Component implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'nip' => Auth::user()->nip,
+            'nip'            => Auth::user()->nip,
+            'nomor_whatsapp' => Auth::user()->nomor_whatsapp,
         ]);
     }
 
@@ -43,6 +44,11 @@ class CustomProfileComponent extends Component implements HasForms
                             ->numeric()
                             ->maxLength(18)
                             ->unique(ignoreRecord: Auth::id()),
+                        Forms\Components\TextInput::make('nomor_whatsapp')
+                            ->label('Nomor WhatsApp')
+                            ->nullable()
+                            ->numeric()
+                            ->maxLength(15),
                     ]),
             ])
             ->statePath('data')
@@ -57,7 +63,8 @@ class CustomProfileComponent extends Component implements HasForms
         $user = Auth::user();
 
         $user->update([
-            'nip' => $data['nip'] ?? null,
+            'nip'            => $data['nip'] ?? null,
+            'nomor_whatsapp' => $data['nomor_whatsapp'] ?? null,
         ]);
 
         Notification::make()
