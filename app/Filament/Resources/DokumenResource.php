@@ -407,6 +407,7 @@ class DokumenResource extends Resource
                 // Tampilkan aksi hanya jika ada file dokumen terbaru yang tersedia di storage
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
+                    ->button()
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(function ($record) {
                         $fileTerbaru = $record->fileDokumens()->latest()->first();
@@ -420,7 +421,7 @@ class DokumenResource extends Resource
 
                 // Tampilkan jika admin atau perencana atau memiliki akses peran pada dokumen ini
                 Tables\Actions\EditAction::make()
-                    ->label('Detail Dokumen')
+                    ->label('Detail')
                     ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),

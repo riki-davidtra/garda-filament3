@@ -210,6 +210,7 @@ class IndeksKinerjaUtamaResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
+                    ->button()
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn($record) => route('iku.unduh', $record->id))
                     ->openUrlInNewTab()

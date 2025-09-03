@@ -12,6 +12,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Services\JadwalDokumenService;
+use App\Services\WhatsAppService;
+use Filament\Notifications\Notification;
 
 class JadwalDokumenResource extends Resource
 {
@@ -118,6 +121,22 @@ class JadwalDokumenResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
+                Tables\Actions\Action::make('kirim_notifikasi')
+                    ->label('Kirim Notifikasi')
+                    ->button()
+                    ->color('success')
+                    ->icon('heroicon-o-bell')
+                    ->requiresConfirmation()
+                    ->action(function (JadwalDokumen $record) {
+                        $notifikasi = JadwalDokumenService::notifikasiFind($record);
+                        foreach ($notifikasi as $notif) {
+                            $user         = $notif['user'];
+                            $pesanLengkap = $notif['pesan'];
+                            WhatsAppService::sendMessage($user->nomor_whatsapp, $pesanLengkap);
+                        }
+                        Notification::make()->title('Notifikasi berhasil dikirim')->success()->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

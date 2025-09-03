@@ -196,6 +196,7 @@ class FileDokumensRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
+                    ->button()
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn($record) => route('file-dokumen.unduh', $record->id))
                     ->openUrlInNewTab()
@@ -204,7 +205,6 @@ class FileDokumensRelationManager extends RelationManager
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data)),
-                Tables\Actions\DeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
             ])

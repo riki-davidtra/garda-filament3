@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\JadwalDokumen;
+use App\Models\User;
+use Carbon\Carbon;
+
+class JadwalDokumenService
+{
+    /**
+     * Ambil semua notifikasi per user siap dikirim.
+     *
+     * @return array [user_id => ['user' => User, 'pesan' => [...]]]
+     */
+    public static function notifikasiAll(): array
+    {
+        $now = Carbon::now();
+
+        $jadwals = [
+            'akan_mulai' => JadwalDokumen::where('waktu_unggah_mulai', '>', $now)
+                ->where('waktu_unggah_mulai', '<=', $now->copy()->addDays(3)->endOfDay())
+                ->where('aktif', true)->with('jenisDokumen.roles')->get(),
+
+            'sedang_berlangsung' => JadwalDokumen::where('waktu_unggah_mulai', '<=', $now)
+                ->where('waktu_unggah_selesai', '>=', $now)
+                ->where('aktif', true)->with('jenisDokumen.roles')->get(),
+
+            'akan_selesai' => JadwalDokumen::where('waktu_unggah_selesai', '>', $now)
+                ->where('waktu_unggah_selesai', '<=', $now->copy()->addDays(3)->endOfDay())
+                ->where('aktif', true)->with('jenisDokumen.roles')->get(),
+
+            'sudah_selesai' => JadwalDokumen::where('waktu_unggah_selesai', '<', $now)
+                ->where('aktif', true)->with('jenisDokumen.roles')->get(),
+        ];
+
+        $notifikasi = [];
+
+        foreach ($jadwals as $status => $list) {
+            foreach ($list as $jadwal) {
+                $users = User::whereHas('roles', fn($q) => $q->whereIn(
+                    'id',
+                    $jadwal->jenisDokumen->roles->pluck('id')
+                ))->whereNotNull('nomor_whatsapp')->get();
+
+                foreach ($users as $user) {
+                    $notifikasi[$user->id]['user']    = $user;
+                    $notifikasi[$user->id]['pesan'][] = self::buatPesanSingkat($status, $jadwal);
+                }
+            }
+        }
+
+        foreach ($notifikasi as $userId => $data) {
+            $user                         = $data['user'];
+            $daftarPesan                  = implode("\n\n", $data['pesan']);
+            $notifikasi[$userId]['pesan'] = "Halo {$user->name}, berikut daftar update jadwal dokumen:\n\n{$daftarPesan}";
+        }
+
+        return $notifikasi;
+    }
+
+    /**
+     * Ambil notifikasi untuk satu jadwal dokumen (untuk tombol kirim manual)
+     *
+     * @param JadwalDokumen $jadwal
+     * @return array [user_id => ['user' => User, 'pesan' => string lengkap]]
+     */
+    public static function notifikasiFind(JadwalDokumen $jadwal): array
+    {
+        $now = Carbon::now();
+
+        if ($jadwal->waktu_unggah_mulai > $now) {
+            $status = 'akan_mulai';
+        } elseif ($jadwal->waktu_unggah_selesai < $now) {
+            $status = 'sudah_selesai';
+        } elseif ($jadwal->waktu_unggah_mulai <= $now && $jadwal->waktu_unggah_selesai >= $now) {
+            $status = 'sedang_berlangsung';
+        } else {
+            $status = 'akan_selesai';
+        }
+
+        $users = User::whereHas('roles', fn($q) => $q->whereIn(
+            'id',
+            $jadwal->jenisDokumen->roles->pluck('id')
+        ))->whereNotNull('nomor_whatsapp')->get();
+
+        $notifikasi = [];
+
+        foreach ($users as $user) {
+            $pesanSingkat          = self::buatPesanSingkat($status, $jadwal);
+            $notifikasi[$user->id] = [
+                'user'  => $user,
+                'pesan' => "Halo {$user->name}, berikut update jadwal dokumen:\n\n{$pesanSingkat}"
+            ];
+        }
+
+        return $notifikasi;
+    }
+
+    /**
+     * Buat pesan singkat untuk satu jadwal
+     */
+    public static function buatPesanSingkat(string $status, JadwalDokumen $jadwal): string
+    {
+        $jenis   = $jadwal->jenisDokumen->nama;
+        $kode    = $jadwal->kode;
+        $mulai   = $jadwal->waktu_unggah_mulai?->format('d-m-Y H:i') ?? '-';
+        $selesai = $jadwal->waktu_unggah_selesai?->format('d-m-Y H:i') ?? '-';
+
+        if ($status === 'akan_mulai') {
+            $diff = Carbon::now()->diff($jadwal->waktu_unggah_mulai, false);
+            return "📌 *{$jenis}* (kode: {$kode}) akan dimulai *{$diff->d} hari {$diff->h} jam lagi*.\nMulai: {$mulai}\nSelesai: {$selesai}";
+        }
+
+        if ($status === 'akan_selesai') {
+            $diff = Carbon::now()->diff($jadwal->waktu_unggah_selesai, false);
+            return "⚠️ *{$jenis}* (kode: {$kode}) akan berakhir *{$diff->d} hari {$diff->h} jam lagi*.\nBatas unggah: {$selesai}";
+        }
+
+        return match ($status) {
+            'sedang_berlangsung' => "⏳ *{$jenis}* (kode: {$kode}) sedang berlangsung.\nMulai: {$mulai}\nSelesai: {$selesai}",
+            'sudah_selesai'      => "✅ *{$jenis}* (kode: {$kode}) telah berakhir.\nMulai: {$mulai}\nSelesai: {$selesai}",
+            default              => "*{$jenis}* (kode: {$kode}) ada update jadwal.",
+        };
+    }
+}
