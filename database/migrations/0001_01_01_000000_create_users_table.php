@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->foreignId('subbagian_id')->nullable()->constrained('subbagians', 'id')->nullOnDelete();
             $table->string('nip')->nullable();
+            $table->string('nomor_whatsapp')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

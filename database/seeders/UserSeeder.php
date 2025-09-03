@@ -15,22 +15,23 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['username' => 'superadmin', 'name' => 'Superadmin'],
-            ['username' => 'admin', 'name' => 'Admin'],
-            ['username' => 'pimpinan', 'name' => 'Pimpinan'],
-            ['username' => 'perencana', 'name' => 'Perencana'],
-            ['username' => 'subbagian', 'name' => 'Subbagian'],
+            ['username' => 'superadmin', 'name' => 'Superadmin', 'nomor_whatsapp' => null],
+            ['username' => 'admin', 'name' => 'Admin', 'nomor_whatsapp' => null],
+            ['username' => 'pimpinan', 'name' => 'Pimpinan', 'nomor_whatsapp' => null],
+            ['username' => 'perencana', 'name' => 'Perencana', 'nomor_whatsapp' => null],
+            ['username' => 'subbagian', 'name' => 'Subbagian', 'nomor_whatsapp' => '6289508475453'],
         ];
 
         foreach ($data as $item) {
-            $user = User::updateOrCreate(
+            User::updateOrCreate(
                 ['username' => $item['username']],
                 [
-                    'name'     => $item['name'],
-                    'username' => $item['username'],
-                    'email'    => $item['username'] . '@email.com',
-                    'password' => bcrypt('password'),
-                    'nip'      => str_pad((string)rand(0, 999999999999999999), 18, '0', STR_PAD_LEFT),
+                    'name'           => $item['name'],
+                    'username'       => $item['username'],
+                    'email'          => $item['username'] . '@email.com',
+                    'password'       => bcrypt('password'),
+                    'nip'            => str_pad((string)rand(0, 999999999999999999), 18, '0', STR_PAD_LEFT),
+                    'nomor_whatsapp' => $item['nomor_whatsapp'],
                 ]
             );
         }

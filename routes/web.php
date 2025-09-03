@@ -64,3 +64,13 @@ Route::get('/iku/unduh/{id}', function ($id) {
 Route::get('/test-404', fn() => abort(404));
 Route::get('/test-403', fn() => abort(403));
 Route::get('/test-500', fn() => abort(500));
+
+
+use App\Services\WhatsAppService;
+
+Route::get('/test-whatsapp', function () {
+    $res = WhatsAppService::sendMessage(
+        '6289508475453', // nomor tujuan tanpa +
+        'Halo Riki! Ini testing WhatsApp dari PHP Laravel',
+    );
+});

@@ -28,12 +28,13 @@ class User extends Authenticatable implements HasAvatar
         'email',
         'password',
         'avatar_url',
-        'google_id',
+        'custom_fields',
         'uuid',
         'username',
-        'nip',
         'subbagian_id',
-        'custom_fields',
+        'nip',
+        'nomor_whatsapp',
+        'google_id',
     ];
 
     /**
