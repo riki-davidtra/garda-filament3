@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\Pengaduan;
 
 class PengaduanObserver
