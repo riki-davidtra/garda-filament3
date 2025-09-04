@@ -59,7 +59,7 @@ class DokumenResource extends Resource
                     ->required()
                     ->string()
                     ->maxLength(255)
-                    ->helperText('Contoh: [RKA Perubahan] - [Rumah Tangga] - [Urusan Dalam]')
+                    ->helperText('Contoh: RKA Perubahan - Rumah Tangga - Urusan Dalam')
                     ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
                         if ($isSuperOrAdmin) return false;
                         $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
@@ -432,9 +432,6 @@ class DokumenResource extends Resource
                         $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
                         return $aksesPeranDokumen->isNotEmpty();
                     }),
-
-                Tables\Actions\RestoreAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

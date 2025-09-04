@@ -20,7 +20,7 @@ class JadwalDokumenJob implements ShouldQueue
      */
     public function __construct()
     {
-        //
+        // 
     }
 
     /**
@@ -28,6 +28,8 @@ class JadwalDokumenJob implements ShouldQueue
      */
     public function handle(): void
     {
+        Log::info('🚀 JadwalDokumenJob berhasil didispatch ke queue pada: ' . now());
+
         $notifikasi = JadwalDokumenService::notifikasiAll();
         foreach ($notifikasi as $notif) {
             $user         = $notif['user'];

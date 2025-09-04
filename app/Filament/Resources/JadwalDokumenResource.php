@@ -128,6 +128,7 @@ class JadwalDokumenResource extends Resource
                     ->color('success')
                     ->icon('heroicon-o-bell')
                     ->requiresConfirmation()
+                    ->modalDescription('Apakah Anda yakin ingin mengirim notifikasi WhatsApp ke semua pengguna terkait jadwal ini?')
                     ->action(function (JadwalDokumen $record) {
                         $notifikasi = JadwalDokumenService::notifikasiFind($record);
                         foreach ($notifikasi as $notif) {
@@ -135,7 +136,7 @@ class JadwalDokumenResource extends Resource
                             $pesanLengkap = $notif['pesan'];
                             WhatsAppService::sendMessage($user->nomor_whatsapp, $pesanLengkap);
                         }
-                        Notification::make()->title('Notifikasi berhasil dikirim')->success()->send();
+                        Notification::make()->title('Notifikasi WhatsApp berhasil dikirim')->success()->send();
                     }),
             ])
             ->bulkActions([

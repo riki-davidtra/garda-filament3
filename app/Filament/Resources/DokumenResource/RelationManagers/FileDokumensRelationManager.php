@@ -154,7 +154,8 @@ class FileDokumensRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make()
+                    ->visible(fn() => $isSuperOrAdmin),
             ])
             ->description(function () {
                 $dokumen = $this->getOwnerRecord();
@@ -202,11 +203,8 @@ class FileDokumensRelationManager extends RelationManager
                     ->openUrlInNewTab()
                     ->visible(fn($record) => filled($record?->path) && Storage::disk('local')->exists($record->path)),
 
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data)),
-                Tables\Actions\RestoreAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

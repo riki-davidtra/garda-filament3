@@ -18,6 +18,10 @@ class JadwalDokumenService
         $now = Carbon::now();
 
         $jadwals = [
+            'waktu_tidak_ditentukan' => JadwalDokumen::whereNull('waktu_unggah_mulai')
+                ->whereNull('waktu_unggah_selesai')
+                ->where('aktif', true)->with('jenisDokumen.roles')->get(),
+
             'akan_mulai' => JadwalDokumen::where('waktu_unggah_mulai', '>', $now)
                 ->where('waktu_unggah_mulai', '<=', $now->copy()->addDays(3)->endOfDay())
                 ->where('aktif', true)->with('jenisDokumen.roles')->get(),
@@ -69,7 +73,9 @@ class JadwalDokumenService
     {
         $now = Carbon::now();
 
-        if ($jadwal->waktu_unggah_mulai > $now) {
+        if (is_null($jadwal->waktu_unggah_mulai) && is_null($jadwal->waktu_unggah_selesai)) {
+            $status = 'waktu_tidak_ditentukan';
+        } elseif ($jadwal->waktu_unggah_mulai > $now) {
             $status = 'akan_mulai';
         } elseif ($jadwal->waktu_unggah_selesai < $now) {
             $status = 'sudah_selesai';
@@ -106,6 +112,10 @@ class JadwalDokumenService
         $kode    = $jadwal->kode;
         $mulai   = $jadwal->waktu_unggah_mulai?->format('d-m-Y H:i') ?? '-';
         $selesai = $jadwal->waktu_unggah_selesai?->format('d-m-Y H:i') ?? '-';
+
+        if ($status === 'waktu_tidak_ditentukan') {
+            return "📭 *{$jenis}* (kode: {$kode}) dengan waktu yang tidak ditentukan.";
+        }
 
         if ($status === 'akan_mulai') {
             $diff = Carbon::now()->diff($jadwal->waktu_unggah_mulai, false);
