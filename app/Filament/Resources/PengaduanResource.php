@@ -13,6 +13,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use FilamentTiptapEditor\TiptapEditor;
+use FilamentTiptapEditor\Enums\TiptapOutput;
 
 class PengaduanResource extends Resource
 {
@@ -49,30 +51,63 @@ class PengaduanResource extends Resource
                     ->columnSpanFull()
                     ->disabledOn('edit'),
 
-                Forms\Components\RichEditor::make('pesan')
+                // Forms\Components\RichEditor::make('pesan')
+                //     ->label('Pesan')
+                //     ->required()
+                //     ->maxLength(3000)
+                //     ->fileAttachmentsDisk('public')
+                //     ->fileAttachmentsDirectory('pengaduan/pesan')
+                //     ->columnSpanFull()
+                //     ->disabledOn('edit')
+                //     ->afterStateHydrated(function ($component) {
+                //         $component->extraAttributes(['target' => '_blank']);
+                //     }),
+
+                TiptapEditor::make('pesan')
                     ->label('Pesan')
                     ->required()
-                    ->maxLength(3000)
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('pengaduan/pesan')
+                    ->tools([
+                        'bold',
+                        'italic',
+                        'strike',
+                        'underline',
+                        'link',
+                        'media',
+                        'oembed',
+                        'code-block',
+                        'table'
+                    ])
+                    ->disk('public')
+                    ->directory('pengaduan/pesan')
+                    ->maxSize(5120)
+                    ->output(TiptapOutput::Html)
                     ->columnSpanFull()
-                    ->disabledOn('edit')
-                    ->afterStateHydrated(function ($component) {
-                        $component->extraAttributes(['target' => '_blank']);
-                    }),
+                    ->disabledOn('edit'),
 
-                Forms\Components\RichEditor::make('tanggapan')
+                TiptapEditor::make('tanggapan')
                     ->label('Tanggapan')
                     ->nullable()
-                    ->maxLength(3000)
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('pengaduan/tanggapan')
+                    ->tools([
+                        'bold',
+                        'italic',
+                        'strike',
+                        'underline',
+                        'link',
+                        'media',
+                        'oembed',
+                        'code-block',
+                        'table'
+                    ])
+                    ->disk('public')
+                    ->directory('pengaduan/tanggapan')
+                    ->maxSize(5120)
+                    ->output(TiptapOutput::Html)
                     ->columnSpanFull()
                     ->hiddenOn('create'),
 
                 Forms\Components\Radio::make('status')
                     ->label('Status')
-                    ->required()
+                    ->nullable()
                     ->inline()
                     ->options([
                         'menunggu' => 'Menunggu',
@@ -101,13 +136,6 @@ class PengaduanResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('judul')
                     ->label('Judul')
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('pesan')
-                    ->label('Pesan')
-                    ->limit(35)
-                    ->formatStateUsing(fn($state) => strip_tags($state))
                     ->searchable()
                     ->sortable(),
 
@@ -182,8 +210,8 @@ class PengaduanResource extends Resource
     {
         return [
             'index' => Pages\ListPengaduans::route('/'),
-            // 'create' => Pages\CreatePengaduan::route('/create'),
-            // 'edit' => Pages\EditPengaduan::route('/{record}/edit'),
+            'create' => Pages\CreatePengaduan::route('/create'),
+            'edit' => Pages\EditPengaduan::route('/{record}/edit'),
         ];
     }
 }

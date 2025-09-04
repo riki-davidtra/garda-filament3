@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 @tailwind variants;
+
 @import "../../../../vendor/filament/filament/resources/css/base.css";
+
+@import "<path-to-vendor>/awcodes/filament-tiptap-editor/resources/css/plugin.css";
 
 @config 'tailwind.config.js';

@@ -7,8 +7,9 @@ use App\Models\Pengaduan;
 
 class PengaduanObserver
 {
+
     public function __construct(
-        protected \App\Services\FileContentCleanupService $cleanupService
+        protected \App\Services\TiptapEditorFileCleanupService $tiptapEditorCleanup,
     ) {}
 
     public function updating(Pengaduan $pengaduan): void
@@ -17,13 +18,13 @@ class PengaduanObserver
             $oldContent = $pengaduan->getOriginal('pesan') ?? '';
             $newContent = $pengaduan->pesan ?? '';
 
-            $oldFiles = $this->cleanupService->extractFilesFromContent($oldContent);
-            $newFiles = $this->cleanupService->extractFilesFromContent($newContent);
+            $oldFiles = $this->tiptapEditorCleanup->extractFilesFromContent($oldContent);
+            $newFiles = $this->tiptapEditorCleanup->extractFilesFromContent($newContent);
 
             $deletedFiles = array_diff($oldFiles, $newFiles);
 
             foreach ($deletedFiles as $fileUrl) {
-                $this->cleanupService->deleteFileByUrl($fileUrl);
+                $this->tiptapEditorCleanup->deleteFileByUrl($fileUrl);
             }
         }
 
@@ -31,13 +32,13 @@ class PengaduanObserver
             $oldContent = $pengaduan->getOriginal('tanggapan') ?? '';
             $newContent = $pengaduan->tanggapan ?? '';
 
-            $oldFiles = $this->cleanupService->extractFilesFromContent($oldContent);
-            $newFiles = $this->cleanupService->extractFilesFromContent($newContent);
+            $oldFiles = $this->tiptapEditorCleanup->extractFilesFromContent($oldContent);
+            $newFiles = $this->tiptapEditorCleanup->extractFilesFromContent($newContent);
 
             $deletedFiles = array_diff($oldFiles, $newFiles);
 
             foreach ($deletedFiles as $fileUrl) {
-                $this->cleanupService->deleteFileByUrl($fileUrl);
+                $this->tiptapEditorCleanup->deleteFileByUrl($fileUrl);
             }
         }
     }
@@ -45,11 +46,11 @@ class PengaduanObserver
     public function deleting(Pengaduan $pengaduan): void
     {
         if (!empty($pengaduan->pesan)) {
-            $this->cleanupService->deleteFilesFromContent($pengaduan->pesan);
+            $this->tiptapEditorCleanup->deleteFilesFromContent($pengaduan->pesan);
         }
 
         if (!empty($pengaduan->tanggapan)) {
-            $this->cleanupService->deleteFilesFromContent($pengaduan->tanggapan);
+            $this->tiptapEditorCleanup->deleteFilesFromContent($pengaduan->tanggapan);
         }
     }
 }
