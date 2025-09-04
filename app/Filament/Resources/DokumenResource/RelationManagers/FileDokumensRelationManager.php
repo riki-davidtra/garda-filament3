@@ -26,7 +26,7 @@ class FileDokumensRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\FileUpload::make('file_temp')
-                    ->label('File')
+                    ->label('File Dokumen (Upload file sesuai template)')
                     ->required(fn(string $context) => $context === 'create')
                     ->storeFiles(false)
                     ->disk('local')

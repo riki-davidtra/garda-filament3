@@ -27,7 +27,13 @@ class PengaduanResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) static::getModel()::whereIn('status', ['Menunggu'])->count();
+        $user           = Auth::user();
+        $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
+        $query = static::getModel()::whereIn('status', ['menunggu']);
+        if (!$isSuperOrAdmin) {
+            $query->where('dibuat_oleh', $user->id);
+        }
+        return (string) $query->count();
     }
     protected static ?string $navigationBadgeTooltip = 'Jumlah pengaduan dengan status Menunggu.';
 
@@ -50,7 +56,10 @@ class PengaduanResource extends Resource
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('pengaduan/pesan')
                     ->columnSpanFull()
-                    ->disabledOn('edit'),
+                    ->disabledOn('edit')
+                    ->afterStateHydrated(function ($component) {
+                        $component->extraAttributes(['target' => '_blank']);
+                    }),
 
                 Forms\Components\RichEditor::make('tanggapan')
                     ->label('Tanggapan')
@@ -77,10 +86,14 @@ class PengaduanResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $user           = Auth::user();
+        $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
+        $isPerencana    = $user->hasRole('perencana');
+        $isSubbagian    = $user->hasRole('subbagian');
+
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $user = Auth::user();
-                if (!$user->hasAnyRole(['Super Admin', 'admin', 'perencana'])) {
+            ->modifyQueryUsing(function (Builder $query) use ($user, $isSuperOrAdmin) {
+                if (!$isSuperOrAdmin) {
                     $query->where('dibuat_oleh', $user->id);
                 }
             })

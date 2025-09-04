@@ -58,10 +58,14 @@ class TemplatDokumenResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $user           = Auth::user();
+        $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
+        $isPerencana    = $user->hasRole('perencana');
+        $isSubbagian    = $user->hasRole('subbagian');
+
         return $table
-            ->modifyQueryUsing(function (Builder $query, $livewire) {
-                $user = Auth::user();
-                if (!$user->hasAnyRole(['Super Admin', 'admin'])) {
+            ->modifyQueryUsing(function (Builder $query, $livewire) use ($user, $isSuperOrAdmin, $isPerencana) {
+                if (!$isSuperOrAdmin && !$isPerencana) {
                     $query->whereHas('jenisDokumen.roles', function ($q) use ($user) {
                         $q->whereIn('roles.id', $user->roles->pluck('id'));
                     })->orWhereDoesntHave('jenisDokumen.roles');

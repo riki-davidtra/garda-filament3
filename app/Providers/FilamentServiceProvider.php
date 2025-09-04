@@ -31,6 +31,61 @@ class FilamentServiceProvider extends ServiceProvider
         });
     }
 
+    // protected function getNavigationItems($user): array
+    // {
+    //     $items = [];
+
+    //     $items[] = NavigationItem::make('Daftar Dokumen')
+    //         ->group('Dokumen')
+    //         ->icon('heroicon-o-document-text')
+    //         ->url('#')
+    //         ->sort(32)
+    //         ->isActiveWhen(
+    //             fn() =>
+    //             request()->routeIs([
+    //                 'filament.admin.resources.dokumens.index',
+    //                 'filament.admin.resources.dokumens.create',
+    //                 'filament.admin.resources.dokumens.edit',
+    //                 'filament.admin.resources.dokumens.view',
+    //             ])
+    //         );
+
+    //     if (!$user) {
+    //         return [];
+    //     }
+
+    //     $jenisDokumens = JenisDokumen::all();
+
+    //     foreach ($jenisDokumens as $jenis) {
+    //         $navItem = NavigationItem::make($jenis->nama)
+    //             ->group('Dokumen')
+    //             ->url(fn() => ListDokumens::getUrl(['jenis_dokumen_id' => $jenis->id]))
+    //             ->sort(33)
+    //             ->isActiveWhen(
+    //                 fn() =>
+    //                 request()->routeIs([
+    //                     'filament.admin.resources.dokumens.index',
+    //                     'filament.admin.resources.dokumens.create',
+    //                     'filament.admin.resources.dokumens.edit',
+    //                     'filament.admin.resources.dokumens.view',
+    //                 ]) && (int) request('jenis_dokumen_id') === $jenis->id
+    //             );
+
+    //         $count = \App\Models\Dokumen::where('jenis_dokumen_id', $jenis->id)
+    //             ->whereIn('status', ['Menunggu Persetujuan', 'Revisi Menunggu Persetujuan'])
+    //             ->count();
+
+    //         if ($jenis->mode_status && $count > 0) {
+    //             $navItem->badge((string)$count)
+    //                 ->badgeTooltip('Jumlah dokumen ' . $jenis->nama . ' dengan status Menunggu');
+    //         }
+
+    //         $items[] = $navItem;
+    //     }
+
+    //     return $items;
+    // }
+
     protected function getNavigationItems($user): array
     {
         $items = [];
@@ -54,6 +109,9 @@ class FilamentServiceProvider extends ServiceProvider
             return [];
         }
 
+        $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
+        $isPerencana    = $user->hasRole('perencana');
+
         $jenisDokumens = JenisDokumen::all();
 
         foreach ($jenisDokumens as $jenis) {
@@ -71,9 +129,24 @@ class FilamentServiceProvider extends ServiceProvider
                     ]) && (int) request('jenis_dokumen_id') === $jenis->id
                 );
 
-            $count = \App\Models\Dokumen::where('jenis_dokumen_id', $jenis->id)
-                ->whereIn('status', ['Menunggu Persetujuan', 'Revisi Menunggu Persetujuan'])
-                ->count();
+            // Query untuk menghitung jumlah dokumen dengan filter role user
+            $countQuery = \App\Models\Dokumen::where('jenis_dokumen_id', $jenis->id)
+                ->whereIn('status', ['Menunggu Persetujuan', 'Revisi Menunggu Persetujuan']);
+
+            // Filter untuk user biasa
+            if (!$isSuperOrAdmin && !$isPerencana) {
+                $jenisRoles = $jenis->roles->pluck('id');
+                $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisRoles);
+
+                if ($aksesPeranDokumen->isNotEmpty()) {
+                    $countQuery->where('subbagian_id', $user->subbagian_id);
+                } else {
+                    // User tidak punya akses role sama sekali -> set count 0
+                    $countQuery->whereRaw('1 = 0');
+                }
+            }
+
+            $count = $countQuery->count();
 
             if ($jenis->mode_status && $count > 0) {
                 $navItem->badge((string)$count)

@@ -100,10 +100,14 @@ class IndeksKinerjaUtamaResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $user           = Auth::user();
+        $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
+        $isPerencana    = $user->hasRole('perencana');
+        $isSubbagian    = $user->hasRole('subbagian');
+
         return $table
-            ->modifyQueryUsing(function (Builder $query, $livewire) {
-                $user = Auth::user();
-                if (!$user->hasAnyRole(['Super Admin', 'admin', 'perencana'])) {
+            ->modifyQueryUsing(function (Builder $query, $livewire) use ($user, $isSuperOrAdmin, $isPerencana) {
+                if (!$isSuperOrAdmin && !$isPerencana) {
                     $query->where('dibuat_oleh', $user->id);
                 }
                 return $query;
@@ -205,7 +209,8 @@ class IndeksKinerjaUtamaResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make()
+                    ->visible(fn() => $isSuperOrAdmin),
             ])
             ->actions([
                 Tables\Actions\Action::make('unduh')
