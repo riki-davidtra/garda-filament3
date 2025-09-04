@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Services\JadwalDokumenService;
 use App\Services\WhatsAppService;
 use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
 
 class JadwalDokumenResource extends Resource
 {
@@ -63,6 +64,19 @@ class JadwalDokumenResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            //   ->description(function () {})
+            ->headerActions([
+                Action::make('informasi')
+                    ->label('Informasi')
+                    ->button()
+                    ->color('primary')
+                    ->icon('heroicon-o-information-circle')
+                    ->modalHeading('Informasi Jadwal Dokumen')
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(false)
+                    ->modalWidth('md')
+                    ->modalContent(fn() => view('filament.components.informasi-jadwal-dokumen'))
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('kode')
                     ->label('Kode')
