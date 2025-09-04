@@ -64,7 +64,6 @@ class JadwalDokumenResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
-            //   ->description(function () {})
             ->headerActions([
                 Action::make('informasi')
                     ->label('Informasi')
