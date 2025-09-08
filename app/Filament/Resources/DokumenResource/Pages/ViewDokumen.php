@@ -90,6 +90,12 @@ class ViewDokumen extends ViewRecord
                 })
                 ->visible(fn() => $isSuperOrAdmin || $isPerencana),
 
+            \Filament\Actions\DeleteAction::make()
+                ->icon('heroicon-o-trash')
+                ->after(function () {
+                    $this->redirect(ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]));
+                }),
+
             \Filament\Actions\EditAction::make()
                 ->icon('heroicon-o-pencil-square')
                 ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
