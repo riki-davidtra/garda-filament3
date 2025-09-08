@@ -35,6 +35,10 @@ class CatatLoginLogout
         }
 
         if ($aksi) {
+            if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
+                return;
+            }
+
             RiwayatAktivitas::create([
                 'user_id'     => $user->id,
                 'aksi'        => $aksi,

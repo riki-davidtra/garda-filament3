@@ -62,26 +62,14 @@ class DokumenResource extends Resource
                     ->required()
                     ->string()
                     ->maxLength(255)
-                    ->helperText('Contoh: RKA Perubahan - Rumah Tangga - Urusan Dalam')
-                    ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return false;
-                        $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
-                        return $aksesPeranDokumen->isEmpty();
-                    }),
+                    ->helperText('Contoh: RKA Perubahan - Rumah Tangga - Urusan Dalam'),
 
                 // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
                     ->options(fn() => array_combine(range(date('Y'), 2020), range(date('Y'), 2020)))
-                    ->default(date('Y'))
-                    ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return false;
-                        $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
-                        return $aksesPeranDokumen->isEmpty();
-                    }),
+                    ->default(date('Y')),
 
                 // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\Select::make('subkegiatan_id')
@@ -92,11 +80,9 @@ class DokumenResource extends Resource
                     ->relationship('subkegiatan', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
                     })
-                    ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return false;
-                        $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
-                        return $aksesPeranDokumen->isEmpty();
+                    ->visible(function ($get, $livewire) {
+                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        return $jenisDokumen->mode_subkegiatan;
                     }),
 
                 // Disabled jika tidak memiliki akses peran pada dokumen ini
@@ -104,13 +90,7 @@ class DokumenResource extends Resource
                     ->label('Keterangan')
                     ->nullable()
                     ->maxLength(3000)
-                    ->columnSpanFull()
-                    ->disabled(function ($get, $livewire) use ($user, $isSuperOrAdmin) {
-                        if ($isSuperOrAdmin) return false;
-                        $jenisDokumen      = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
-                        return $aksesPeranDokumen->isEmpty();
-                    }),
+                    ->columnSpanFull(),
 
                 // Tampilkan repeater unggah file dokumen hanya di create
                 Forms\Components\Repeater::make('fileDokumens')
@@ -204,37 +184,6 @@ class DokumenResource extends Resource
                     ])
                     ->hiddenOn('create')
                     ->visible($isSuperOrAdmin),
-
-                // Tampilkan jika mode status nya aktif pada dokumen ini
-                Forms\Components\Fieldset::make('Status Dokumen')
-                    ->schema([
-                        Forms\Components\Radio::make('status')
-                            ->label('Status')
-                            ->required()
-                            ->options([
-                                'Menunggu Persetujuan'        => 'Menunggu Persetujuan',
-                                'Diterima'                    => 'Diterima',
-                                'Ditolak'                     => 'Ditolak',
-                                'Revisi Menunggu Persetujuan' => 'Revisi Menunggu Persetujuan',
-                                'Revisi Diterima'             => 'Revisi Diterima',
-                                'Revisi Ditolak'              => 'Revisi Ditolak',
-                            ])
-                            ->default('Menunggu Persetujuan')
-                            ->hiddenOn('create')
-                            ->disabled(!$isSuperOrAdmin && !$isPerencana),
-
-                        Forms\Components\Textarea::make('komentar')
-                            ->label('Komentar')
-                            ->nullable()
-                            ->maxLength(3000)
-                            ->columnSpanFull()
-                            ->disabled(!$isSuperOrAdmin && !$isPerencana),
-                    ])
-                    ->hiddenOn('create')
-                    ->visible(function ($get, $livewire) {
-                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        return $jenisDokumen->mode_status;
-                    }),
             ]);
     }
 
@@ -275,7 +224,11 @@ class DokumenResource extends Resource
                 Tables\Columns\TextColumn::make('subkegiatan.nama')
                     ->label('Subkegiatan')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(function ($livewire) {
+                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        return $jenisDokumen->mode_subkegiatan;
+                    }),
 
                 // Ditampilkan untuk Super Admin/Admin, atau tampil jika jenis dokumen terkait memiliki role 'subbagian'
                 Tables\Columns\TextColumn::make('status')
@@ -295,13 +248,6 @@ class DokumenResource extends Resource
                         $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
                         return $jenisDokumen->mode_status;
                     }),
-
-                Tables\Columns\TextColumn::make('subbagian.nama')
-                    ->label('Subbagian')
-                    ->formatStateUsing(fn($record) => "{$record->subbagian?->bagian?->nama} - {$record->subbagian?->nama}")
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('pembuat.name')
                     ->label('Dibuat Oleh')
@@ -382,12 +328,6 @@ class DokumenResource extends Resource
                     ->searchable()
                     ->preload(),
 
-                Tables\Filters\SelectFilter::make('subkegiatan_id')
-                    ->label('Subkegiatan')
-                    ->relationship('subkegiatan', 'nama')
-                    ->searchable()
-                    ->preload(),
-
                 Tables\Filters\Filter::make('tahun')
                     ->form([
                         Forms\Components\TextInput::make('tahun')
@@ -422,39 +362,14 @@ class DokumenResource extends Resource
                     })
                     ->openUrlInNewTab(),
 
-                // Tampilkan jika admin atau perencana atau memiliki akses peran pada dokumen ini
-                Tables\Actions\EditAction::make()
+                Tables\Actions\ViewAction::make()
                     ->label('Detail')
-                    ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
+                    ->button()
+                    ->url(fn($record) => route('filament.admin.resources.dokumens.view', [
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
-                    ]))
-                    ->visible(function ($record) use ($user, $isSuperOrAdmin, $isPerencana) {
-                        if ($isSuperOrAdmin || $isPerencana) return true;
-                        $jenisDokumen      = $record->jenisDokumen;
-                        $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
-                        return $aksesPeranDokumen->isNotEmpty();
-                    }),
+                    ])),
 
-                Tables\Actions\Action::make('kirim_notifikasi')
-                    ->label('Kirim Notifikasi')
-                    ->button()
-                    ->color('success')
-                    ->icon('heroicon-o-bell')
-                    ->requiresConfirmation()
-                    ->modalDescription('Apakah Anda yakin ingin mengirim notifikasi WhatsApp kepada semua pengguna terkait status dokumen ini?')
-                    ->action(function (Dokumen $record) {
-                        $notifikasi = DokumenService::notifikasiFind($record);
-                        foreach ($notifikasi as $notif) {
-                            $user  = $notif['user'];
-                            $pesan = $notif['pesan'];
-                            WhatsAppService::sendMessage($user->nomor_whatsapp, $pesan);
-                        }
-                        Notification::make()->title('Notifikasi WhatsApp berhasil dikirim')->success()->send();
-                    })
-                    ->visible(function ($record) use ($isSuperOrAdmin, $isPerencana) {
-                        return $isSuperOrAdmin || $isPerencana;
-                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -478,6 +393,7 @@ class DokumenResource extends Resource
             'index'  => Pages\ListDokumens::route('/'),
             'create' => Pages\CreateDokumen::route('/create'),
             'edit'   => Pages\EditDokumen::route('/{record}/edit'),
+            'view'   => Pages\ViewDokumen::route('/{record}'),
         ];
     }
 }

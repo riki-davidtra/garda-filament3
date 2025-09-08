@@ -18,6 +18,13 @@ class WhatsAppService
         string $templateJSON = null,
         string $listJSON     = null
     ) {
+        if (app()->runningInConsole()) {
+            return [
+                'status'  => 'skipped',
+                'message' => 'Pesan tidak dikirim karena running in console',
+            ];
+        }
+
         // Siapkan form data
         $multipart = [
             ['name' => 'target', 'contents' => $to],

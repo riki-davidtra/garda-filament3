@@ -11,7 +11,7 @@ class EditDokumen extends EditRecord
 {
     protected static string $resource = DokumenResource::class;
 
-    public ?int $jenis_dokumen_id = null;
+    public ?int $jenis_dokumen_id  = null;
     public ?int $jadwal_dokumen_id = null;
 
     public function mount(string|int $record): void
@@ -19,7 +19,7 @@ class EditDokumen extends EditRecord
         parent::mount($record);
 
         // Mengambil parameter jenis_dokumen_id & jadwal_dokumen_id dari query string
-        $this->jenis_dokumen_id = request()->query('jenis_dokumen_id');
+        $this->jenis_dokumen_id  = request()->query('jenis_dokumen_id');
         $this->jadwal_dokumen_id = request()->query('jadwal_dokumen_id');
     }
 
@@ -28,14 +28,14 @@ class EditDokumen extends EditRecord
         // Custom navigasi breadcrumbs untuk halaman ini
         return [
             ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]) => 'Daftar Dokumen',
-            'Detail',
+            'Ubah',
         ];
     }
 
     public function getTitle(): string
     {
         $jenis = JenisDokumen::find($this->jenis_dokumen_id);
-        return $jenis ? 'Detail Dokumen ' . $jenis->nama : 'Detail Dokumen';
+        return $jenis ? 'Ubah Dokumen ' . $jenis->nama : 'Ubah Dokumen';
     }
 
     protected function getHeaderActions(): array
@@ -45,7 +45,15 @@ class EditDokumen extends EditRecord
             Actions\DeleteAction::make()
                 ->after(function () {
                     $this->redirect(ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]));
-                })
+                }),
+
+            Actions\ViewAction::make()
+                ->label('Detail')
+                ->icon('heroicon-o-eye')
+                ->url(fn($record) => route('filament.admin.resources.dokumens.view', [
+                    'record'           => $record->uuid,
+                    'jenis_dokumen_id' => $this->jenis_dokumen_id,
+                ])),
         ];
     }
 }

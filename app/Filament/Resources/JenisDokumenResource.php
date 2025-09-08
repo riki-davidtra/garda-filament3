@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class JenisDokumenResource extends Resource
 {
@@ -26,6 +27,9 @@ class JenisDokumenResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $user         = Auth::user();
+        $isSuperAdmin = $user->hasRole('Super Admin');
+
         return $form
             ->schema([
                 Forms\Components\TextInput::make('nama')
@@ -55,6 +59,12 @@ class JenisDokumenResource extends Resource
                     ->default(0),
 
                 Forms\Components\Toggle::make('mode_status')
+                    ->label('Mode Status')
+                    ->nullable()
+                    ->default(false),
+
+                Forms\Components\Toggle::make('mode_subkegiatan')
+                    ->label('Mode Subkegiatan')
                     ->nullable()
                     ->default(false),
 
@@ -62,7 +72,15 @@ class JenisDokumenResource extends Resource
                     ->label('Akses Peran')
                     ->nullable()
                     ->multiple()
-                    ->relationship('roles', 'name')
+                    ->relationship(
+                        name: 'roles',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: function (Builder $query)  use ($isSuperAdmin) {
+                            if (!$isSuperAdmin) {
+                                $query->where('name', '!=', 'Super Admin');
+                            }
+                        }
+                    )
                     ->preload()
                     ->searchable(),
             ]);
@@ -70,7 +88,19 @@ class JenisDokumenResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $user         = Auth::user();
+        $isSuperAdmin = $user->hasRole('Super Admin');
+
         return $table
+            ->modifyQueryUsing(function (Builder $query, $livewire) use ($isSuperAdmin) {
+                if (!$isSuperAdmin) {
+                    $query->whereDoesntHave('roles', function ($q) {
+                        $q->where('name', 'Super Admin');
+                    });
+                }
+
+                return $query;
+            })
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('nama')
@@ -83,26 +113,6 @@ class JenisDokumenResource extends Resource
                     ->badge()
                     ->searchable()
                     ->sortable(),
-
-                // Tables\Columns\TextColumn::make('format_file')
-                //     ->label('Format File')
-                //     ->badge()
-                //     ->getStateUsing(function ($record) {
-                //         $ids = $record->format_file ?? [];
-                //         $names = \App\Models\FormatFile::whereIn('id', $ids)
-                //             ->pluck('nama')
-                //             ->toArray();
-                //         return array_unique($names);
-                //     })
-                //     ->searchable()
-                //     ->sortable(),
-
-                // Tables\Columns\TextColumn::make('maksimal_ukuran')
-                //     ->label('Maks. Ukuran')
-                //     ->badge()
-                //     ->formatStateUsing(fn($state) => $state ? number_format($state / 1024, 0) . ' MB' : '-')
-                //     ->sortable()
-                //     ->searchable(),
 
                 Tables\Columns\IconColumn::make('mode_status')
                     ->label('Mode Status')

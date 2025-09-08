@@ -50,6 +50,10 @@ trait HasRiwayatAktivitas
 
         $user = Auth::user();
 
+        if (! $user || (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin())) {
+            return;
+        }
+
         if ($detail) {
             $attributes = $detail;
         } elseif (method_exists($model, 'getReadableAttributes')) {

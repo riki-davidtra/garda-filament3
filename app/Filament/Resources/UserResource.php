@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Storage;
 
@@ -28,6 +29,9 @@ class UserResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $user         = Auth::user();
+        $isSuperAdmin = $user->hasRole('Super Admin');
+
         return $form
             ->schema([
                 Forms\Components\FileUpload::make('avatar_url')
@@ -115,7 +119,15 @@ class UserResource extends Resource
                             ->label('Peran')
                             ->nullable()
                             ->multiple()
-                            ->relationship('roles', 'name')
+                            ->relationship(
+                                name: 'roles',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: function (Builder $query)  use ($isSuperAdmin) {
+                                    if (!$isSuperAdmin) {
+                                        $query->where('name', '!=', 'Super Admin');
+                                    }
+                                }
+                            )
                             ->preload()
                             ->searchable(),
                     ]),
@@ -124,7 +136,19 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $user         = Auth::user();
+        $isSuperAdmin = $user->hasRole('Super Admin');
+
         return $table
+            ->modifyQueryUsing(function (Builder $query, $livewire) use ($isSuperAdmin) {
+                if (!$isSuperAdmin) {
+                    $query->whereDoesntHave('roles', function ($q) {
+                        $q->where('name', 'Super Admin');
+                    });
+                }
+
+                return $query;
+            })
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar_url')
@@ -216,8 +240,8 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
-            // 'create' => Pages\CreateUser::route('/create'),
-            // 'edit'   => Pages\EditUser::route('/{record}/edit'),
+            'create' => Pages\CreateUser::route('/create'),
+            'edit'   => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

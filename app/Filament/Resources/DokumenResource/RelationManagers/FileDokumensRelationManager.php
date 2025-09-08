@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Models\FormatFile;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\Tabs;
 
 class FileDokumensRelationManager extends RelationManager
 {
@@ -68,11 +70,10 @@ class FileDokumensRelationManager extends RelationManager
         $isSubbagian    = $user->hasRole('subbagian');
 
         return $table
-            ->recordTitleAttribute('nama')
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('nama')
-                    ->label('Nama File')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tipe')
@@ -203,8 +204,68 @@ class FileDokumensRelationManager extends RelationManager
                     ->openUrlInNewTab()
                     ->visible(fn($record) => filled($record?->path) && Storage::disk('local')->exists($record->path)),
 
-                Tables\Actions\EditAction::make()
-                    ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data)),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->label('Detail')
+                        ->infolist(function ($record) {
+                            $formatUserInfo = function ($user, $tanggal) {
+                                $bagian    = $user?->subbagian?->bagian?->nama;
+                                $subbagian = $user?->subbagian?->nama;
+                                $parts     = [
+                                    $user?->name,
+                                    $user?->nip ? 'NIP: ' . $user->nip                            : null,
+                                    $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                                    $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
+                                ];
+                                return implode(' | ', array_filter($parts));
+                            };
+
+                            return [
+                                Tabs::make('Tab')
+                                    ->tabs([
+                                        Tabs\Tab::make('Utama')
+                                            ->schema([
+                                                TextEntry::make('nama')->label('Nama')
+                                                    ->state($record->nama),
+
+                                                TextEntry::make('tipe')->label('Tipe')
+                                                    ->state($record->tipe),
+
+                                                TextEntry::make('ukuran')
+                                                    ->label('Ukuran')
+                                                    ->state(number_format(($record->ukuran ?? 0) / 1024, 2) . ' KB'),
+                                            ]),
+
+                                        Tabs\Tab::make('Riwayat Aktivitas')
+                                            ->schema([
+                                                TextEntry::make('pembuat.name')
+                                                    ->label('Dibuat Oleh')
+                                                    ->placeholder('-')
+                                                    ->state($formatUserInfo($record->pembuat, $record->dibuat_pada)),
+
+                                                TextEntry::make('pembaru.name')
+                                                    ->label('Diperbarui Oleh')
+                                                    ->placeholder('-')
+                                                    ->state($formatUserInfo($record->pembaru, $record->diperbarui_pada)),
+
+                                                TextEntry::make('penghapus.name')
+                                                    ->label('Dihapus Oleh')
+                                                    ->placeholder('-')
+                                                    ->state($formatUserInfo($record->penghapus, $record->dihapus_pada)),
+
+                                                TextEntry::make('pemulih.name')
+                                                    ->label('Dipulihkan Oleh')
+                                                    ->placeholder('-')
+                                                    ->state($formatUserInfo($record->pemulih, $record->dipulihkan_pada)),
+                                            ])
+                                            ->columns(2),
+                                    ]),
+                            ];
+                        }),
+
+                    Tables\Actions\EditAction::make()
+                        ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data)),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

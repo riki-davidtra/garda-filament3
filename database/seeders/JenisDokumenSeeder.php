@@ -11,9 +11,6 @@ class JenisDokumenSeeder extends Seeder
 {
     public function run(): void
     {
-        $superAdmin    = Role::firstOrCreate(['name' => 'Super Admin']);
-        $admin         = Role::firstOrCreate(['name' => 'admin']);
-        $pimpinan      = Role::firstOrCreate(['name' => 'pimpinan']);
         $perencana     = Role::firstOrCreate(['name' => 'perencana']);
         $userSubbagian = Role::firstOrCreate(['name' => 'subbagian']);
 
@@ -40,15 +37,17 @@ class JenisDokumenSeeder extends Seeder
         ];
 
         foreach ($dataAll as $nama) {
-            $isModeStatusTrue = !in_array($nama, $dataModeFalse);
+            $isModeStatusTrue  = !in_array($nama, $dataModeFalse);
+            $isModeSubkegiatan = $nama !== 'Pengarahan';
 
             $dokumen = JenisDokumen::updateOrCreate(
                 ['nama' => $nama],
                 [
-                    'batas_unggah'    => 10,
-                    'format_file'     => $formatFiles,
-                    'maksimal_ukuran' => 20480,
-                    'mode_status'     => $isModeStatusTrue,
+                    'batas_unggah'     => 10,
+                    'format_file'      => $formatFiles,
+                    'maksimal_ukuran'  => 20480,
+                    'mode_status'      => $isModeStatusTrue,
+                    'mode_subkegiatan' => $isModeSubkegiatan,
                 ]
             );
 
