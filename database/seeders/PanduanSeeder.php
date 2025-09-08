@@ -14,28 +14,23 @@ class PanduanSeeder extends Seeder
     {
         $data = [
             [
-                'judul'     => 'Panduan Upload Dokumen',
+                'judul'     => 'Panduan Unggah Dokumen',
                 'deskripsi' => 'Panduan lengkap cara mengunggah dokumen melalui sistem.',
                 'file'      => null,
             ],
             [
-                'judul'     => 'Panduan Format File',
-                'deskripsi' => 'Penjelasan format file yang didukung sistem.',
+                'judul'     => 'Panduan Edit Dokumen',
+                'deskripsi' => 'Langkah-langkah untuk mengubah atau memperbarui dokumen yang sudah diunggah.',
                 'file'      => null,
             ],
             [
-                'judul'     => 'Panduan Reset Password',
-                'deskripsi' => 'Langkah-langkah mengatur ulang kata sandi akun Anda.',
+                'judul'     => 'Panduan Isi Formulir',
+                'deskripsi' => 'Cara mengisi formulir dalam sistem dengan benar dan lengkap.',
                 'file'      => null,
             ],
             [
-                'judul'     => 'Panduan Keamanan Dokumen',
-                'deskripsi' => 'Tips dan prosedur menjaga keamanan dokumen di sistem.',
-                'file'      => null,
-            ],
-            [
-                'judul'     => 'Panduan Riwayat Versi',
-                'deskripsi' => 'Cara melihat dan memulihkan versi sebelumnya dari dokumen.',
+                'judul'     => 'Panduan Edit Formulir',
+                'deskripsi' => 'Petunjuk mengubah data atau informasi di formulir yang sudah diisi.',
                 'file'      => null,
             ],
         ];
