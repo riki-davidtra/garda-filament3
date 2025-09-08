@@ -8,11 +8,6 @@ use Carbon\Carbon;
 
 class JadwalDokumenService
 {
-    /**
-     * Ambil semua notifikasi per user siap dikirim.
-     *
-     * @return array [user_id => ['user' => User, 'pesan' => [...]]]
-     */
     public static function notifikasiAll(): array
     {
         $now = Carbon::now();
@@ -63,12 +58,6 @@ class JadwalDokumenService
         return $notifikasi;
     }
 
-    /**
-     * Ambil notifikasi untuk satu jadwal dokumen (untuk tombol kirim manual)
-     *
-     * @param JadwalDokumen $jadwal
-     * @return array [user_id => ['user' => User, 'pesan' => string lengkap]]
-     */
     public static function notifikasiFind(JadwalDokumen $jadwal): array
     {
         $now = Carbon::now();
@@ -103,34 +92,30 @@ class JadwalDokumenService
         return $notifikasi;
     }
 
-    /**
-     * Buat pesan singkat untuk satu jadwal
-     */
     public static function buatPesanSingkat(string $status, JadwalDokumen $jadwal): string
     {
         $jenis   = $jadwal->jenisDokumen->nama;
-        $kode    = $jadwal->kode;
         $mulai   = $jadwal->waktu_unggah_mulai?->format('d-m-Y H:i') ?? '-';
         $selesai = $jadwal->waktu_unggah_selesai?->format('d-m-Y H:i') ?? '-';
 
         if ($status === 'waktu_tidak_ditentukan') {
-            return "📭 *{$jenis}* (kode: {$kode}) dengan waktu yang tidak ditentukan.";
+            return "📭 *{$jenis}* dengan waktu yang tidak ditentukan.";
         }
 
         if ($status === 'akan_mulai') {
             $diff = Carbon::now()->diff($jadwal->waktu_unggah_mulai, false);
-            return "📌 *{$jenis}* (kode: {$kode}) akan dimulai *{$diff->d} hari {$diff->h} jam lagi*.\nMulai: {$mulai}\nSelesai: {$selesai}";
+            return "📌 *{$jenis}* akan dimulai *{$diff->d} hari {$diff->h} jam lagi*.\nMulai: {$mulai}\nSelesai: {$selesai}";
         }
 
         if ($status === 'akan_selesai') {
             $diff = Carbon::now()->diff($jadwal->waktu_unggah_selesai, false);
-            return "⚠️ *{$jenis}* (kode: {$kode}) akan berakhir *{$diff->d} hari {$diff->h} jam lagi*.\nBatas unggah: {$selesai}";
+            return "⚠️ *{$jenis}* akan berakhir *{$diff->d} hari {$diff->h} jam lagi*.\nBatas unggah: {$selesai}";
         }
 
         return match ($status) {
-            'sedang_berlangsung' => "⏳ *{$jenis}* (kode: {$kode}) sedang berlangsung.\nMulai: {$mulai}\nSelesai: {$selesai}",
-            'sudah_selesai'      => "✅ *{$jenis}* (kode: {$kode}) telah berakhir.\nMulai: {$mulai}\nSelesai: {$selesai}",
-            default              => "*{$jenis}* (kode: {$kode}) ada update jadwal.",
+            'sedang_berlangsung' => "⏳ *{$jenis}* sedang berlangsung.\nMulai: {$mulai}\nSelesai: {$selesai}",
+            'sudah_selesai'      => "✅ *{$jenis}* telah berakhir.\nMulai: {$mulai}\nSelesai: {$selesai}",
+            default              => "*{$jenis}* ada update jadwal.",
         };
     }
 }

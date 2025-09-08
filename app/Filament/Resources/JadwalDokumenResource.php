@@ -141,13 +141,13 @@ class JadwalDokumenResource extends Resource
                     ->color('success')
                     ->icon('heroicon-o-bell')
                     ->requiresConfirmation()
-                    ->modalDescription('Apakah Anda yakin ingin mengirim notifikasi WhatsApp ke semua pengguna terkait jadwal ini?')
+                    ->modalDescription('Apakah Anda yakin ingin mengirim notifikasi WhatsApp ke semua pengguna terkait jadwal dokumen ini?')
                     ->action(function (JadwalDokumen $record) {
                         $notifikasi = JadwalDokumenService::notifikasiFind($record);
                         foreach ($notifikasi as $notif) {
-                            $user         = $notif['user'];
-                            $pesanLengkap = $notif['pesan'];
-                            WhatsAppService::sendMessage($user->nomor_whatsapp, $pesanLengkap);
+                            $user  = $notif['user'];
+                            $pesan = $notif['pesan'];
+                            WhatsAppService::sendMessage($user->nomor_whatsapp, $pesan);
                         }
                         Notification::make()->title('Notifikasi WhatsApp berhasil dikirim')->success()->send();
                     }),
@@ -169,9 +169,9 @@ class JadwalDokumenResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListJadwalDokumens::route('/'),
+            'index' => Pages\ListJadwalDokumens::route('/'),
             // 'create' => Pages\CreateJadwalDokumen::route('/create'),
-            'edit'   => Pages\EditJadwalDokumen::route('/{record}/edit'),
+            'edit' => Pages\EditJadwalDokumen::route('/{record}/edit'),
         ];
     }
 }

@@ -18,6 +18,9 @@ use App\Models\Bagian;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use App\Services\DokumenService;
+use App\Services\WhatsAppService;
+use Filament\Notifications\Notification;
 
 class DokumenResource extends Resource
 {
@@ -431,6 +434,26 @@ class DokumenResource extends Resource
                         $jenisDokumen      = $record->jenisDokumen;
                         $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
                         return $aksesPeranDokumen->isNotEmpty();
+                    }),
+
+                Tables\Actions\Action::make('kirim_notifikasi')
+                    ->label('Kirim Notifikasi')
+                    ->button()
+                    ->color('success')
+                    ->icon('heroicon-o-bell')
+                    ->requiresConfirmation()
+                    ->modalDescription('Apakah Anda yakin ingin mengirim notifikasi WhatsApp kepada semua pengguna terkait status dokumen ini?')
+                    ->action(function (Dokumen $record) {
+                        $notifikasi = DokumenService::notifikasiFind($record);
+                        foreach ($notifikasi as $notif) {
+                            $user  = $notif['user'];
+                            $pesan = $notif['pesan'];
+                            WhatsAppService::sendMessage($user->nomor_whatsapp, $pesan);
+                        }
+                        Notification::make()->title('Notifikasi WhatsApp berhasil dikirim')->success()->send();
+                    })
+                    ->visible(function ($record) use ($isSuperOrAdmin, $isPerencana) {
+                        return $isSuperOrAdmin || $isPerencana;
                     }),
             ])
             ->bulkActions([
