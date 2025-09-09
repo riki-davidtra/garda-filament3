@@ -103,7 +103,6 @@ class DokumenResource extends Resource
                             ->storeFiles(false)
                             ->disk('local')
                             ->directory('temp')
-                            ->maxSize(20480)
                             ->maxSize(function ($get, $livewire) {
                                 $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
                                 return $jenisDokumen?->maksimal_ukuran ?? 20480;
