@@ -173,7 +173,7 @@ class JadwalDokumenResource extends Resource
         return [
             'index' => Pages\ListJadwalDokumens::route('/'),
             // 'create' => Pages\CreateJadwalDokumen::route('/create'),
-            'edit' => Pages\EditJadwalDokumen::route('/{record}/edit'),
+            // 'edit' => Pages\EditJadwalDokumen::route('/{record}/edit'),
         ];
     }
 }
