@@ -10,31 +10,57 @@ class FileDokumenObserver
 {
     public function creating(FileDokumen $fileDokumen): void
     {
-        if ($fileDokumen->path && Storage::disk('local')->exists($fileDokumen->path)) {
-            $fullPath = Storage::disk('local')->path($fileDokumen->path);
+        // Enkripsi file
+        if (!empty($fileDokumen->path)) {
+            $file = $fileDokumen->path;
 
-            $fileDokumen->nama   = basename($fileDokumen->path);
-            $fileDokumen->tipe   = pathinfo($fileDokumen->nama, PATHINFO_EXTENSION);
-            $fileDokumen->ukuran = filesize($fullPath);
+            $owner       = $fileDokumen->dokumen;
+            $namaDokumen = $owner?->nama ?? 'dokumen';
+            $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
+            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
+            $extension   = $file->getClientOriginalExtension();
+            $path        = "file-dokumen/{$fileName}.{$extension}";
+
+            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
+
+            $fileDokumen->path   = $path;
+            $fileDokumen->nama   = $fileName . '.' . $extension;
+            $fileDokumen->tipe   = $extension ?? $file->getMimeType();
+            $fileDokumen->ukuran = $file->getSize();
+
+            @unlink($file->getRealPath());
         }
     }
 
     public function updating(FileDokumen $fileDokumen): void
     {
-        if ($fileDokumen->isDirty('path')) {
-            $originalPath = $fileDokumen->getOriginal('path');
+        // Enkripsi file
+        if (!empty($fileDokumen->path) && $fileDokumen->isDirty('path')) {
+            $file = $fileDokumen->path;
 
-            if ($originalPath && Storage::disk('local')->exists($originalPath)) {
-                Storage::disk('local')->delete($originalPath);
+            $owner       = $fileDokumen->dokumen;
+            $namaDokumen = $owner?->nama ?? 'dokumen';
+            $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
+            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
+            $extension   = $file->getClientOriginalExtension();
+            $path        = "file-dokumen/{$fileName}.{$extension}";
+
+            // Enkripsi file baru
+            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
+
+            // Hapus file lama kalau ada
+            if ($fileDokumen->getOriginal('path') && Storage::disk('local')->exists($fileDokumen->getOriginal('path'))) {
+                Storage::disk('local')->delete($fileDokumen->getOriginal('path'));
             }
 
-            if ($fileDokumen->path && Storage::disk('local')->exists($fileDokumen->path)) {
-                $fullPath = Storage::disk('local')->path($fileDokumen->path);
+            // Simpan path baru ke DB             
+            $fileDokumen->path   = $path;
+            $fileDokumen->nama   = $fileName . '.' . $extension;
+            $fileDokumen->tipe   = $extension ?? $file->getMimeType();
+            $fileDokumen->ukuran = $file->getSize();
 
-                $fileDokumen->nama   = basename($fileDokumen->path);
-                $fileDokumen->tipe   = pathinfo($fileDokumen->nama, PATHINFO_EXTENSION);
-                $fileDokumen->ukuran = filesize($fullPath);
-            }
+            // Hapus temporary file upload Livewire
+            @unlink($file->getRealPath());
         }
     }
 

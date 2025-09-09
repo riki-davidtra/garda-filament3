@@ -97,44 +97,23 @@ class DokumenResource extends Resource
                     ->label('')
                     ->relationship()
                     ->schema([
-                        Forms\Components\FileUpload::make('file_temp')
+                        Forms\Components\FileUpload::make('path')
                             ->label('File Dokumen (Upload file sesuai template)')
                             ->nullable()
                             ->storeFiles(false)
                             ->disk('local')
                             ->directory('temp')
                             ->maxSize(20480)
+                            ->maxSize(function ($get, $livewire) {
+                                $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                                return $jenisDokumen?->maksimal_ukuran ?? 20480;
+                            })
                             ->acceptedFileTypes(function ($get, $livewire) {
                                 $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
                                 $mimeTypes    = FormatFile::whereIn('id', $jenisDokumen->format_file ?? [])->pluck('mime_types')->toArray();
                                 return $mimeTypes;
-                            })
+                            }),
                     ])
-                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $record, $livewire) {
-                        if (!empty($data['file_temp']) && $data['file_temp'] instanceof TemporaryUploadedFile) {
-                            $file = $data['file_temp'];
-
-                            $owner       = $record ?? $livewire->getMountedActionRecord();
-                            $namaDokumen = $owner?->nama ?? 'dokumen';
-                            $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-                            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
-                            $extension   = $file->getClientOriginalExtension();
-                            $path        = "file-dokumen/{$fileName}.{$extension}";
-
-                            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
-
-                            $data['path']   = $path;
-                            $data['nama']   = $fileName . '.' . $extension;
-                            $data['tipe']   = $file->getMimeType();
-                            $data['ukuran'] = $file->getSize();
-
-                            @unlink($file->getRealPath());
-                        }
-
-                        unset($data['file_temp']);
-
-                        return $data;
-                    })
                     ->defaultItems(1)
                     ->maxItems(1)
                     ->disableItemCreation()
@@ -184,6 +163,37 @@ class DokumenResource extends Resource
                     ])
                     ->hiddenOn('create')
                     ->visible($isSuperOrAdmin),
+
+                // Tampilkan jika mode status nya aktif pada dokumen ini
+                Forms\Components\Fieldset::make('Status Dokumen')
+                    ->schema([
+                        Forms\Components\Radio::make('status')
+                            ->label('Status')
+                            ->required()
+                            ->options([
+                                'Menunggu Persetujuan'        => 'Menunggu Persetujuan',
+                                'Diterima'                    => 'Diterima',
+                                'Ditolak'                     => 'Ditolak',
+                                'Revisi Menunggu Persetujuan' => 'Revisi Menunggu Persetujuan',
+                                'Revisi Diterima'             => 'Revisi Diterima',
+                                'Revisi Ditolak'              => 'Revisi Ditolak',
+                            ])
+                            ->default('Menunggu Persetujuan')
+                            ->hiddenOn('create')
+                            ->disabled(!$isSuperOrAdmin && !$isPerencana),
+
+                        Forms\Components\Textarea::make('komentar')
+                            ->label('Komentar')
+                            ->nullable()
+                            ->maxLength(3000)
+                            ->columnSpanFull()
+                            ->disabled(!$isSuperOrAdmin && !$isPerencana),
+                    ])
+                    ->hiddenOn('create')
+                    ->visible(function ($get, $livewire) use ($isSuperOrAdmin) {
+                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        return $isSuperOrAdmin && $jenisDokumen->mode_status;
+                    }),
             ]);
     }
 
@@ -351,6 +361,7 @@ class DokumenResource extends Resource
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
                     ->button()
+                    ->color('info')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(function ($record) {
                         $fileTerbaru = $record->fileDokumens()->latest()->first();

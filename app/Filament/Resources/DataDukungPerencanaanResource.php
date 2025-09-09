@@ -207,13 +207,18 @@ class DataDukungPerencanaanResource extends Resource
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
                     ->button()
+                    ->color('info')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn($record) => route('file-data-dukung-perencanaan.unduh', $record->id))
                     ->openUrlInNewTab()
                     ->visible(fn($record) => filled($record?->path) && Storage::disk('local')->exists($record->path)),
 
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->button(),
+
+                Tables\Actions\EditAction::make()
+                    ->button()
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

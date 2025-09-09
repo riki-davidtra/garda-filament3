@@ -27,7 +27,7 @@ class FileDokumensRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\FileUpload::make('file_temp')
+                Forms\Components\FileUpload::make('path')
                     ->label('File Dokumen (Upload file sesuai template)')
                     ->required(fn(string $context) => $context === 'create')
                     ->storeFiles(false)
@@ -45,20 +45,6 @@ class FileDokumensRelationManager extends RelationManager
                         return $mimeTypes;
                     })
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('nama')
-                    ->label('Nama File')
-                    ->columnSpanFull()
-                    ->hiddenOn('create')
-                    ->disabled(),
-                Forms\Components\TextInput::make('tipe')
-                    ->label('Tipe')
-                    ->hiddenOn('create')
-                    ->disabled(),
-                Forms\Components\TextInput::make('ukuran')
-                    ->label('Ukuran')
-                    ->formatStateUsing(fn($state) => number_format($state / 1024, 2) . ' KB')
-                    ->hiddenOn('create')
-                    ->disabled(),
             ]);
     }
 
@@ -172,7 +158,6 @@ class FileDokumensRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
                     ->label('Unggah File Dokumen')
                     ->modalHeading('Unggah File Dokumen')
-                    ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data))
                     ->after(function ($record, $livewire) {
                         $owner = $this->getOwnerRecord();
                         if ($owner) {
@@ -181,11 +166,6 @@ class FileDokumensRelationManager extends RelationManager
                         }
                     })
                     ->createAnother(false)
-                    ->visible(function () {
-                        $dokumen      = $this->getOwnerRecord();
-                        $jenisDokumen = $dokumen?->jenisDokumen;
-                        return $dokumen && $jenisDokumen && $dokumen->fileDokumens()->count() < $jenisDokumen->batas_unggah;
-                    })
                     ->visible(function () use ($user, $isSuperOrAdmin) {
                         if ($isSuperOrAdmin) return true;
                         $dokumen      = $this->getOwnerRecord();
@@ -199,73 +179,74 @@ class FileDokumensRelationManager extends RelationManager
                 Tables\Actions\Action::make('unduh')
                     ->label('Unduh')
                     ->button()
+                    ->color('info')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn($record) => route('file-dokumen.unduh', $record->id))
                     ->openUrlInNewTab()
                     ->visible(fn($record) => filled($record?->path) && Storage::disk('local')->exists($record->path)),
 
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make()
-                        ->label('Detail')
-                        ->infolist(function ($record) {
-                            $formatUserInfo = function ($user, $tanggal) {
-                                $bagian    = $user?->subbagian?->bagian?->nama;
-                                $subbagian = $user?->subbagian?->nama;
-                                $parts     = [
-                                    $user?->name,
-                                    $user?->nip ? 'NIP: ' . $user->nip                            : null,
-                                    $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                                    $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
-                                ];
-                                return implode(' | ', array_filter($parts));
-                            };
-
-                            return [
-                                Tabs::make('Tab')
-                                    ->tabs([
-                                        Tabs\Tab::make('Utama')
-                                            ->schema([
-                                                TextEntry::make('nama')->label('Nama')
-                                                    ->state($record->nama),
-
-                                                TextEntry::make('tipe')->label('Tipe')
-                                                    ->state($record->tipe),
-
-                                                TextEntry::make('ukuran')
-                                                    ->label('Ukuran')
-                                                    ->state(number_format(($record->ukuran ?? 0) / 1024, 2) . ' KB'),
-                                            ]),
-
-                                        Tabs\Tab::make('Riwayat Aktivitas')
-                                            ->schema([
-                                                TextEntry::make('pembuat.name')
-                                                    ->label('Dibuat Oleh')
-                                                    ->placeholder('-')
-                                                    ->state($formatUserInfo($record->pembuat, $record->dibuat_pada)),
-
-                                                TextEntry::make('pembaru.name')
-                                                    ->label('Diperbarui Oleh')
-                                                    ->placeholder('-')
-                                                    ->state($formatUserInfo($record->pembaru, $record->diperbarui_pada)),
-
-                                                TextEntry::make('penghapus.name')
-                                                    ->label('Dihapus Oleh')
-                                                    ->placeholder('-')
-                                                    ->state($formatUserInfo($record->penghapus, $record->dihapus_pada)),
-
-                                                TextEntry::make('pemulih.name')
-                                                    ->label('Dipulihkan Oleh')
-                                                    ->placeholder('-')
-                                                    ->state($formatUserInfo($record->pemulih, $record->dipulihkan_pada)),
-                                            ])
-                                            ->columns(2),
-                                    ]),
+                Tables\Actions\ViewAction::make()
+                    ->label('Detail')
+                    ->button()
+                    ->infolist(function ($record) {
+                        $formatUserInfo = function ($user, $tanggal) {
+                            $bagian    = $user?->subbagian?->bagian?->nama;
+                            $subbagian = $user?->subbagian?->nama;
+                            $parts     = [
+                                $user?->name,
+                                $user?->nip ? 'NIP: ' . $user->nip                            : null,
+                                $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+                                $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
                             ];
-                        }),
+                            return implode(' | ', array_filter($parts));
+                        };
 
-                    Tables\Actions\EditAction::make()
-                        ->mutateFormDataUsing(fn(array $data) => $this->handleEncryptedUpload($data)),
-                ]),
+                        return [
+                            Tabs::make('Tab')
+                                ->tabs([
+                                    Tabs\Tab::make('Utama')
+                                        ->schema([
+                                            TextEntry::make('nama')->label('Nama')
+                                                ->state($record->nama),
+
+                                            TextEntry::make('tipe')->label('Tipe')
+                                                ->state($record->tipe),
+
+                                            TextEntry::make('ukuran')
+                                                ->label('Ukuran')
+                                                ->state(number_format(($record->ukuran ?? 0) / 1024, 2) . ' KB'),
+                                        ]),
+
+                                    Tabs\Tab::make('Riwayat Aktivitas')
+                                        ->schema([
+                                            TextEntry::make('pembuat.name')
+                                                ->label('Dibuat Oleh')
+                                                ->placeholder('-')
+                                                ->state($formatUserInfo($record->pembuat, $record->dibuat_pada)),
+
+                                            TextEntry::make('pembaru.name')
+                                                ->label('Diperbarui Oleh')
+                                                ->placeholder('-')
+                                                ->state($formatUserInfo($record->pembaru, $record->diperbarui_pada)),
+
+                                            TextEntry::make('penghapus.name')
+                                                ->label('Dihapus Oleh')
+                                                ->placeholder('-')
+                                                ->state($formatUserInfo($record->penghapus, $record->dihapus_pada)),
+
+                                            TextEntry::make('pemulih.name')
+                                                ->label('Dipulihkan Oleh')
+                                                ->placeholder('-')
+                                                ->state($formatUserInfo($record->pemulih, $record->dipulihkan_pada)),
+                                        ])
+                                        ->columns(2),
+                                ]),
+                        ];
+                    }),
+
+                Tables\Actions\EditAction::make()
+                    ->button()
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -274,32 +255,5 @@ class FileDokumensRelationManager extends RelationManager
                     Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    private function handleEncryptedUpload(array $data): array
-    {
-        if (!empty($data['file_temp']) && $data['file_temp'] instanceof TemporaryUploadedFile) {
-            $file = $data['file_temp'];
-
-            $owner       = $this->getOwnerRecord();
-            $namaDokumen = $owner?->nama ?? 'dokumen';
-            $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
-            $extension   = $file->getClientOriginalExtension();
-            $path        = "file-dokumen/{$fileName}.{$extension}";
-
-            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
-
-            $data['path']   = $path;
-            $data['nama']   = $fileName . '.' . $extension;
-            $data['tipe']   = $file->getMimeType();
-            $data['ukuran'] = $file->getSize();
-
-            @unlink($file->getRealPath());
-        }
-
-        unset($data['file_temp']);
-
-        return $data;
     }
 }

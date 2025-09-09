@@ -98,6 +98,7 @@ class ViewDokumen extends ViewRecord
 
             \Filament\Actions\EditAction::make()
                 ->icon('heroicon-o-pencil-square')
+                ->color('warning')
                 ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
                     'record'           => $record->uuid,
                     'jenis_dokumen_id' => $this->jenis_dokumen_id,
@@ -178,6 +179,7 @@ class ViewDokumen extends ViewRecord
                                         Action::make('ubahStatus')
                                             ->label('Ubah Status & Komentar')
                                             ->icon('heroicon-m-pencil')
+                                            ->color('warning')
                                             ->modalHeading('Ubah Status & Komentar')
                                             ->modalWidth('sm')
                                             ->form([

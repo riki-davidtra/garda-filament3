@@ -68,7 +68,7 @@ class JadwalDokumenResource extends Resource
                 Action::make('informasi')
                     ->label('Informasi')
                     ->button()
-                    ->color('primary')
+                    ->color('info')
                     ->icon('heroicon-o-information-circle')
                     ->modalHeading('Informasi Jadwal Dokumen')
                     ->modalSubmitAction(false)
@@ -133,8 +133,6 @@ class JadwalDokumenResource extends Resource
                     ->preload(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-
                 Tables\Actions\Action::make('kirim_notifikasi')
                     ->label('Kirim Notifikasi')
                     ->button()
@@ -151,6 +149,10 @@ class JadwalDokumenResource extends Resource
                         }
                         Notification::make()->title('Notifikasi WhatsApp berhasil dikirim')->success()->send();
                     }),
+
+                Tables\Actions\EditAction::make()
+                    ->button()
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
