@@ -68,4 +68,11 @@
 
          <x-filament-panels::form.actions :actions="$this->getCachedFormActions()" :full-width="$this->hasFullWidthFormActions()" />
      </x-filament-panels::form>
+
+     <div class="mt-4 text-center text-sm">
+         Lupa Password?
+         <a href="{{ route('reset-password.request') }}" class="text-blue-600 hover:underline">
+             klik disini
+         </a>
+     </div>
  </x-filament-panels::page.simple>

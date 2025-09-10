@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\WhatsAppService;
 use App\Models\FileDokumen;
 use App\Models\DataDukungPerencanaan;
 use App\Models\TemplatDokumen;
@@ -61,16 +63,18 @@ Route::get('/iku/unduh/{id}', function ($id) {
     );
 })->name('iku.unduh');
 
+Route::get('/reset-password/request', [AuthController::class, 'resetPasswordRequest'])->name('reset-password.request')->middleware('guest');
+Route::post('/reset-password/send-request', [AuthController::class, 'resetPasswordSendRequest'])->name('reset-password.send-request')->middleware('guest');
+Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])->name('reset-password')->middleware('guest');
+Route::post('/reset-password/update', [AuthController::class, 'resetPasswordUpdate'])->name('reset-password.update')->middleware('guest');
+
 Route::get('/test-404', fn() => abort(404));
 Route::get('/test-403', fn() => abort(403));
 Route::get('/test-500', fn() => abort(500));
 
-
-use App\Services\WhatsAppService;
-
 Route::get('/test-whatsapp', function () {
-    $res = WhatsAppService::sendMessage(
-        '6289508475453', // nomor tujuan tanpa +
+    WhatsAppService::sendMessage(
+        '6289508475453',
         'Halo Riki! Ini testing WhatsApp dari PHP Laravel',
     );
 });
