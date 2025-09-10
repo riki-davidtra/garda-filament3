@@ -99,7 +99,7 @@ class CreateDokumen extends CreateRecord
     protected function getRedirectUrl(): string
     {
         // Menentukan URL redirect setelah dokumen berhasil dibuat.
-        return $this->getResource()::getUrl('edit', [
+        return $this->getResource()::getUrl('view', [
             'record'            => $this->record->uuid,
             'jenis_dokumen_id'  => $this->jenis_dokumen_id,
         ]);
