@@ -111,7 +111,7 @@ class RiwayatAktivitasResource extends Resource
                     ->form([
                         Forms\Components\DatePicker::make('dari')
                             ->label('Dari Tanggal')
-                            ->default(now()->format('Y-m-d')),
+                            ->default(now()->subWeek()->format('Y-m-d')),
                         Forms\Components\DatePicker::make('sampai')
                             ->label('Sampai Tanggal')
                             ->default(now()->format('Y-m-d')),
