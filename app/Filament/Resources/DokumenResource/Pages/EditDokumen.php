@@ -42,6 +42,12 @@ class EditDokumen extends EditRecord
     {
         // Memberi parameter jenis_dokumen_id pada URL
         return [
+            Actions\DeleteAction::make()
+                ->icon('heroicon-o-trash')
+                ->after(function () {
+                    $this->redirect(ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]));
+                }),
+
             Actions\ViewAction::make()
                 ->label('Detail')
                 ->icon('heroicon-o-eye')

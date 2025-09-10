@@ -4,14 +4,10 @@ namespace App\Filament\Resources\DokumenResource\Pages;
 
 use App\Filament\Resources\DokumenResource;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\Section;
-use Filament\Infolists\Components\Tabs;
-use Filament\Infolists\Components\Actions;
-use Filament\Infolists\Components\Actions\Action;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
+
+use Filament\Infolists;
+use Filament\Forms;
+use Filament\Actions;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use App\Models\JenisDokumen;
@@ -62,7 +58,7 @@ class ViewDokumen extends ViewRecord
         $isPerencana    = $user->hasRole('perencana');
 
         return [
-            \Filament\Actions\Action::make('kirim_notifikasi')
+            Actions\Action::make('kirim_notifikasi')
                 ->label('Kirim Notifikasi')
                 ->color('success')
                 ->icon('heroicon-o-bell')
@@ -90,13 +86,7 @@ class ViewDokumen extends ViewRecord
                 })
                 ->visible(fn() => $isSuperOrAdmin || $isPerencana),
 
-            \Filament\Actions\DeleteAction::make()
-                ->icon('heroicon-o-trash')
-                ->after(function () {
-                    $this->redirect(ListDokumens::getUrl(['jenis_dokumen_id' => $this->jenis_dokumen_id]));
-                }),
-
-            \Filament\Actions\EditAction::make()
+            Actions\EditAction::make()
                 ->icon('heroicon-o-pencil-square')
                 ->color('warning')
                 ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
@@ -143,47 +133,47 @@ class ViewDokumen extends ViewRecord
         return implode(' | ', array_filter($parts));
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Infolists\Infolist $infolist): Infolists\Infolist
     {
         $user = Auth::user();
         $canEditStatus = $user->hasAnyRole(['Super Admin', 'admin', 'perencana']);
 
         return $infolist->schema([
-            Tabs::make('Tab')
+            Infolists\Components\Tabs::make('Tab')
                 ->tabs([
-                    Tabs\Tab::make('Utama')
+                    Infolists\Components\Tabs\Tab::make('Utama')
                         ->schema([
-                            TextEntry::make('nama')
+                            Infolists\Components\TextEntry::make('nama')
                                 ->label('Nama Dokumen'),
-                            TextEntry::make('tahun')
+                            Infolists\Components\TextEntry::make('tahun')
                                 ->label('Tahun'),
-                            TextEntry::make('subkegiatan.nama')
+                            Infolists\Components\TextEntry::make('subkegiatan.nama')
                                 ->label('Subkegiatan')
                                 ->visible(fn() => $this->jenisDokumen?->mode_subkegiatan),
-                            TextEntry::make('keterangan')
+                            Infolists\Components\TextEntry::make('keterangan')
                                 ->label('Keterangan'),
 
-                            Section::make('Status Dokumen')
+                            Infolists\Components\Section::make('Status Dokumen')
                                 ->schema([
-                                    TextEntry::make('status')
+                                    Infolists\Components\TextEntry::make('status')
                                         ->label('Status')
                                         ->badge()
                                         ->color(fn(string $state) => $this->badgeColor($state)),
 
-                                    TextEntry::make('komentar')
+                                    Infolists\Components\TextEntry::make('komentar')
                                         ->label('Komentar')
                                         ->placeholder('-')
                                         ->columnSpanFull(),
 
-                                    Actions::make([
-                                        Action::make('ubahStatus')
+                                    Infolists\Components\Actions::make([
+                                        Infolists\Components\Actions\Action::make('ubahStatus')
                                             ->label('Ubah Status & Komentar')
                                             ->icon('heroicon-m-pencil')
                                             ->color('warning')
                                             ->modalHeading('Ubah Status & Komentar')
                                             ->modalWidth('sm')
                                             ->form([
-                                                Select::make('status')
+                                                Forms\Components\Select::make('status')
                                                     ->label('Status')
                                                     ->required()
                                                     ->options([
@@ -196,7 +186,7 @@ class ViewDokumen extends ViewRecord
                                                     ])
                                                     ->default(fn($record) => $record->status),
 
-                                                Textarea::make('komentar')
+                                                Forms\Components\Textarea::make('komentar')
                                                     ->label('Komentar')
                                                     ->rows(3)
                                                     ->default(fn($record) => $record->komentar),
@@ -210,24 +200,24 @@ class ViewDokumen extends ViewRecord
                                 ->visible(fn() => $this->jenisDokumen?->mode_status),
                         ]),
 
-                    Tabs\Tab::make('Riwayat Aktivitas')
+                    Infolists\Components\Tabs\Tab::make('Riwayat Aktivitas')
                         ->schema([
-                            TextEntry::make('pembuat.name')
+                            Infolists\Components\TextEntry::make('pembuat.name')
                                 ->label('Dibuat Oleh')
                                 ->placeholder('-')
                                 ->state(fn($record) => $this->formatUserInfo($record->pembuat, $record->dibuat_pada)),
 
-                            TextEntry::make('pembaru.name')
+                            Infolists\Components\TextEntry::make('pembaru.name')
                                 ->label('Diperbarui Oleh')
                                 ->placeholder('-')
                                 ->state(fn($record) => $this->formatUserInfo($record->pembaru, $record->diperbarui_pada)),
 
-                            TextEntry::make('penghapus.name')
+                            Infolists\Components\TextEntry::make('penghapus.name')
                                 ->label('Dihapus Oleh')
                                 ->placeholder('-')
                                 ->state(fn($record) => $this->formatUserInfo($record->penghapus, $record->dihapus_pada)),
 
-                            TextEntry::make('pemulih.name')
+                            Infolists\Components\TextEntry::make('pemulih.name')
                                 ->label('Dipulihkan Oleh')
                                 ->placeholder('-')
                                 ->state(fn($record) => $this->formatUserInfo($record->pemulih, $record->dipulihkan_pada)),
