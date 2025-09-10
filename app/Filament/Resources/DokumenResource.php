@@ -68,7 +68,10 @@ class DokumenResource extends Resource
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
-                    ->options(fn() => array_combine(range(date('Y'), 2020), range(date('Y'), 2020)))
+                    ->options(fn() => array_combine(
+                        range(date('Y') + 1, date('Y') - 10),
+                        range(date('Y') + 1, date('Y') - 10)
+                    ))
                     ->default(date('Y')),
 
                 // Disabled jika tidak memiliki akses peran pada dokumen ini
