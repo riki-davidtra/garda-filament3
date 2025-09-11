@@ -10,6 +10,7 @@ use App\Models\FileDokumen;
 use App\Models\DataDukungPerencanaan;
 use App\Models\TemplatDokumen;
 use App\Models\IndeksKinerjaUtama;
+use App\Models\File;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -28,10 +29,11 @@ Route::get('/file-dokumen/unduh/{id}', function ($id) {
 })->name('file-dokumen.unduh');
 
 Route::get('/file-data-dukung-perencanaan/unduh/{id}', function ($id) {
-    $record           = DataDukungPerencanaan::findOrFail($id);
+    $record           = File::findOrFail($id);
     $encrypted        = Storage::disk('local')->get($record->path);
     $decryptedContent = decrypt($encrypted);
-    $fileName         = basename($record->path);
+
+    $fileName         = $record->model->nama . ' - ' . now()->format('dmYHi') . '.' . $record->tipe ?? basename($record->path);
     return response($decryptedContent)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
 })->name('file-data-dukung-perencanaan.unduh');
 

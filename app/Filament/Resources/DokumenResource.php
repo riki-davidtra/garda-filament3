@@ -386,7 +386,6 @@ class DokumenResource extends Resource
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
                     ])),
-
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

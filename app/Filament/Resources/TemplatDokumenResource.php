@@ -49,8 +49,6 @@ class TemplatDokumenResource extends Resource
                     ->nullable()
                     ->disk('public')
                     ->directory('templat-dokumen')
-                    ->enableOpen()
-                    ->enableDownload()
                     ->maxSize(20480)
                     ->columnSpanFull(),
             ]);

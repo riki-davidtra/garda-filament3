@@ -11,11 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('data_dukung_perencanaans', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->string('nama');
-            $table->text('keterangan')->nullable();
+            $table->string('path')->nullable();
+            $table->string('nama')->nullable();
+            $table->string('tipe')->nullable();
+            $table->string('ukuran')->nullable();
+            $table->string('versi')->nullable();
+            $table->string('tag')->nullable();
+            $table->nullableMorphs('model');
             $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dibuat_pada')->nullable();
             $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();
@@ -26,6 +31,11 @@ return new class extends Migration
             $table->timestamp('dipulihkan_pada')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index([
+                'nama',
+                'tag',
+            ]);
         });
     }
 
@@ -34,6 +44,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('data_dukung_perencanaans');
+        Schema::dropIfExists('files');
     }
 };

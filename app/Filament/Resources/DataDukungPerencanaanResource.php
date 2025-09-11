@@ -74,23 +74,35 @@ class DataDukungPerencanaanResource extends Resource
                     ->maxLength(3000)
                     ->columnSpanFull(),
 
-                Forms\Components\FileUpload::make('path')
-                    ->label('File Dokumen')
-                    ->nullable()
-                    ->storeFiles(false)
-                    ->disk('local')
-                    ->directory('temp')
-                    ->maxSize(20480)
-                    ->acceptedFileTypes([
-                        'application/pdf',
-                        'application/msword',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'application/vnd.ms-excel',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.ms-powerpoint',
-                        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                Forms\Components\Repeater::make('files')
+                    ->label(false)
+                    ->relationship('files')
+                    ->schema([
+                        Forms\Components\Hidden::make('tag')->default('data_dukung_perencanaan'),
+
+                        Forms\Components\FileUpload::make('path')
+                            ->label('File Data Dukung Perencanaan')
+                            ->required()
+                            ->storeFiles(false)
+                            ->disk('local')
+                            ->directory('temp')
+                            ->maxSize(20480)
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-powerpoint',
+                                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                            ])
+                            ->columnSpanFull(),
                     ])
-                    ->columnSpanFull(),
+                    ->addable(false)
+                    ->deletable(false)
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->visibleOn('create'),
             ]);
     }
 
@@ -118,12 +130,6 @@ class DataDukungPerencanaanResource extends Resource
                 Tables\Columns\TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->limit(35)
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('perubahan_ke')
-                    ->label('Perubahan ke')
-                    ->alignCenter()
                     ->searchable()
                     ->sortable(),
 
@@ -209,9 +215,15 @@ class DataDukungPerencanaanResource extends Resource
                     ->button()
                     ->color('info')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn($record) => route('file-data-dukung-perencanaan.unduh', $record->id))
-                    ->openUrlInNewTab()
-                    ->visible(fn($record) => filled($record?->path) && Storage::disk('local')->exists($record->path)),
+                    ->url(function ($record) {
+                        $fileTerbaru = $record->files()->latest()->first();
+                        return $fileTerbaru ? route('file-data-dukung-perencanaan.unduh', $fileTerbaru->id) : '#';
+                    })
+                    ->visible(function ($record) {
+                        $fileTerbaru = $record->files()->latest()->first();
+                        return $fileTerbaru && $fileTerbaru->path && Storage::disk('local')->exists($fileTerbaru->path);
+                    })
+                    ->openUrlInNewTab(),
 
                 Tables\Actions\ViewAction::make()
                     ->button(),
@@ -232,16 +244,17 @@ class DataDukungPerencanaanResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\FilesRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDataDukungPerencanaans::route('/'),
-            // 'create' => Pages\CreateDataDukungPerencanaan::route('/create'),
-            // 'edit'   => Pages\EditDataDukungPerencanaan::route('/{record}/edit'),
+            'index'  => Pages\ListDataDukungPerencanaans::route('/'),
+            'create' => Pages\CreateDataDukungPerencanaan::route('/create'),
+            'edit'   => Pages\EditDataDukungPerencanaan::route('/{record}/edit'),
+            'view'   => Pages\ViewDataDukungPerencanaan::route('/{record}'),
         ];
     }
 }

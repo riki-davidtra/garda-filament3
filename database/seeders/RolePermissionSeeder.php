@@ -70,6 +70,10 @@ class RolePermissionSeeder extends Seeder
 
             'view-any DataDukungPerencanaan',
             'view DataDukungPerencanaan',
+
+            'view-any File',
+            'view File',
+            'create File',
         ];
         $subbagianPermissions = [
             'view-any Dokumen',
@@ -103,6 +107,10 @@ class RolePermissionSeeder extends Seeder
             'view DataDukungPerencanaan',
             'create DataDukungPerencanaan',
             'update DataDukungPerencanaan',
+
+            'view-any File',
+            'view File',
+            'create File',
         ];
 
         // set permissions for role  

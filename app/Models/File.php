@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Dokumen extends Model
+class File extends Model
 {
     use HasFactory, HasUuids, SoftDeletes, Blameable, HasRiwayatAktivitas;
 
@@ -40,34 +40,9 @@ class Dokumen extends Model
         return 'uuid';
     }
 
-    public function subbagian()
+    public function model()
     {
-        return $this->belongsTo(Subbagian::class);
-    }
-
-    public function jenisDokumen()
-    {
-        return $this->belongsTo(JenisDokumen::class);
-    }
-
-    public function jadwalDokumen()
-    {
-        return $this->belongsTo(JadwalDokumen::class);
-    }
-
-    public function subkegiatan()
-    {
-        return $this->belongsTo(Subkegiatan::class);
-    }
-
-    public function files()
-    {
-        return $this->morphMany(File::class, 'model');
-    }
-
-    public function fileDokumens()
-    {
-        return $this->hasMany(FileDokumen::class);
+        return $this->morphTo();
     }
 
     public function getReadableAttributes(): array
@@ -75,18 +50,18 @@ class Dokumen extends Model
         $attrs = $this->getAttributes();
 
         $relationsMap = [
-            'subbagian_id'     => ['relation' => 'subbagian', 'column' => 'nama'],
-            'jenis_dokumen_id' => ['relation' => 'jenisDokumen', 'column' => 'nama'],
-            'subkegiatan_id'   => ['relation' => 'subkegiatan', 'column' => 'nama'],
-            'dibuat_oleh'      => ['relation' => 'pembuat', 'column' => 'name'],
-            'diperbarui_oleh'  => ['relation' => 'pembaru', 'column' => 'name'],
-            'dihapus_oleh'     => ['relation' => 'penghapus', 'column' => 'name'],
-            'dipulihkan_oleh'  => ['relation' => 'pemulih', 'column' => 'name'],
+            'dokumen_id'      => ['relation' => 'dokumen', 'column' => 'nama'],
+            'dibuat_oleh'     => ['relation' => 'pembuat', 'column' => 'name'],
+            'diperbarui_oleh' => ['relation' => 'pembaru', 'column' => 'name'],
+            'dihapus_oleh'    => ['relation' => 'penghapus', 'column' => 'name'],
+            'dipulihkan_oleh' => ['relation' => 'pemulih', 'column' => 'name'],
         ];
 
         foreach ($relationsMap as $field => $config) {
             if (isset($attrs[$field])) {
-                $related       = $this->{$config['relation']};
+                $related = $this->relationLoaded($config['relation'])
+                    ? $this->{$config['relation']}
+                    :    $this->{$config['relation']}()->first();
                 $attrs[$field] = [
                     'id'    => $attrs[$field],
                     'label' => $related?->{$config['column']} ?? $attrs[$field],

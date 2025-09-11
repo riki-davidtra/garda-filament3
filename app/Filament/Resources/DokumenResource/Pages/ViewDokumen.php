@@ -97,32 +97,6 @@ class ViewDokumen extends ViewRecord
         ];
     }
 
-    protected function canEditRecord($record, $user, $isSuperOrAdmin): bool
-    {
-        if ($isSuperOrAdmin) return true;
-
-        $aksesPeran = $user->roles->pluck('id')
-            ->intersect($record->jenisDokumen->roles->pluck('id'));
-        return $aksesPeran->isNotEmpty();
-    }
-
-    protected function formatUserInfo($user, $tanggal): ?string
-    {
-        if (!$user && !$tanggal) return null;
-
-        $bagian    = $user?->subbagian?->bagian?->nama;
-        $subbagian = $user?->subbagian?->nama;
-
-        $parts = [
-            $user?->name,
-            $user?->nip ? 'NIP: ' . $user->nip                            : null,
-            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
-        ];
-
-        return implode(' | ', array_filter($parts));
-    }
-
     public function infolist(Infolists\Infolist $infolist): Infolists\Infolist
     {
         $user          = Auth::user();
@@ -228,6 +202,32 @@ class ViewDokumen extends ViewRecord
                 ])
                 ->columnSpanFull(),
         ]);
+    }
+
+    protected function canEditRecord($record, $user, $isSuperOrAdmin): bool
+    {
+        if ($isSuperOrAdmin) return true;
+
+        $aksesPeran = $user->roles->pluck('id')
+            ->intersect($record->jenisDokumen->roles->pluck('id'));
+        return $aksesPeran->isNotEmpty();
+    }
+
+    protected function formatUserInfo($user, $tanggal): ?string
+    {
+        if (!$user && !$tanggal) return null;
+
+        $bagian    = $user?->subbagian?->bagian?->nama;
+        $subbagian = $user?->subbagian?->nama;
+
+        $parts = [
+            $user?->name,
+            $user?->nip ? 'NIP: ' . $user->nip                            : null,
+            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
+        ];
+
+        return implode(' | ', array_filter($parts));
     }
 
     protected function updateStatus($record, array $data): void

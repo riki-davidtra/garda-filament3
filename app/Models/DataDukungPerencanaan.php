@@ -40,6 +40,11 @@ class DataDukungPerencanaan extends Model
         return 'uuid';
     }
 
+    public function files()
+    {
+        return $this->morphMany(File::class, 'model');
+    }
+
     public function getReadableAttributes(): array
     {
         $attrs = $this->getAttributes();

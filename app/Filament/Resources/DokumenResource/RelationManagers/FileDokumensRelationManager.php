@@ -29,7 +29,7 @@ class FileDokumensRelationManager extends RelationManager
             ->schema([
                 Forms\Components\FileUpload::make('path')
                     ->label('File Dokumen (Upload file sesuai template)')
-                    ->required(fn(string $context) => $context === 'create')
+                    ->required()
                     ->storeFiles(false)
                     ->disk('local')
                     ->directory('temp')
@@ -52,8 +52,6 @@ class FileDokumensRelationManager extends RelationManager
     {
         $user           = Auth::user();
         $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
-        $isPerencana    = $user->hasRole('perencana');
-        $isSubbagian    = $user->hasRole('subbagian');
 
         return $table
             ->defaultSort('created_at', 'desc')
@@ -245,9 +243,8 @@ class FileDokumensRelationManager extends RelationManager
                         ];
                     }),
 
-                Tables\Actions\EditAction::make()
-                    ->button()
-                    ->color('warning'),
+                Tables\Actions\DeleteAction::make()
+                    ->button(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
