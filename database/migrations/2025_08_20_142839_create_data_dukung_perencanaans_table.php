@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nama');
             $table->text('keterangan')->nullable();
             $table->string('path')->nullable();
-            $table->unsignedInteger('perubahan_ke')->default(1);
+            $table->unsignedInteger('perubahan_ke')->default(0);
             $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('dibuat_pada')->nullable();
             $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();

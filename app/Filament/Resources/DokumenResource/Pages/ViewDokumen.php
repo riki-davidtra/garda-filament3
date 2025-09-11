@@ -18,10 +18,10 @@ use App\Services\WhatsAppService;
 class ViewDokumen extends ViewRecord
 {
     protected static string $resource = DokumenResource::class;
-    protected static ?string $title = 'Detail Dokumen';
+    protected static ?string $title   = 'Detail Dokumen';
 
-    public ?int $jenis_dokumen_id = null;
-    public ?int $jadwal_dokumen_id = null;
+    public ?int $jenis_dokumen_id      = null;
+    public ?int $jadwal_dokumen_id     = null;
     public ?JenisDokumen $jenisDokumen = null;
 
     public function mount(string|int $record): void
@@ -53,7 +53,7 @@ class ViewDokumen extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        $user = Auth::user();
+        $user           = Auth::user();
         $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
         $isPerencana    = $user->hasRole('perencana');
 
@@ -106,28 +106,18 @@ class ViewDokumen extends ViewRecord
         return $aksesPeran->isNotEmpty();
     }
 
-    protected function badgeColor(string $status): string
-    {
-        return match ($status) {
-            'Menunggu Persetujuan', 'Revisi Menunggu Persetujuan' => 'warning',
-            'Diterima', 'Revisi Diterima' => 'success',
-            'Ditolak', 'Revisi Ditolak' => 'danger',
-            default => 'secondary',
-        };
-    }
-
     protected function formatUserInfo($user, $tanggal): ?string
     {
         if (!$user && !$tanggal) return null;
 
-        $bagian = $user?->subbagian?->bagian?->nama;
+        $bagian    = $user?->subbagian?->bagian?->nama;
         $subbagian = $user?->subbagian?->nama;
 
         $parts = [
             $user?->name,
-            $user?->nip ? 'NIP: ' . $user->nip : null,
-            $bagian ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-            $tanggal ? $tanggal->format('d-m-Y H:i') : null,
+            $user?->nip ? 'NIP: ' . $user->nip                            : null,
+            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
+            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
         ];
 
         return implode(' | ', array_filter($parts));
@@ -135,7 +125,7 @@ class ViewDokumen extends ViewRecord
 
     public function infolist(Infolists\Infolist $infolist): Infolists\Infolist
     {
-        $user = Auth::user();
+        $user          = Auth::user();
         $canEditStatus = $user->hasAnyRole(['Super Admin', 'admin', 'perencana']);
 
         return $infolist->schema([
@@ -158,7 +148,15 @@ class ViewDokumen extends ViewRecord
                                     Infolists\Components\TextEntry::make('status')
                                         ->label('Status')
                                         ->badge()
-                                        ->color(fn(string $state) => $this->badgeColor($state)),
+                                        ->color(fn(string $state): string => match ($state) {
+                                            'Menunggu Persetujuan'        => 'warning',
+                                            'Diterima'                    => 'success',
+                                            'Ditolak'                     => 'danger',
+                                            'Revisi Menunggu Persetujuan' => 'warning',
+                                            'Revisi Diterima'             => 'success',
+                                            'Revisi Ditolak'              => 'danger',
+                                            default                       => 'gray',
+                                        }),
 
                                     Infolists\Components\TextEntry::make('komentar')
                                         ->label('Komentar')
@@ -184,7 +182,11 @@ class ViewDokumen extends ViewRecord
                                                         'Revisi Diterima'             => 'Revisi Diterima',
                                                         'Revisi Ditolak'              => 'Revisi Ditolak',
                                                     ])
-                                                    ->default(fn($record) => $record->status),
+                                                    ->default(fn($record) => $record->status)
+                                                    ->reactive()
+                                                    ->afterStateUpdated(function ($state, callable $set) {
+                                                        $set('komentar', null);
+                                                    }),
 
                                                 Forms\Components\Textarea::make('komentar')
                                                     ->label('Komentar')

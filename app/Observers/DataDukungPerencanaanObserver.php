@@ -14,19 +14,23 @@ class DataDukungPerencanaanObserver
         if (!empty($dataDukungPerencanaan->path)) {
             $file = $dataDukungPerencanaan->path;
 
-            $namaDokumen = $dataDukungPerencanaan->nama ?? 'data-dukung-perencanaan';
-            $versi       = 1;
-            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
-            $extension   = $file->getClientOriginalExtension();
-            $path        = "file-data-dukung-perencanaan/{$fileName}.{$extension}";
+            // Simpan file dengan nama unik bawaan Laravel
+            $path = $file->store('data-dukung-perencanaan', 'local');
 
-            // Enkripsi file 
-            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
+            // Enkripsi isi file & timpa ulang
+            $contents = encrypt(file_get_contents(Storage::disk('local')->path($path)));
+            Storage::disk('local')->put($path, $contents);
 
-            // Simpan hanya path ke DB
-            $dataDukungPerencanaan->path = $path;
+            // Metadata
+            $nama      = $dataDukungPerencanaan->nama ?? 'data-dukung-perencanaan';
+            $versi     = ($dataDukungPerencanaan->count() ?? 0) + 1;
+            $fileName  = $nama . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
 
-            // Hapus temporary filessssss
+            // Simpan ke DB
+            $dataDukungPerencanaan->path         = $path;
+            $dataDukungPerencanaan->perubahan_ke = $versi;
+
+            // Hapus temporary files
             @unlink($file->getRealPath());
         }
     }
@@ -41,24 +45,18 @@ class DataDukungPerencanaanObserver
         if (!empty($dataDukungPerencanaan->path) && $dataDukungPerencanaan->isDirty('path')) {
             $file = $dataDukungPerencanaan->path;
 
-            $namaDokumen = $dataDukungPerencanaan->nama ?? 'data-dukung-perencanaan';
-            $versi       = $dataDukungPerencanaan->perubahan_ke;
-            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
-            $extension   = $file->getClientOriginalExtension();
-            $path        = "file-data-dukung-perencanaan/{$fileName}.{$extension}";
+            $path = $file->store('data-dukung-perencanaan', 'local');
 
-            // Enkripsi file baru
-            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
+            $contents = encrypt(file_get_contents(Storage::disk('local')->path($path)));
+            Storage::disk('local')->put($path, $contents);
 
-            // Hapus file lama kalau ada
-            if ($dataDukungPerencanaan->getOriginal('path') && Storage::disk('local')->exists($dataDukungPerencanaan->getOriginal('path'))) {
-                Storage::disk('local')->delete($dataDukungPerencanaan->getOriginal('path'));
-            }
+            $nama     = $dataDukungPerencanaan->nama ?? 'data-dukung-perencanaan';
+            $versi    = ($dataDukungPerencanaan->perubahan_ke ?? 0) + 1;
+            $fileName = $nama . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
 
-            // Simpan path baru ke DB
-            $dataDukungPerencanaan->path = $path;
+            $dataDukungPerencanaan->path         = $path;
+            $dataDukungPerencanaan->perubahan_ke = $versi;
 
-            // Hapus temporary file upload Livewire
             @unlink($file->getRealPath());
         }
     }

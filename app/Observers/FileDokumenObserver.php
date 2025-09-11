@@ -14,20 +14,27 @@ class FileDokumenObserver
         if (!empty($fileDokumen->path)) {
             $file = $fileDokumen->path;
 
-            $owner       = $fileDokumen->dokumen;
-            $namaDokumen = $owner?->nama ?? 'dokumen';
-            $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
-            $extension   = $file->getClientOriginalExtension();
-            $path        = "file-dokumen/{$fileName}.{$extension}";
+            // Simpan file dengan nama unik bawaan Laravel
+            $path = $file->store('file-dokumen', 'local');
 
-            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
+            // Enkripsi isi file & timpa ulang
+            $contents = encrypt(file_get_contents(Storage::disk('local')->path($path)));
+            Storage::disk('local')->put($path, $contents);
 
+            // Metadata
+            $owner     = $fileDokumen->dokumen;
+            $nama      = $owner?->nama ?? 'dokumen';
+            $versi     = ($owner?->fileDokumens()->count() ?? 0) + 1;
+            $fileName  = $nama . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
+            $extension = $file->getClientOriginalExtension();
+
+            // Simpan ke DB
             $fileDokumen->path   = $path;
             $fileDokumen->nama   = $fileName . '.' . $extension;
             $fileDokumen->tipe   = $extension ?? $file->getMimeType();
             $fileDokumen->ukuran = $file->getSize();
 
+            // Hapus temporary file upload Livewire
             @unlink($file->getRealPath());
         }
     }
@@ -38,28 +45,26 @@ class FileDokumenObserver
         if (!empty($fileDokumen->path) && $fileDokumen->isDirty('path')) {
             $file = $fileDokumen->path;
 
-            $owner       = $fileDokumen->dokumen;
-            $namaDokumen = $owner?->nama ?? 'dokumen';
-            $versi       = ($owner?->fileDokumens()->count() ?? 0) + 1;
-            $fileName    = $namaDokumen . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
-            $extension   = $file->getClientOriginalExtension();
-            $path        = "file-dokumen/{$fileName}.{$extension}";
+            $path = $file->store('file-dokumen', 'local');
 
-            // Enkripsi file baru
-            Storage::disk('local')->put($path, encrypt(file_get_contents($file->getRealPath())));
+            $contents = encrypt(file_get_contents(Storage::disk('local')->path($path)));
+            Storage::disk('local')->put($path, $contents);
 
-            // Hapus file lama kalau ada
             if ($fileDokumen->getOriginal('path') && Storage::disk('local')->exists($fileDokumen->getOriginal('path'))) {
                 Storage::disk('local')->delete($fileDokumen->getOriginal('path'));
             }
 
-            // Simpan path baru ke DB             
+            $owner     = $fileDokumen->dokumen;
+            $nama      = $owner?->nama ?? 'dokumen';
+            $versi     = ($owner?->fileDokumens()->count() ?? 0) + 1;
+            $fileName  = $nama . ' - ' . now()->format('d-m-Y') . ' (v' . $versi . ')';
+            $extension = $file->getClientOriginalExtension();
+
             $fileDokumen->path   = $path;
             $fileDokumen->nama   = $fileName . '.' . $extension;
             $fileDokumen->tipe   = $extension ?? $file->getMimeType();
             $fileDokumen->ukuran = $file->getSize();
 
-            // Hapus temporary file upload Livewire
             @unlink($file->getRealPath());
         }
     }

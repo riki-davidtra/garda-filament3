@@ -145,7 +145,7 @@ class PengaduanResource extends Resource
                         'menunggu' => 'warning',
                         'proses'   => 'primary',
                         'selesai'  => 'success',
-                        default    => 'secondary',
+                        default    => 'gray',
                     })
                     ->sortable(),
 

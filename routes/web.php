@@ -23,10 +23,8 @@ Route::get('/file-dokumen/unduh/{id}', function ($id) {
     $record           = FileDokumen::findOrFail($id);
     $encrypted        = Storage::disk('local')->get($record->path);
     $decryptedContent = decrypt($encrypted);
-    $fileName         = basename($record->path);
-    return response($decryptedContent)
-        ->header('Content-Type', 'application/octet-stream')
-        ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    $fileName         = $record->nama ?? basename($record->path);
+    return response($decryptedContent)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
 })->name('file-dokumen.unduh');
 
 Route::get('/file-data-dukung-perencanaan/unduh/{id}', function ($id) {
@@ -34,18 +32,14 @@ Route::get('/file-data-dukung-perencanaan/unduh/{id}', function ($id) {
     $encrypted        = Storage::disk('local')->get($record->path);
     $decryptedContent = decrypt($encrypted);
     $fileName         = basename($record->path);
-    return response($decryptedContent)
-        ->header('Content-Type', 'application/octet-stream')
-        ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    return response($decryptedContent)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
 })->name('file-data-dukung-perencanaan.unduh');
 
 Route::get('/template/unduh/{id}', function ($id) {
     $record   = TemplatDokumen::findOrFail($id);
     $file     = Storage::disk('public')->get($record->path);
     $fileName = basename($record->path);
-    return response($file)
-        ->header('Content-Type', 'application/octet-stream')
-        ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    return response($file)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
 })->name('template.unduh');
 
 Route::get('/iku/unduh/{id}', function ($id) {

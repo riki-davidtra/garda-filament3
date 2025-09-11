@@ -169,7 +169,7 @@ class DokumenResource extends Resource
                 // Tampilkan jika mode status nya aktif pada dokumen ini
                 Forms\Components\Fieldset::make('Status Dokumen')
                     ->schema([
-                        Forms\Components\Radio::make('status')
+                        Forms\Components\Select::make('status')
                             ->label('Status')
                             ->required()
                             ->options([
@@ -181,6 +181,10 @@ class DokumenResource extends Resource
                                 'Revisi Ditolak'              => 'Revisi Ditolak',
                             ])
                             ->default('Menunggu Persetujuan')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('komentar', null);
+                            })
                             ->hiddenOn('create')
                             ->disabled(!$isSuperOrAdmin && !$isPerencana),
 
@@ -252,7 +256,7 @@ class DokumenResource extends Resource
                         'Revisi Menunggu Persetujuan' => 'warning',
                         'Revisi Diterima'             => 'success',
                         'Revisi Ditolak'              => 'danger',
-                        default                       => 'secondary',
+                        default                       => 'gray',
                     })
                     ->searchable()
                     ->sortable()

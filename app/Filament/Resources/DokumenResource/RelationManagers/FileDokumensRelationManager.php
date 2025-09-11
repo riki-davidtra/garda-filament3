@@ -161,7 +161,8 @@ class FileDokumensRelationManager extends RelationManager
                     ->after(function ($record, $livewire) {
                         $owner = $this->getOwnerRecord();
                         if ($owner) {
-                            $owner->status = 'Revisi Menunggu Persetujuan';
+                            $owner->status   = 'Revisi Menunggu Persetujuan';
+                            $owner->komentar = '';
                             $owner->save();
                         }
                     })
