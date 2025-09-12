@@ -12,10 +12,10 @@ class FileObserver
         // Enkripsi file
         if (!empty($file->path)) {
             $path = $file->path;
-            $tag  = $file->tag ?? 'file';
+            $tag  = $file->tag ?? null;
 
             // Simpan file dengan nama unik bawaan Laravel
-            $directory  = str_replace('_', '-', strtolower($tag));
+            $directory  = str_replace('_', '-', strtolower($tag ?? 'file'));
             $storedPath = $path->store($directory, 'local');
 
             // Enkripsi isi file & timpa ulang
@@ -32,6 +32,7 @@ class FileObserver
             $file->nama   = $nama;
             $file->tipe   = $extension ?? $path->getMimeType();
             $file->ukuran = $path->getSize();
+            $file->tag    = $tag;
             $file->versi  = ($lastVersion ?? 0) + 1;
 
             // Hapus temporary file upload Livewire
@@ -43,9 +44,9 @@ class FileObserver
     {
         if (!empty($file->path) && $file->isDirty('path')) {
             $path = $file->path;
-            $tag  = $file->tag ?? 'file';
+            $tag  = $file->tag ?? null;
 
-            $directory  = str_replace(' ', '-', strtolower($tag));
+            $directory  = str_replace(' ', '-', strtolower($tag ?? 'file'));
             $storedPath = $path->store($directory, 'local');
 
             $contents = encrypt(file_get_contents(Storage::disk('local')->path($storedPath)));
@@ -63,6 +64,7 @@ class FileObserver
             $file->nama   = $nama;
             $file->tipe   = $extension ?? $path->getMimeType();
             $file->ukuran = $path->getSize();
+            $file->tag    = $tag;
             $file->versi  = ($lastVersion ?? 0) + 1;
 
             @unlink($path->getRealPath());

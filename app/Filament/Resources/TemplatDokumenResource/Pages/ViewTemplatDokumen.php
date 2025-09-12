@@ -1,27 +1,27 @@
 <?php
 
-namespace App\Filament\Resources\DataDukungPerencanaanResource\Pages;
+namespace App\Filament\Resources\TemplatDokumenResource\Pages;
 
-use App\Filament\Resources\DataDukungPerencanaanResource;
+use App\Filament\Resources\TemplatDokumenResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
 
-class ViewDataDukungPerencanaan extends ViewRecord
+class ViewTemplatDokumen extends ViewRecord
 {
-    protected static string $resource = DataDukungPerencanaanResource::class;
+    protected static string $resource = TemplatDokumenResource::class;
 
     public function getBreadcrumbs(): array
     {
         return [
-            ListDataDukungPerencanaans::getUrl() => 'Daftar Data Dukung Perencanaan',
+            ListTemplatDokumens::getUrl() => 'Daftar Template Dokumen',
             'Detail',
         ];
     }
 
     public function getTitle(): string
     {
-        return 'Detail Data Dukung Perencanaan';
+        return 'Detail Template Dokumen';
     }
 
     protected function getHeaderActions(): array
@@ -41,9 +41,9 @@ class ViewDataDukungPerencanaan extends ViewRecord
                     Infolists\Components\Tabs\Tab::make('Utama')
                         ->schema([
                             Infolists\Components\TextEntry::make('nama')
-                                ->label('Nama Dokumen'),
-                            Infolists\Components\TextEntry::make('keterangan')
-                                ->label('Keterangan'),
+                                ->label('Nama Template'),
+                            Infolists\Components\TextEntry::make('jenisDokumen.nama')
+                                ->label('Jenis Dokumen'),
                         ]),
 
                     Infolists\Components\Tabs\Tab::make('Riwayat Aktivitas')

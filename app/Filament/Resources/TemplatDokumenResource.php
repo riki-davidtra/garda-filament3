@@ -44,13 +44,35 @@ class TemplatDokumenResource extends Resource
                     })
                     ->unique(ignoreRecord: true),
 
-                Forms\Components\FileUpload::make('path')
-                    ->label('File')
-                    ->nullable()
-                    ->disk('public')
-                    ->directory('templat-dokumen')
-                    ->maxSize(20480)
-                    ->columnSpanFull(),
+                Forms\Components\Repeater::make('files')
+                    ->label(false)
+                    ->relationship('files')
+                    ->schema([
+                        Forms\Components\Hidden::make('tag')->default('templat_dokumen'),
+
+                        Forms\Components\FileUpload::make('path')
+                            ->label('File Template Dokumen')
+                            ->required()
+                            ->storeFiles(false)
+                            ->disk('local')
+                            ->directory('temp')
+                            ->maxSize(20480)
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-powerpoint',
+                                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                            ])
+                            ->columnSpanFull(),
+                    ])
+                    ->addable(false)
+                    ->deletable(false)
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->visibleOn('create'),
             ]);
     }
 
@@ -59,7 +81,6 @@ class TemplatDokumenResource extends Resource
         $user           = Auth::user();
         $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
         $isPerencana    = $user->hasRole('perencana');
-        $isSubbagian    = $user->hasRole('subbagian');
 
         return $table
             ->modifyQueryUsing(function (Builder $query, $livewire) use ($user, $isSuperOrAdmin, $isPerencana) {
@@ -110,20 +131,25 @@ class TemplatDokumenResource extends Resource
                     ->button()
                     ->color('info')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn($record) => route('template.unduh', $record->id))
-                    ->openUrlInNewTab()
-                    ->visible(fn($record) => filled($record?->path) && Storage::disk('public')->exists($record->path)),
+                    ->url(function ($record) {
+                        $fileTerbaru = $record->files()->latest()->first();
+                        return $fileTerbaru ? route('file-templat-dokumen.unduh', $fileTerbaru->id) : '#';
+                    })
+                    ->visible(function ($record) {
+                        $fileTerbaru = $record->files()->latest()->first();
+                        return $fileTerbaru && $fileTerbaru->path && Storage::disk('local')->exists($fileTerbaru->path);
+                    })
+                    ->openUrlInNewTab(),
 
                 Tables\Actions\ViewAction::make()
+                    ->label('Detail')
                     ->button(),
-
-                Tables\Actions\EditAction::make()
-                    ->button()
-                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -131,7 +157,7 @@ class TemplatDokumenResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\FilesRelationManager::class,
         ];
     }
 
@@ -139,8 +165,9 @@ class TemplatDokumenResource extends Resource
     {
         return [
             'index' => Pages\ListTemplatDokumens::route('/'),
-            // 'create' => Pages\CreateTemplatDokumen::route('/create'),
-            // 'edit' => Pages\EditTemplatDokumen::route('/{record}/edit'),
+            'create' => Pages\CreateTemplatDokumen::route('/create'),
+            'edit' => Pages\EditTemplatDokumen::route('/{record}/edit'),
+            'view'   => Pages\ViewTemplatDokumen::route('/{record}'),
         ];
     }
 }

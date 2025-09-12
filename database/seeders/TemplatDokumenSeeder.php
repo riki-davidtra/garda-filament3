@@ -5,8 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use App\Models\TemplatDokumen;
-use App\Models\FileTemplatDokumen;
 use App\Models\JenisDokumen;
+use App\Models\File;
 
 class TemplatDokumenSeeder extends Seeder
 {
@@ -21,7 +21,6 @@ class TemplatDokumenSeeder extends Seeder
             TemplatDokumen::create([
                 'nama'             => "Templat {$item->nama}",
                 'jenis_dokumen_id' => $item->id,
-                'path'             => null,
             ]);
         }
     }

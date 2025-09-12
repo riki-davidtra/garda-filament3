@@ -11,17 +11,17 @@ class DokumenObserver
     public function deleting(Dokumen $dokumen): void
     {
         if ($dokumen->isForceDeleting()) {
-            $dokumen->fileDokumens()->withTrashed()->get()->each(function ($file) {
+            $dokumen->files()->withTrashed()->get()->each(function ($file) {
                 $file->forceDelete();
             });
         } else {
-            $dokumen->fileDokumens()->get()->each->delete();
+            $dokumen->files()->get()->each->delete();
         }
     }
 
     public function restoring(Dokumen $dokumen): void
     {
-        $dokumen->fileDokumens()->onlyTrashed()->get()->each->restore();
+        $dokumen->files()->onlyTrashed()->get()->each->restore();
     }
 
     public function created(Dokumen $dokumen): void

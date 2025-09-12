@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\WhatsAppService;
-use App\Models\FileDokumen;
-use App\Models\DataDukungPerencanaan;
-use App\Models\TemplatDokumen;
 use App\Models\IndeksKinerjaUtama;
 use App\Models\File;
 
@@ -21,10 +18,15 @@ Route::get('/', function () {
 });
 
 Route::get('/file-dokumen/unduh/{id}', function ($id) {
-    $record           = FileDokumen::findOrFail($id);
+    $record           = File::findOrFail($id);
     $encrypted        = Storage::disk('local')->get($record->path);
     $decryptedContent = decrypt($encrypted);
-    $fileName         = $record->nama ?? basename($record->path);
+    $fileName = sprintf(
+        '%s (v%s).%s',
+        $record->model?->nama,
+        $record->versi ?? 1,
+        $record->tipe
+    );
     return response($decryptedContent)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
 })->name('file-dokumen.unduh');
 
@@ -32,17 +34,27 @@ Route::get('/file-data-dukung-perencanaan/unduh/{id}', function ($id) {
     $record           = File::findOrFail($id);
     $encrypted        = Storage::disk('local')->get($record->path);
     $decryptedContent = decrypt($encrypted);
-
-    $fileName         = $record->model->nama . ' - ' . now()->format('dmYHi') . '.' . $record->tipe ?? basename($record->path);
+    $fileName = sprintf(
+        '%s (v%s).%s',
+        $record->model?->nama,
+        $record->versi ?? 1,
+        $record->tipe
+    );
     return response($decryptedContent)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
 })->name('file-data-dukung-perencanaan.unduh');
 
-Route::get('/template/unduh/{id}', function ($id) {
-    $record   = TemplatDokumen::findOrFail($id);
-    $file     = Storage::disk('public')->get($record->path);
-    $fileName = basename($record->path);
+Route::get('/file-templat-dokumen/unduh/{id}', function ($id) {
+    $record   = File::findOrFail($id);
+    $file     = Storage::disk('local')->get($record->path);
+    $fileName = sprintf(
+        '%s - %s (v%s).%s',
+        $record->model?->nama,
+        $record->model?->jenisDokumen?->nama,
+        $record->versi ?? 1,
+        $record->tipe
+    );
     return response($file)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
-})->name('template.unduh');
+})->name('file-templat-dokumen.unduh');
 
 Route::get('/iku/unduh/{id}', function ($id) {
     $record = IndeksKinerjaUtama::findOrFail($id);

@@ -25,7 +25,7 @@ class StatusKeterlambatanSubbagianTable extends BaseWidget
             ->query(
                 Subbagian::query()
                     ->withCount(['dokumens as file_terlambat_count' => function (Builder $query) {
-                        $query->whereHas('fileDokumens', function (Builder $queryFile) {
+                        $query->whereHas('files', function (Builder $queryFile) {
                             $queryFile->whereColumn('created_at', '>', 'dokumens.tenggat_waktu');
                         });
                     }])

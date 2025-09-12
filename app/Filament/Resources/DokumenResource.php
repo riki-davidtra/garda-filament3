@@ -52,7 +52,6 @@ class DokumenResource extends Resource
         $user           = Auth::user();
         $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
         $isPerencana    = $user->hasRole('perencana');
-        $isSubbagian    = $user->hasRole('subbagian');
 
         return $form
             ->schema([
@@ -96,13 +95,15 @@ class DokumenResource extends Resource
                     ->columnSpanFull(),
 
                 // Tampilkan repeater unggah file dokumen hanya di create
-                Forms\Components\Repeater::make('fileDokumens')
-                    ->label('')
-                    ->relationship()
+                Forms\Components\Repeater::make('files')
+                    ->label(false)
+                    ->relationship('files')
                     ->schema([
+                        Forms\Components\Hidden::make('tag')->default('dokumen'),
+
                         Forms\Components\FileUpload::make('path')
                             ->label('File Dokumen (Upload file sesuai template)')
-                            ->nullable()
+                            ->required()
                             ->storeFiles(false)
                             ->disk('local')
                             ->directory('temp')
@@ -114,12 +115,12 @@ class DokumenResource extends Resource
                                 $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
                                 $mimeTypes    = FormatFile::whereIn('id', $jenisDokumen->format_file ?? [])->pluck('mime_types')->toArray();
                                 return $mimeTypes;
-                            }),
+                            })
+                            ->columnSpanFull(),
                     ])
-                    ->defaultItems(1)
-                    ->maxItems(1)
-                    ->disableItemCreation()
-                    ->disableItemDeletion()
+                    ->addable(false)
+                    ->deletable(false)
+                    ->columns(2)
                     ->columnSpanFull()
                     ->visibleOn('create'),
 
@@ -208,7 +209,6 @@ class DokumenResource extends Resource
         $user           = Auth::user();
         $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
         $isPerencana    = $user->hasRole('perencana');
-        $isSubbagian    = $user->hasRole('subbagian');
 
         return $table
             // Filter query: batasi data berdasarkan jenis dokumen dan subbagian jika bukan Super Admin/Admin atau Perencana dan memiliki akses role pada dokumen ini
@@ -370,11 +370,11 @@ class DokumenResource extends Resource
                     ->color('info')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(function ($record) {
-                        $fileTerbaru = $record->fileDokumens()->latest()->first();
+                        $fileTerbaru = $record->files()->latest()->first();
                         return $fileTerbaru ? route('file-dokumen.unduh', $fileTerbaru->id) : '#';
                     })
                     ->visible(function ($record) {
-                        $fileTerbaru = $record->fileDokumens()->latest()->first();
+                        $fileTerbaru = $record->files()->latest()->first();
                         return $fileTerbaru && $fileTerbaru->path && Storage::disk('local')->exists($fileTerbaru->path);
                     })
                     ->openUrlInNewTab(),
@@ -399,7 +399,7 @@ class DokumenResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\FileDokumensRelationManager::class,
+            RelationManagers\FilesRelationManager::class,
         ];
     }
 

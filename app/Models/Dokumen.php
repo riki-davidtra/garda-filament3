@@ -65,11 +65,6 @@ class Dokumen extends Model
         return $this->morphMany(File::class, 'model');
     }
 
-    public function fileDokumens()
-    {
-        return $this->hasMany(FileDokumen::class);
-    }
-
     public function getReadableAttributes(): array
     {
         $attrs = $this->getAttributes();

@@ -111,7 +111,6 @@ class DataDukungPerencanaanResource extends Resource
         $user           = Auth::user();
         $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
         $isPerencana    = $user->hasRole('perencana');
-        $isSubbagian    = $user->hasRole('subbagian');
 
         return $table
             ->modifyQueryUsing(function (Builder $query, $livewire)  use ($user, $isSuperOrAdmin, $isPerencana) {
@@ -226,11 +225,8 @@ class DataDukungPerencanaanResource extends Resource
                     ->openUrlInNewTab(),
 
                 Tables\Actions\ViewAction::make()
+                    ->label('Detail')
                     ->button(),
-
-                Tables\Actions\EditAction::make()
-                    ->button()
-                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -123,8 +123,6 @@ class PengaduanResource extends Resource
     {
         $user           = Auth::user();
         $isSuperOrAdmin = $user->hasAnyRole(['Super Admin', 'admin']);
-        $isPerencana    = $user->hasRole('perencana');
-        $isSubbagian    = $user->hasRole('subbagian');
 
         return $table
             ->modifyQueryUsing(function (Builder $query) use ($user, $isSuperOrAdmin) {

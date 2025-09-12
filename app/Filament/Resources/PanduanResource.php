@@ -77,6 +77,8 @@ class PanduanResource extends Resource
                         'application/vnd.ms-excel',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     ])
+                    ->enableOpen()
+                    ->enableDownload()
                     ->columnSpanFull(),
             ]);
     }

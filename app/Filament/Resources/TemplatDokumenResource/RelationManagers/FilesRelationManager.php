@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\DataDukungPerencanaanResource\RelationManagers;
+namespace App\Filament\Resources\TemplatDokumenResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -23,10 +23,10 @@ class FilesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Hidden::make('tag')->default('data_dukung_perencanaan'),
+                Forms\Components\Hidden::make('tag')->default('templat_dokumen'),
 
                 Forms\Components\FileUpload::make('path')
-                    ->label('File Data Dukung Perencanaan')
+                    ->label('File Template Dokumen')
                     ->required()
                     ->storeFiles(false)
                     ->disk('local')
@@ -57,8 +57,9 @@ class FilesRelationManager extends RelationManager
                     ->label('Nama File')
                     ->state(function ($record) {
                         return sprintf(
-                            '%s (v%s).%s',
+                            '%s - %s (v%s).%s',
                             $record->model?->nama,
+                            $record->model?->jenisDokumen?->nama,
                             $record->versi ?? 1,
                             $record->tipe
                         );
@@ -92,7 +93,7 @@ class FilesRelationManager extends RelationManager
                     ->button()
                     ->color('info')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn($record) => route('file-data-dukung-perencanaan.unduh', $record->id))
+                    ->url(fn($record) => route('file-templat-dokumen.unduh', $record->id))
                     ->openUrlInNewTab()
                     ->visible(fn($record) => filled($record?->path) && Storage::disk('local')->exists($record->path)),
 
@@ -118,11 +119,12 @@ class FilesRelationManager extends RelationManager
                                 ->tabs([
                                     Infolists\Components\Tabs\Tab::make('Utama')
                                         ->schema([
-                                            Infolists\Components\TextEntry::make('nama')->label('Nama')
+                                            Infolists\Components\TextEntry::make('nama')->label('Nama File')
                                                 ->state(function ($record) {
                                                     return sprintf(
-                                                        '%s (v%s).%s',
+                                                        '%s - %s (v%s).%s',
                                                         $record->model?->nama,
+                                                        $record->model?->jenisDokumen?->nama,
                                                         $record->versi ?? 1,
                                                         $record->tipe
                                                     );
@@ -162,9 +164,6 @@ class FilesRelationManager extends RelationManager
                                 ]),
                         ];
                     }),
-
-                Tables\Actions\DeleteAction::make()
-                    ->button(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

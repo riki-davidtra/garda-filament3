@@ -14,6 +14,10 @@ class EditTemplatDokumen extends EditRecord
     {
         return [
             Actions\DeleteAction::make(),
+
+            Actions\ViewAction::make()
+                ->label('Detail')
+                ->icon('heroicon-o-eye'),
         ];
     }
 }
