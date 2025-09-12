@@ -122,7 +122,7 @@ class DataDukungPerencanaanResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('nama')
-                    ->label('Nama Data Dukung')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable(),
 

@@ -108,7 +108,7 @@ class ViewDokumen extends ViewRecord
                     Infolists\Components\Tabs\Tab::make('Utama')
                         ->schema([
                             Infolists\Components\TextEntry::make('nama')
-                                ->label('Nama Dokumen'),
+                                ->label('Nama'),
                             Infolists\Components\TextEntry::make('tahun')
                                 ->label('Tahun'),
                             Infolists\Components\TextEntry::make('subkegiatan.nama')

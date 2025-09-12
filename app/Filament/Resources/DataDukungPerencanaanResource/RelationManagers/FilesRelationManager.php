@@ -16,8 +16,8 @@ use Filament\Infolists;
 class FilesRelationManager extends RelationManager
 {
     protected static string $relationship = 'files';
-    protected static ?string $title       = 'Daftar File';
-    protected static ?string $label       = 'File';
+    protected static ?string $title       = 'Daftar File Data Dukung Perencanaan';
+    protected static ?string $label       = 'File Data Dukung Perencanaan';
 
     public function form(Form $form): Form
     {
@@ -26,7 +26,7 @@ class FilesRelationManager extends RelationManager
                 Forms\Components\Hidden::make('tag')->default('data_dukung_perencanaan'),
 
                 Forms\Components\FileUpload::make('path')
-                    ->label('File Data Dukung Perencanaan')
+                    ->label('File')
                     ->required()
                     ->storeFiles(false)
                     ->disk('local')
@@ -54,7 +54,7 @@ class FilesRelationManager extends RelationManager
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('nama')
-                    ->label('Nama File')
+                    ->label('Nama')
                     ->state(function ($record) {
                         return sprintf(
                             '%s (v%s).%s',
@@ -84,7 +84,9 @@ class FilesRelationManager extends RelationManager
                     ->visible(fn() => $isSuperOrAdmin),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->label('Unggah')
+                    ->modalHeading('Unggah File Data Dukung Perencanaan'),
             ])
             ->actions([
                 Tables\Actions\Action::make('unduh')
@@ -98,7 +100,7 @@ class FilesRelationManager extends RelationManager
 
                 Tables\Actions\ViewAction::make()
                     ->label('Detail')
-                    ->modalHeading('Detail File')
+                    ->modalHeading('Detail File Data Dukung Perencanaan')
                     ->button()
                     ->infolist(function ($record) {
                         $formatUserInfo = function ($user, $tanggal) {
@@ -162,9 +164,6 @@ class FilesRelationManager extends RelationManager
                                 ]),
                         ];
                     }),
-
-                Tables\Actions\DeleteAction::make()
-                    ->button(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

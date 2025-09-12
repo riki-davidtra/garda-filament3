@@ -41,7 +41,7 @@ class ViewTemplatDokumen extends ViewRecord
                     Infolists\Components\Tabs\Tab::make('Utama')
                         ->schema([
                             Infolists\Components\TextEntry::make('nama')
-                                ->label('Nama Template'),
+                                ->label('Nama'),
                             Infolists\Components\TextEntry::make('jenisDokumen.nama')
                                 ->label('Jenis Dokumen'),
                         ]),

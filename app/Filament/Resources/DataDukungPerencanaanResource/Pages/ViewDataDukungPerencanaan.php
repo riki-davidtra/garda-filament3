@@ -41,9 +41,10 @@ class ViewDataDukungPerencanaan extends ViewRecord
                     Infolists\Components\Tabs\Tab::make('Utama')
                         ->schema([
                             Infolists\Components\TextEntry::make('nama')
-                                ->label('Nama Dokumen'),
+                                ->label('Nama'),
                             Infolists\Components\TextEntry::make('keterangan')
-                                ->label('Keterangan'),
+                                ->label('Keterangan')
+                                ->placeholder('-'),
                         ]),
 
                     Infolists\Components\Tabs\Tab::make('Riwayat Aktivitas')

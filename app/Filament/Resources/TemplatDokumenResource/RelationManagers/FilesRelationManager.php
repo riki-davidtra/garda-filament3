@@ -16,8 +16,8 @@ use Filament\Infolists;
 class FilesRelationManager extends RelationManager
 {
     protected static string $relationship = 'files';
-    protected static ?string $title       = 'Daftar File';
-    protected static ?string $label       = 'File';
+    protected static ?string $title       = 'Daftar File Template Dokumen';
+    protected static ?string $label       = 'File Template Dokumen';
 
     public function form(Form $form): Form
     {
@@ -26,7 +26,7 @@ class FilesRelationManager extends RelationManager
                 Forms\Components\Hidden::make('tag')->default('templat_dokumen'),
 
                 Forms\Components\FileUpload::make('path')
-                    ->label('File Template Dokumen')
+                    ->label('File')
                     ->required()
                     ->storeFiles(false)
                     ->disk('local')
@@ -54,7 +54,7 @@ class FilesRelationManager extends RelationManager
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('nama')
-                    ->label('Nama File')
+                    ->label('Nama')
                     ->state(function ($record) {
                         return sprintf(
                             '%s - %s (v%s).%s',
@@ -85,7 +85,9 @@ class FilesRelationManager extends RelationManager
                     ->visible(fn() => $isSuperOrAdmin),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->label('Unggah')
+                    ->modalHeading('Unggah File Template Dokumen'),
             ])
             ->actions([
                 Tables\Actions\Action::make('unduh')
@@ -99,7 +101,7 @@ class FilesRelationManager extends RelationManager
 
                 Tables\Actions\ViewAction::make()
                     ->label('Detail')
-                    ->modalHeading('Detail File')
+                    ->modalHeading('Detail File Template Dokumen')
                     ->button()
                     ->infolist(function ($record) {
                         $formatUserInfo = function ($user, $tanggal) {
@@ -119,7 +121,7 @@ class FilesRelationManager extends RelationManager
                                 ->tabs([
                                     Infolists\Components\Tabs\Tab::make('Utama')
                                         ->schema([
-                                            Infolists\Components\TextEntry::make('nama')->label('Nama File')
+                                            Infolists\Components\TextEntry::make('nama')->label('Nama')
                                                 ->state(function ($record) {
                                                     return sprintf(
                                                         '%s - %s (v%s).%s',

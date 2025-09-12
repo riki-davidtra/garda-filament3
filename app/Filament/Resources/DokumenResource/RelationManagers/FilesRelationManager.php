@@ -27,7 +27,7 @@ class FilesRelationManager extends RelationManager
                 Forms\Components\Hidden::make('tag')->default('dokumen'),
 
                 Forms\Components\FileUpload::make('path')
-                    ->label('File Dokumen (Upload file sesuai template)')
+                    ->label('File (Upload file sesuai template)')
                     ->required()
                     ->storeFiles(false)
                     ->disk('local')
@@ -64,9 +64,16 @@ class FilesRelationManager extends RelationManager
                 return $current < $batas ? "Dokumen ini sudah menggunakan {$current} dari {$batas} kesempatan unggah file." : "Kesempatan unggah file sudah habis. Anda telah mencapai batas maksimal ({$batas} file).";
             })
             ->columns([
-                Tables\Columns\TextColumn::make('file')
-                    ->label('File')
-                    ->default('File Dokumen')
+                Tables\Columns\TextColumn::make('nama')
+                    ->label('Nama')
+                    ->state(function ($record) {
+                        return sprintf(
+                            '%s (v%s).%s',
+                            $record->model?->nama,
+                            $record->versi ?? 1,
+                            $record->tipe
+                        );
+                    })
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tipe')
@@ -90,7 +97,7 @@ class FilesRelationManager extends RelationManager
             ->headerActions([
                 // Ditampilkan aksi jika tidak lewat batas unggah, user Super Admin/Admin, perencana atau memiliki role yang sesuai dengan jenis dokumen
                 Tables\Actions\CreateAction::make()
-                    ->label('Unggah File Dokumen')
+                    ->label('Unggah')
                     ->modalHeading('Unggah File Dokumen')
                     ->after(function ($record, $livewire) {
                         $owner = $this->getOwnerRecord();
@@ -122,6 +129,7 @@ class FilesRelationManager extends RelationManager
 
                 Tables\Actions\ViewAction::make()
                     ->label('Detail')
+                    ->modalHeading('Detail File Dokumen')
                     ->button()
                     ->infolist(function ($record) {
                         $formatUserInfo = function ($user, $tanggal) {
@@ -142,7 +150,14 @@ class FilesRelationManager extends RelationManager
                                     Infolists\Components\Tabs\Tab::make('Utama')
                                         ->schema([
                                             Infolists\Components\TextEntry::make('nama')->label('Nama')
-                                                ->state($record->nama),
+                                                ->state(function ($record) {
+                                                    return sprintf(
+                                                        '%s (v%s).%s',
+                                                        $record->model?->nama,
+                                                        $record->versi ?? 1,
+                                                        $record->tipe
+                                                    );
+                                                }),
 
                                             Infolists\Components\TextEntry::make('tipe')->label('Tipe')
                                                 ->state($record->tipe),
@@ -178,9 +193,6 @@ class FilesRelationManager extends RelationManager
                                 ]),
                         ];
                     }),
-
-                Tables\Actions\DeleteAction::make()
-                    ->button(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -51,7 +51,7 @@ class TemplatDokumenResource extends Resource
                         Forms\Components\Hidden::make('tag')->default('templat_dokumen'),
 
                         Forms\Components\FileUpload::make('path')
-                            ->label('File Template Dokumen')
+                            ->label('File')
                             ->required()
                             ->storeFiles(false)
                             ->disk('local')

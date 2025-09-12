@@ -57,7 +57,7 @@ class DokumenResource extends Resource
             ->schema([
                 // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\TextInput::make('nama')
-                    ->label('Nama Dokumen')
+                    ->label('Nama')
                     ->required()
                     ->string()
                     ->maxLength(255)
@@ -102,7 +102,7 @@ class DokumenResource extends Resource
                         Forms\Components\Hidden::make('tag')->default('dokumen'),
 
                         Forms\Components\FileUpload::make('path')
-                            ->label('File Dokumen (Upload file sesuai template)')
+                            ->label('File (Upload file sesuai template)')
                             ->required()
                             ->storeFiles(false)
                             ->disk('local')
@@ -228,7 +228,7 @@ class DokumenResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('nama')
-                    ->label('Nama Dokumen')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable(),
 
@@ -264,78 +264,6 @@ class DokumenResource extends Resource
                         $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
                         return $jenisDokumen->mode_status;
                     }),
-
-                Tables\Columns\TextColumn::make('pembuat.name')
-                    ->label('Dibuat Oleh')
-                    ->description(function ($record) {
-                        $user      = $record->pembuat;
-                        $bagian    = $user?->subbagian?->bagian?->nama;
-                        $subbagian = $user?->subbagian?->nama;
-                        $tanggal   = $record->dibuat_pada;
-                        $parts     = [
-                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
-                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
-                        ];
-                        return implode(' | ', array_filter($parts));
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('pembaru.name')
-                    ->label('Diperbarui Oleh')
-                    ->description(function ($record) {
-                        $user      = $record->pembaru;
-                        $bagian    = $user?->subbagian?->bagian?->nama;
-                        $subbagian = $user?->subbagian?->nama;
-                        $tanggal   = $record->diperbarui_pada;
-                        $parts     = [
-                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
-                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
-                        ];
-                        return implode(' | ', array_filter($parts));
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('penghapus.name')
-                    ->label('Dihapus Oleh')
-                    ->description(function ($record) {
-                        $user      = $record->penghapus;
-                        $bagian    = $user?->subbagian?->bagian?->nama;
-                        $subbagian = $user?->subbagian?->nama;
-                        $tanggal   = $record->dihapus_pada;
-                        $parts     = [
-                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
-                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
-                        ];
-                        return implode(' | ', array_filter($parts));
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('pemulih.name')
-                    ->label('Dipulihkan Oleh')
-                    ->description(function ($record) {
-                        $user      = $record->pemulih;
-                        $bagian    = $user?->subbagian?->bagian?->nama;
-                        $subbagian = $user?->subbagian?->nama;
-                        $tanggal   = $record->dipulihkan_pada;
-                        $parts     = [
-                            $user?->nip ? 'NIP: ' . $user?->nip                           : null,
-                            $bagian     ? $bagian . ($subbagian ? ' - ' . $subbagian : '') : null,
-                            $tanggal    ? $tanggal->format('d-m-Y H:i')                   : null,
-                        ];
-                        return implode(' | ', array_filter($parts));
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable()
-                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('subbagian_id')
