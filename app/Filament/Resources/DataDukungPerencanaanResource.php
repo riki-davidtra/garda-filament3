@@ -81,7 +81,7 @@ class DataDukungPerencanaanResource extends Resource
                         Forms\Components\Hidden::make('tag')->default('data_dukung_perencanaan'),
 
                         Forms\Components\FileUpload::make('path')
-                            ->label('File Data Dukung Perencanaan')
+                            ->label('File')
                             ->required()
                             ->storeFiles(false)
                             ->disk('local')
