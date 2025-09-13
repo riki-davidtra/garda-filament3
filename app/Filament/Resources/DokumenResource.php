@@ -55,7 +55,6 @@ class DokumenResource extends Resource
 
         return $form
             ->schema([
-                // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama')
                     ->required()
@@ -63,7 +62,6 @@ class DokumenResource extends Resource
                     ->maxLength(255)
                     ->helperText('Contoh: RKA Perubahan - Rumah Tangga - Urusan Dalam'),
 
-                // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
@@ -73,7 +71,23 @@ class DokumenResource extends Resource
                     ))
                     ->default(date('Y')),
 
-                // Disabled jika tidak memiliki akses peran pada dokumen ini
+                // Tampilkan jika memiliki akses mode pada dokumen ini
+                Forms\Components\Select::make('periode')
+                    ->label('Periode')
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->options([
+                        '1' => '1',
+                        '2' => '2',
+                        '3' => '3',
+                    ])
+                    ->visible(function ($get, $livewire) {
+                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        return $jenisDokumen->mode_periode;
+                    }),
+
+                // Tampilkan jika memiliki akses mode pada dokumen ini
                 Forms\Components\Select::make('subkegiatan_id')
                     ->label('Subkegiatan')
                     ->required()
@@ -87,7 +101,6 @@ class DokumenResource extends Resource
                         return $jenisDokumen->mode_subkegiatan;
                     }),
 
-                // Disabled jika tidak memiliki akses peran pada dokumen ini
                 Forms\Components\Textarea::make('keterangan')
                     ->label('Keterangan')
                     ->nullable()
@@ -244,6 +257,15 @@ class DokumenResource extends Resource
                     ->visible(function ($livewire) {
                         $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
                         return $jenisDokumen->mode_subkegiatan;
+                    }),
+
+                Tables\Columns\TextColumn::make('periode')
+                    ->label('Periode')
+                    ->searchable()
+                    ->sortable()
+                    ->visible(function ($livewire) {
+                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                        return $jenisDokumen->mode_periode;
                     }),
 
                 // Ditampilkan untuk Super Admin/Admin, atau tampil jika jenis dokumen terkait memiliki role 'subbagian'

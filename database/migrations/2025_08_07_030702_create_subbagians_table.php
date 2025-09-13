@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('bagian_id')->nullable()->constrained('bagians')->nullOnDelete();
             $table->string('nama');
             $table->timestamps();
+
+            $table->index(['nama', 'created_at']);
         });
     }
 

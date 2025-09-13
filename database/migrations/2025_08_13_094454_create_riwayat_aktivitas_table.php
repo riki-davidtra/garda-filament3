@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->string('aksi');
+            $table->string('aksi')->nullable();
             $table->string('jenis_data')->nullable();
             $table->text('deskripsi')->nullable();
             $table->text('detail_data')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->nullableMorphs('subjek');
             $table->timestamps();
 
-            $table->index(['user_id', 'aksi', 'deskripsi', 'created_at']);
+            $table->index(['aksi', 'jenis_data', 'created_at']);
         });
     }
 

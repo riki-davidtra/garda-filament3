@@ -24,14 +24,15 @@ class DokumenSeeder extends Seeder
             foreach ($subbagians as $subbagian) {
                 Dokumen::updateOrCreate(
                     [
-                        'jenis_dokumen_id' => $jenis->id,
+                        'jenis_dokumen_id'  => $jenis->id,
                         'jadwal_dokumen_id' => $jadwal?->id,
-                        'subbagian_id'     => $subbagian->id,
-                        'subkegiatan_id'   => 1,
-                        'nama'             => 'Nama Dokumen ' . $jenis->nama,
-                        'tahun'            => 2025,
+                        'subbagian_id'      => $subbagian->id,
+                        'subkegiatan_id'    => 1,
+                        'nama'              => 'Nama Dokumen ' . $jenis->nama,
+                        'tahun'             => 2025,
                     ],
                     [
+                        'periode'    => $jenis->nama === 'RKA Pergeseran' ? rand(1, 3) : null,
                         'keterangan' => 'Dokumen tahun 2025 untuk jenis ' . $jenis->nama . ' di subbagian ' . $subbagian->nama,
                         'status'     => 'Menunggu Persetujuan',
                         'komentar'   => '',

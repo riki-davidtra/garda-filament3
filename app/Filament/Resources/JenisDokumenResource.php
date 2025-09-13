@@ -68,6 +68,11 @@ class JenisDokumenResource extends Resource
                     ->nullable()
                     ->default(false),
 
+                Forms\Components\Toggle::make('mode_periode')
+                    ->label('Mode Periode')
+                    ->nullable()
+                    ->default(false),
+
                 Forms\Components\Select::make('roles')
                     ->label('Akses Peran')
                     ->nullable()

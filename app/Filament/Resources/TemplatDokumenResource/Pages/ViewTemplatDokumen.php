@@ -36,41 +36,10 @@ class ViewTemplatDokumen extends ViewRecord
     public function infolist(Infolists\Infolist $infolist): Infolists\Infolist
     {
         return $infolist->schema([
-            Infolists\Components\Tabs::make('Tab')
-                ->tabs([
-                    Infolists\Components\Tabs\Tab::make('Utama')
-                        ->schema([
-                            Infolists\Components\TextEntry::make('nama')
-                                ->label('Nama'),
-                            Infolists\Components\TextEntry::make('jenisDokumen.nama')
-                                ->label('Jenis Dokumen'),
-                        ]),
-
-                    Infolists\Components\Tabs\Tab::make('Riwayat Aktivitas')
-                        ->schema([
-                            Infolists\Components\TextEntry::make('pembuat.name')
-                                ->label('Dibuat Oleh')
-                                ->placeholder('-')
-                                ->state(fn($record) => $this->formatUserInfo($record->pembuat, $record->dibuat_pada)),
-
-                            Infolists\Components\TextEntry::make('pembaru.name')
-                                ->label('Diperbarui Oleh')
-                                ->placeholder('-')
-                                ->state(fn($record) => $this->formatUserInfo($record->pembaru, $record->diperbarui_pada)),
-
-                            Infolists\Components\TextEntry::make('penghapus.name')
-                                ->label('Dihapus Oleh')
-                                ->placeholder('-')
-                                ->state(fn($record) => $this->formatUserInfo($record->penghapus, $record->dihapus_pada)),
-
-                            Infolists\Components\TextEntry::make('pemulih.name')
-                                ->label('Dipulihkan Oleh')
-                                ->placeholder('-')
-                                ->state(fn($record) => $this->formatUserInfo($record->pemulih, $record->dipulihkan_pada)),
-                        ])
-                        ->columns(2),
-                ])
-                ->columnSpanFull(),
+            Infolists\Components\TextEntry::make('nama')
+                ->label('Nama'),
+            Infolists\Components\TextEntry::make('jenisDokumen.nama')
+                ->label('Jenis Dokumen'),
         ]);
     }
 

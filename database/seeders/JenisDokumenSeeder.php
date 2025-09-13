@@ -32,6 +32,7 @@ class JenisDokumenSeeder extends Seeder
             'DPA Pergeseran',
             'RKA Murni',
             'RKA Perubahan',
+            'RKA Pergeseran',
             'KAK',
             'Laporan Realisasi',
         ];
@@ -48,6 +49,7 @@ class JenisDokumenSeeder extends Seeder
                     'maksimal_ukuran'  => 20480,
                     'mode_status'      => $isModeStatusTrue,
                     'mode_subkegiatan' => $isModeSubkegiatan,
+                    'mode_periode'     => $nama === 'RKA Pergeseran',
                 ]
             );
 

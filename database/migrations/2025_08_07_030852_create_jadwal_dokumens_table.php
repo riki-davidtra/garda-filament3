@@ -20,6 +20,8 @@ return new class extends Migration
             $table->dateTime('waktu_unggah_selesai')->nullable();
             $table->boolean('aktif')->default(false);
             $table->timestamps();
+
+            $table->index(['waktu_unggah_mulai', 'waktu_unggah_selesai', 'aktif', 'created_at']);
         });
     }
 

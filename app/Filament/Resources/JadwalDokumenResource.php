@@ -21,7 +21,7 @@ class JadwalDokumenResource extends Resource
 {
     protected static ?string $model = JadwalDokumen::class;
 
-    protected static ?string $navigationIcon   = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon   = 'heroicon-o-clock';
     protected static ?string $navigationGroup  = 'Data Master';
     protected static ?string $navigationLabel  = 'Jadwal Dokumen';
     protected static ?string $pluralModelLabel = 'Daftar Jadwal Dokumen';

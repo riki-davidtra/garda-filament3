@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('jawaban');
             $table->string('order')->default(0);
             $table->timestamps();
+
+            $table->index(['order', 'created_at']);
         });
     }
 

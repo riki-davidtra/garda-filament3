@@ -19,7 +19,8 @@ return new class extends Migration
             $table->foreignId('subbagian_id')->nullable()->constrained('subbagians')->nullOnDelete();
             $table->foreignId('subkegiatan_id')->nullable()->constrained('subkegiatans')->nullOnDelete();
             $table->string('nama');
-            $table->string('tahun');
+            $table->string('tahun')->nullable();
+            $table->string('periode')->nullable();
             $table->text('keterangan')->nullable();
             $table->enum('status', [
                 'Menunggu Persetujuan',
@@ -30,16 +31,11 @@ return new class extends Migration
                 'Revisi Ditolak'
             ])->default('Menunggu Persetujuan');
             $table->text('komentar')->nullable();
-            $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dibuat_pada')->nullable();
-            $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('diperbarui_pada')->nullable();
-            $table->foreignId('dihapus_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dihapus_pada')->nullable();
-            $table->foreignId('dipulihkan_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dipulihkan_pada')->nullable();
+            $table->auditColumns();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index(['tahun', 'periode', 'status', 'created_at']);
         });
     }
 

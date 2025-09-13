@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('file')->nullable();
             $table->string('order')->default(0);
             $table->timestamps();
+
+            $table->index(['order', 'created_at']);
         });
     }
 

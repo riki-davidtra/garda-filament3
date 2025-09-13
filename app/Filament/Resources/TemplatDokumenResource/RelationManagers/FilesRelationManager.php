@@ -32,15 +32,6 @@ class FilesRelationManager extends RelationManager
                     ->disk('local')
                     ->directory('temp')
                     ->maxSize(20480)
-                    ->acceptedFileTypes([
-                        'application/pdf',
-                        'application/msword',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'application/vnd.ms-excel',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.ms-powerpoint',
-                        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                    ])
                     ->columnSpanFull(),
             ]);
     }

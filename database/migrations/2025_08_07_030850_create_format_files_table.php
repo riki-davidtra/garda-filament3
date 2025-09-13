@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('ekstensi')->nullable();
             $table->text('mime_types')->nullable();
             $table->timestamps();
+
+            $table->index(['nama', 'created_at']);
         });
     }
 

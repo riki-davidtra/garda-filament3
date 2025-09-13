@@ -21,12 +21,13 @@ class DokumenService
         ))->whereNotNull('nomor_whatsapp')->get();
 
         $notifikasi = [];
+        $baseUrl    = config('app.url');
 
         foreach ($users as $user) {
             $pesanSingkat          = self::buatPesanStatus($dokumen);
             $notifikasi[$user->id] = [
                 'user'  => $user,
-                'pesan' => "Halo {$user->name}, berikut update dokumen:\n\n{$pesanSingkat}"
+                'pesan' => "Halo {$user->name}, berikut update dokumen:\n\n{$pesanSingkat}\n\n{$baseUrl}"
             ];
         }
 

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Database\Schema\Blueprint;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,5 +37,17 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\IndeksKinerjaUtama::observe(\App\Observers\IndeksKinerjaUtamaObserver::class);
         \App\Models\DataDukungPerencanaan::observe(\App\Observers\DataDukungPerencanaanObserver::class);
         \App\Models\File::observe(\App\Observers\FileObserver::class);
+
+        Blueprint::macro('auditColumns', function () {
+            /** @var Blueprint $this */
+            $this->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $this->timestamp('dibuat_pada')->nullable()->index();
+            $this->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $this->timestamp('diperbarui_pada')->nullable()->index();
+            $this->foreignId('dihapus_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $this->timestamp('dihapus_pada')->nullable()->index();
+            $this->foreignId('dipulihkan_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $this->timestamp('dipulihkan_pada')->nullable()->index();
+        });
     }
 }

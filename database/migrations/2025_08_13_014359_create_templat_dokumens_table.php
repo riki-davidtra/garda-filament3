@@ -16,16 +16,9 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
             $table->string('nama');
-            $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dibuat_pada')->nullable();
-            $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('diperbarui_pada')->nullable();
-            $table->foreignId('dihapus_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dihapus_pada')->nullable();
-            $table->foreignId('dipulihkan_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dipulihkan_pada')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+
+            $table->index(['nama', 'created_at']);
         });
     }
 

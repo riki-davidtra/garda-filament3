@@ -111,6 +111,9 @@ class ViewDokumen extends ViewRecord
                                 ->label('Nama'),
                             Infolists\Components\TextEntry::make('tahun')
                                 ->label('Tahun'),
+                            Infolists\Components\TextEntry::make('periode')
+                                ->label('Periode')
+                                ->visible(fn() => $this->jenisDokumen?->mode_periode),
                             Infolists\Components\TextEntry::make('subkegiatan.nama')
                                 ->label('Subkegiatan')
                                 ->visible(fn() => $this->jenisDokumen?->mode_subkegiatan),

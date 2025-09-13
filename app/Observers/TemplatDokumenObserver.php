@@ -20,10 +20,8 @@ class TemplatDokumenObserver
 
     public function deleting(TemplatDokumen $templatDokumen): void
     {
-        if ($templatDokumen->path) {
-            if (Storage::disk('public')->exists($templatDokumen->path)) {
-                Storage::disk('public')->delete($templatDokumen->path);
-            }
-        }
+        $templatDokumen->files()->withTrashed()->get()->each(function ($file) {
+            $file->forceDelete();
+        });
     }
 }

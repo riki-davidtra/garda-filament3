@@ -44,8 +44,9 @@ Route::get('/file-data-dukung-perencanaan/unduh/{id}', function ($id) {
 })->name('file-data-dukung-perencanaan.unduh');
 
 Route::get('/file-templat-dokumen/unduh/{id}', function ($id) {
-    $record   = File::findOrFail($id);
-    $file     = Storage::disk('local')->get($record->path);
+    $record           = File::findOrFail($id);
+    $encrypted        = Storage::disk('local')->get($record->path);
+    $decryptedContent = decrypt($encrypted);
     $fileName = sprintf(
         '%s - %s (v%s).%s',
         $record->model?->nama,
@@ -53,7 +54,7 @@ Route::get('/file-templat-dokumen/unduh/{id}', function ($id) {
         $record->versi ?? 1,
         $record->tipe
     );
-    return response($file)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    return response($decryptedContent)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
 })->name('file-templat-dokumen.unduh');
 
 Route::get('/iku/unduh/{id}', function ($id) {

@@ -21,16 +21,11 @@ return new class extends Migration
             $table->unsignedSmallInteger('nilai_bulan_2')->nullable();
             $table->unsignedSmallInteger('nilai_bulan_3')->nullable();
             $table->unsignedInteger('perubahan_ke')->default(1);
-            $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dibuat_pada')->nullable();
-            $table->foreignId('diperbarui_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('diperbarui_pada')->nullable();
-            $table->foreignId('dihapus_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dihapus_pada')->nullable();
-            $table->foreignId('dipulihkan_oleh')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('dipulihkan_pada')->nullable();
+            $table->auditColumns();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index(['tahun', 'periode', 'perubahan_ke', 'created_at']);
         });
     }
 

@@ -34,6 +34,7 @@ class JadwalDokumenService
         ];
 
         $notifikasi = [];
+        $baseUrl    = config('app.url');
 
         foreach ($jadwals as $status => $list) {
             foreach ($list as $jadwal) {
@@ -52,7 +53,7 @@ class JadwalDokumenService
         foreach ($notifikasi as $userId => $data) {
             $user                         = $data['user'];
             $daftarPesan                  = implode("\n\n", $data['pesan']);
-            $notifikasi[$userId]['pesan'] = "Halo {$user->name}, berikut daftar update jadwal dokumen:\n\n{$daftarPesan}";
+            $notifikasi[$userId]['pesan'] = "Halo {$user->name}, berikut daftar update jadwal dokumen:\n\n{$daftarPesan}\n\n{$baseUrl}";
         }
 
         return $notifikasi;
@@ -80,12 +81,13 @@ class JadwalDokumenService
         ))->whereNotNull('nomor_whatsapp')->get();
 
         $notifikasi = [];
+        $baseUrl    = config('app.url');
 
         foreach ($users as $user) {
             $pesanSingkat          = self::buatPesanSingkat($status, $jadwal);
             $notifikasi[$user->id] = [
                 'user'  => $user,
-                'pesan' => "Halo {$user->name}, berikut update jadwal dokumen:\n\n{$pesanSingkat}"
+                'pesan' => "Halo {$user->name}, berikut update jadwal dokumen:\n\n{$pesanSingkat}\n\n{$baseUrl}"
             ];
         }
 

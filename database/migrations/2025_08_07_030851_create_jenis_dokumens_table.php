@@ -20,7 +20,10 @@ return new class extends Migration
             $table->integer('maksimal_ukuran')->default(20480);
             $table->boolean('mode_status')->default(false);
             $table->boolean('mode_subkegiatan')->default(false);
+            $table->boolean('mode_periode')->default(false);
             $table->timestamps();
+
+            $table->index(['nama', 'created_at']);
         });
     }
 
