@@ -19,6 +19,9 @@ return new class extends Migration
             $table->dateTime('waktu_unggah_mulai')->nullable();
             $table->dateTime('waktu_unggah_selesai')->nullable();
             $table->boolean('aktif')->default(false);
+
+            $table->auditColumns();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['waktu_unggah_mulai', 'waktu_unggah_selesai', 'aktif', 'created_at']);

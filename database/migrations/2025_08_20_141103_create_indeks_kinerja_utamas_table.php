@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('nilai_bulan_2')->nullable();
             $table->unsignedSmallInteger('nilai_bulan_3')->nullable();
             $table->unsignedInteger('perubahan_ke')->default(1);
+
             $table->auditColumns();
             $table->softDeletes();
             $table->timestamps();

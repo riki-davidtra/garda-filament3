@@ -1,7 +1,7 @@
 <div>
     @php
         $templateDokumen = $getRecord()->jenisDokumen?->templatDokumen;
-        $fileTerbaru = $templateDokumen->files()->latest()->first();
+        $fileTerbaru = $templateDokumen?->files()->latest()->first();
     @endphp
 
     @if ($fileTerbaru && $fileTerbaru->path && Storage::disk('local')->exists($fileTerbaru->path))

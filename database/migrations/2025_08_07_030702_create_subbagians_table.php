@@ -16,6 +16,9 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->foreignId('bagian_id')->nullable()->constrained('bagians')->nullOnDelete();
             $table->string('nama');
+
+            $table->auditColumns();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['nama', 'created_at']);

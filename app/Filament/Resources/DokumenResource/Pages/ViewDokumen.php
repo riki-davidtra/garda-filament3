@@ -93,7 +93,11 @@ class ViewDokumen extends ViewRecord
                     'record'           => $record->uuid,
                     'jenis_dokumen_id' => $this->jenis_dokumen_id,
                 ]))
-                ->visible(fn($record) => $this->canEditRecord($record, $user, $isSuperOrAdmin)),
+                ->visible(function ($record) use ($user, $isSuperOrAdmin) {
+                    if ($isSuperOrAdmin) return true;
+                    $aksesPeran = $user->roles->pluck('id')->intersect($record->jenisDokumen?->roles->pluck('id') ?? collect());
+                    return $aksesPeran->isNotEmpty();
+                }),
         ];
     }
 
@@ -205,15 +209,6 @@ class ViewDokumen extends ViewRecord
                 ])
                 ->columnSpanFull(),
         ]);
-    }
-
-    protected function canEditRecord($record, $user, $isSuperOrAdmin): bool
-    {
-        if ($isSuperOrAdmin) return true;
-
-        $aksesPeran = $user->roles->pluck('id')
-            ->intersect($record->jenisDokumen->roles->pluck('id'));
-        return $aksesPeran->isNotEmpty();
     }
 
     protected function formatUserInfo($user, $tanggal): ?string

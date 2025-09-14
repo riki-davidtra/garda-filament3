@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Support\Facades\Storage;
 use Althinect\FilamentSpatieRolesPermissions\Concerns\HasSuperAdmin;
@@ -16,7 +18,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable implements HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids, HasRoles, HasSuperAdmin;
+    use HasFactory, Notifiable, HasUuids, HasRoles, HasSuperAdmin, SoftDeletes, Blameable;
 
     /**
      * The attributes that are mass assignable.
@@ -85,6 +87,15 @@ class User extends Authenticatable implements HasAvatar
 
         return $this->avatar_url ? Storage::url("$this->avatar_url") : null;
     }
+
+    protected $casts = [
+        'dibuat_pada'     => 'datetime',
+        'diperbarui_pada' => 'datetime',
+        'dihapus_pada'    => 'datetime',
+        'dipulihkan_pada' => 'datetime',
+    ];
+
+    protected $dates = ['deleted_at'];
 
     public function subbagian()
     {

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->string('nama');
             $table->text('keterangan')->nullable();
+
             $table->auditColumns();
             $table->softDeletes();
             $table->timestamps();

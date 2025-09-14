@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('versi')->nullable();
             $table->string('tag')->nullable();
             $table->nullableMorphs('model');
+
             $table->auditColumns();
             $table->softDeletes();
             $table->timestamps();

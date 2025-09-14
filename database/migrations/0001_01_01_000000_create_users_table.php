@@ -23,6 +23,9 @@ return new class extends Migration
             $table->string('nip')->nullable();
             $table->string('nomor_whatsapp')->nullable();
             $table->rememberToken();
+
+            $table->auditColumns();
+            $table->softDeletes();
             $table->timestamps();
         });
 

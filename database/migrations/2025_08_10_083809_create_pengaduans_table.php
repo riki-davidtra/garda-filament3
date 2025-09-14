@@ -18,7 +18,9 @@ return new class extends Migration
             $table->text('pesan');
             $table->text('tanggapan')->nullable();
             $table->enum('status', ['menunggu', 'proses', 'selesai'])->default('menunggu');
+
             $table->auditColumns();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['status', 'created_at']);

@@ -131,6 +131,8 @@ class JadwalDokumenResource extends Resource
                     ->relationship('jenisDokumen', 'nama')
                     ->searchable()
                     ->preload(),
+
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\Action::make('kirim_notifikasi')
@@ -157,6 +159,8 @@ class JadwalDokumenResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('pertanyaan');
             $table->text('jawaban');
             $table->string('order')->default(0);
+
+            $table->auditColumns();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['order', 'created_at']);

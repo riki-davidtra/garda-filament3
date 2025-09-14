@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\Blameable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,9 +11,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subbagian extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes, Blameable;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'dibuat_pada'     => 'datetime',
+        'diperbarui_pada' => 'datetime',
+        'dihapus_pada'    => 'datetime',
+        'dipulihkan_pada' => 'datetime',
+    ];
+
+    protected $dates = ['deleted_at'];
 
     public function uniqueIds(): array
     {

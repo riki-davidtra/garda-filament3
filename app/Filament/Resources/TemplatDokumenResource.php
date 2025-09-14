@@ -57,22 +57,21 @@ class TemplatDokumenResource extends Resource
                             ->disk('local')
                             ->directory('temp')
                             ->maxSize(20480)
-                            ->acceptedFileTypes([
-                                'application/pdf',
-                                'application/msword',
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                'application/vnd.ms-excel',
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                'application/vnd.ms-powerpoint',
-                                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                            ])
+                            // ->acceptedFileTypes([
+                            //     'application/pdf',
+                            //     'application/msword',
+                            //     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            //     'application/vnd.ms-excel',
+                            //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            //     'application/vnd.ms-powerpoint',
+                            //     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                            // ])
                             ->columnSpanFull(),
                     ])
                     ->addable(false)
                     ->deletable(false)
                     ->columns(2)
-                    ->columnSpanFull()
-                    ->visibleOn('create'),
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -104,7 +103,7 @@ class TemplatDokumenResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 // Tampilkan aksi hanya jika ada file dokumen terbaru yang tersedia di storage
@@ -126,10 +125,16 @@ class TemplatDokumenResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->label('Detail')
                     ->button(),
+
+                Tables\Actions\EditAction::make()
+                    ->button()
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -137,7 +142,7 @@ class TemplatDokumenResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\FilesRelationManager::class,
+            // RelationManagers\FilesRelationManager::class,
         ];
     }
 
@@ -145,9 +150,9 @@ class TemplatDokumenResource extends Resource
     {
         return [
             'index' => Pages\ListTemplatDokumens::route('/'),
-            'create' => Pages\CreateTemplatDokumen::route('/create'),
-            'edit' => Pages\EditTemplatDokumen::route('/{record}/edit'),
-            'view'   => Pages\ViewTemplatDokumen::route('/{record}'),
+            // 'create' => Pages\CreateTemplatDokumen::route('/create'),
+            // 'edit' => Pages\EditTemplatDokumen::route('/{record}/edit'),
+            // 'view'   => Pages\ViewTemplatDokumen::route('/{record}'),
         ];
     }
 }

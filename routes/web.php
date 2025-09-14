@@ -48,10 +48,9 @@ Route::get('/file-templat-dokumen/unduh/{id}', function ($id) {
     $encrypted        = Storage::disk('local')->get($record->path);
     $decryptedContent = decrypt($encrypted);
     $fileName = sprintf(
-        '%s - %s (v%s).%s',
+        '%s - %s.%s',
         $record->model?->nama,
         $record->model?->jenisDokumen?->nama,
-        $record->versi ?? 1,
         $record->tipe
     );
     return response($decryptedContent)->header('Content-Type', 'application/octet-stream')->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');

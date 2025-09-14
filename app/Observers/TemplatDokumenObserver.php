@@ -20,8 +20,17 @@ class TemplatDokumenObserver
 
     public function deleting(TemplatDokumen $templatDokumen): void
     {
-        $templatDokumen->files()->withTrashed()->get()->each(function ($file) {
-            $file->forceDelete();
-        });
+        if ($templatDokumen->isForceDeleting()) {
+            $templatDokumen->files()->withTrashed()->get()->each(function ($file) {
+                $file->forceDelete();
+            });
+        } else {
+            $templatDokumen->files()->get()->each->delete();
+        }
+    }
+
+    public function restoring(TemplatDokumen $templatDokumen): void
+    {
+        $templatDokumen->files()->onlyTrashed()->get()->each->restore();
     }
 }

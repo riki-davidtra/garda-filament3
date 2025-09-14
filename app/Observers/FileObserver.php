@@ -46,7 +46,7 @@ class FileObserver
             $path = $file->path;
             $tag  = $file->tag ?? null;
 
-            $directory  = str_replace(' ', '-', strtolower($tag ?? 'file'));
+            $directory  = str_replace('_', '-', strtolower($tag ?? 'file'));
             $storedPath = $path->store($directory, 'local');
 
             $contents = encrypt(file_get_contents(Storage::disk('local')->path($storedPath)));

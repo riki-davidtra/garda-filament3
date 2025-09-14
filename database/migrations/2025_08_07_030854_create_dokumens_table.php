@@ -31,6 +31,7 @@ return new class extends Migration
                 'Revisi Ditolak'
             ])->default('Menunggu Persetujuan');
             $table->text('komentar')->nullable();
+
             $table->auditColumns();
             $table->softDeletes();
             $table->timestamps();

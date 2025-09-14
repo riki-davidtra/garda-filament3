@@ -18,9 +18,15 @@ class TemplatDokumenSeeder extends Seeder
         $jenisIds = JenisDokumen::all();
 
         foreach ($jenisIds as $item) {
-            TemplatDokumen::create([
+            $templatDokumen = TemplatDokumen::create([
                 'nama'             => "Templat {$item->nama}",
                 'jenis_dokumen_id' => $item->id,
+            ]);
+
+            File::create([
+                'model_type' => TemplatDokumen::class,
+                'model_id'   => $templatDokumen->id,
+                'tag'        => 'templat_dokumen',
             ]);
         }
     }

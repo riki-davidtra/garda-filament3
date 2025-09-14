@@ -227,6 +227,10 @@ class DataDukungPerencanaanResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->label('Detail')
                     ->button(),
+
+                Tables\Actions\EditAction::make()
+                    ->button()
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

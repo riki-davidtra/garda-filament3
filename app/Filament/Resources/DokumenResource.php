@@ -336,6 +336,19 @@ class DokumenResource extends Resource
                         'record'           => $record->uuid,
                         'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
                     ])),
+
+                Tables\Actions\EditAction::make()
+                    ->button()
+                    ->color('warning')
+                    ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
+                        'record'           => $record->uuid,
+                        'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
+                    ]))
+                    ->visible(function ($record) use ($user, $isSuperOrAdmin) {
+                        if ($isSuperOrAdmin) return true;
+                        $aksesPeran = $user->roles->pluck('id')->intersect($record->jenisDokumen?->roles->pluck('id') ?? collect());
+                        return $aksesPeran->isNotEmpty();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

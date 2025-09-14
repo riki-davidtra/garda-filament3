@@ -21,6 +21,9 @@ return new class extends Migration
             $table->boolean('mode_status')->default(false);
             $table->boolean('mode_subkegiatan')->default(false);
             $table->boolean('mode_periode')->default(false);
+
+            $table->auditColumns();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['nama', 'created_at']);

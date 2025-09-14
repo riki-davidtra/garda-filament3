@@ -18,6 +18,9 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->string('file')->nullable();
             $table->string('order')->default(0);
+
+            $table->auditColumns();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['order', 'created_at']);
