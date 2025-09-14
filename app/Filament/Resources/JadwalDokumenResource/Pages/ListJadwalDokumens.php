@@ -13,6 +13,17 @@ class ListJadwalDokumens extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('informasi')
+                ->label('Informasi')
+                ->button()
+                ->color('info')
+                ->icon('heroicon-o-information-circle')
+                ->modalHeading('Informasi Jadwal Dokumen')
+                ->modalSubmitAction(false)
+                ->modalCancelAction(false)
+                ->modalWidth('md')
+                ->modalContent(fn() => view('filament.components.informasi-jadwal-dokumen')),
+
             Actions\CreateAction::make(),
         ];
     }
