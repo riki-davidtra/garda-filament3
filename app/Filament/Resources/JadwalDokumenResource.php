@@ -53,6 +53,28 @@ class JadwalDokumenResource extends Resource
                     ->label('Waktu Unggah Selesai')
                     ->nullable(),
 
+                Forms\Components\Select::make('tahun')
+                    ->label('Tahun')
+                    ->nullable()
+                    ->options(fn() => array_combine(
+                        range(2025, date('Y') + 1),
+                        range(2025, date('Y') + 1)
+                    ))
+                    ->default(date('Y')),
+
+                Forms\Components\Select::make('periode')
+                    ->label('Periode')
+                    ->nullable()
+                    ->searchable()
+                    ->preload()
+                    ->options([
+                        '1' => '1',
+                        '2' => '2',
+                        '3' => '3',
+                        '4' => '4',
+                        '5' => '5',
+                    ]),
+
                 Forms\Components\Toggle::make('aktif')
                     ->nullable()
                     ->default(1)
@@ -86,6 +108,16 @@ class JadwalDokumenResource extends Resource
                         $record->waktu_unggah_selesai && now()->gt($record->waktu_unggah_selesai) => 'danger',
                         default                                     => 'success',
                     })
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('tahun')
+                    ->label('Tahun')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('periode')
+                    ->label('Periode')
                     ->searchable()
                     ->sortable(),
 

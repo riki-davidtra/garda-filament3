@@ -37,9 +37,17 @@ class JenisDokumenSeeder extends Seeder
             'Laporan Realisasi',
         ];
 
+        $periodeTrueDocs = [
+            'DPA Perubahan',
+            'DPA Pergeseran',
+            'RKA Perubahan',
+            'RKA Pergeseran',
+        ];
+
         foreach ($dataAll as $nama) {
             $isModeStatusTrue  = !in_array($nama, $dataModeFalse);
             $isModeSubkegiatan = $nama !== 'Pengarahan';
+            $isModePeriode     = in_array($nama, $periodeTrueDocs);
 
             $dokumen = JenisDokumen::updateOrCreate(
                 ['nama' => $nama],
@@ -49,7 +57,7 @@ class JenisDokumenSeeder extends Seeder
                     'maksimal_ukuran'  => 20480,
                     'mode_status'      => $isModeStatusTrue,
                     'mode_subkegiatan' => $isModeSubkegiatan,
-                    'mode_periode'     => $nama === 'RKA Pergeseran',
+                    'mode_periode'     => $isModePeriode,
                 ]
             );
 

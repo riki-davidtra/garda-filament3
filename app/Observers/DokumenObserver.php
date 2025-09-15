@@ -5,9 +5,21 @@ namespace App\Observers;
 use App\Models\Dokumen;
 use App\Services\DokumenService;
 use App\Services\WhatsAppService;
+use Illuminate\Support\Facades\Auth;
 
 class DokumenObserver
 {
+    public function creating(Dokumen $dokumen)
+    {
+        if (!$dokumen->tahun) {
+            $dokumen->tahun = $dokumen->jadwalDokumen?->tahun;
+        }
+
+        if (!$dokumen->periode) {
+            $dokumen->periode = $dokumen->jadwalDokumen?->periode;
+        }
+    }
+
     public function deleting(Dokumen $dokumen): void
     {
         if ($dokumen->isForceDeleting()) {

@@ -43,6 +43,11 @@ class JadwalDokumenSeeder extends Seeder
                 'waktu_unggah_selesai' => Carbon::now()->addDays(5),   // sedang berlangsung
             ],
             [
+                'nama'                 => 'RKA Pergeseran',
+                'waktu_unggah_mulai'   => Carbon::now()->subDays(2),
+                'waktu_unggah_selesai' => Carbon::now()->addDays(5),   // sedang berlangsung
+            ],
+            [
                 'nama'                 => 'KAK',
                 'waktu_unggah_mulai'   => Carbon::now()->subDays(2),
                 'waktu_unggah_selesai' => Carbon::now()->addDays(3),   // 3 hari sebelum berakhir

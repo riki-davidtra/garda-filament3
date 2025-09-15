@@ -32,7 +32,7 @@ class DokumenSeeder extends Seeder
                         'tahun'             => 2025,
                     ],
                     [
-                        'periode'    => $jenis->nama === 'RKA Pergeseran' ? rand(1, 3) : null,
+                        'periode'    => $jenis->mode_periode ? rand(1, 5) : null,
                         'keterangan' => 'Dokumen tahun 2025 untuk jenis ' . $jenis->nama . ' di subbagian ' . $subbagian->nama,
                         'status'     => 'Menunggu Persetujuan',
                         'komentar'   => '',

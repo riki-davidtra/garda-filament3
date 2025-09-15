@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreignId('jenis_dokumen_id')->nullable()->constrained('jenis_dokumens')->nullOnDelete();
             $table->dateTime('waktu_unggah_mulai')->nullable();
             $table->dateTime('waktu_unggah_selesai')->nullable();
+            $table->string('tahun')->nullable();
+            $table->string('periode')->nullable();
             $table->boolean('aktif')->default(false);
 
             $table->auditColumns();

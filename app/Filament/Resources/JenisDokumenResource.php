@@ -58,20 +58,24 @@ class JenisDokumenResource extends Resource
                     ->suffix('KB')
                     ->default(0),
 
-                Forms\Components\Toggle::make('mode_status')
-                    ->label('Mode Status')
-                    ->nullable()
-                    ->default(false),
+                Forms\Components\Fieldset::make('Mode Penggunaan')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\Toggle::make('mode_status')
+                            ->label('Mode Status')
+                            ->nullable()
+                            ->default(false),
 
-                Forms\Components\Toggle::make('mode_subkegiatan')
-                    ->label('Mode Subkegiatan')
-                    ->nullable()
-                    ->default(false),
+                        Forms\Components\Toggle::make('mode_subkegiatan')
+                            ->label('Mode Subkegiatan')
+                            ->nullable()
+                            ->default(false),
 
-                Forms\Components\Toggle::make('mode_periode')
-                    ->label('Mode Periode')
-                    ->nullable()
-                    ->default(false),
+                        Forms\Components\Toggle::make('mode_periode')
+                            ->label('Mode Periode')
+                            ->nullable()
+                            ->default(false),
+                    ]),
 
                 Forms\Components\Select::make('roles')
                     ->label('Akses Peran')

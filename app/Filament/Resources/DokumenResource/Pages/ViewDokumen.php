@@ -122,7 +122,8 @@ class ViewDokumen extends ViewRecord
                                 ->label('Subkegiatan')
                                 ->visible(fn() => $this->jenisDokumen?->mode_subkegiatan),
                             Infolists\Components\TextEntry::make('keterangan')
-                                ->label('Keterangan'),
+                                ->label('Keterangan')
+                                ->placeholder('-'),
 
                             Infolists\Components\Section::make('Status Dokumen')
                                 ->schema([

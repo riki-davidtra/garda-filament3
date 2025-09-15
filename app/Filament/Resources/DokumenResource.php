@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\JenisDokumen;
+use App\Models\JadwalDokumen;
 use App\Models\FormatFile;
 use App\Models\Bagian;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,15 @@ class DokumenResource extends Resource
         return static::$jenisDokumen;
     }
 
+    protected static ?JadwalDokumen $jadwalDokumen = null;
+    public static function getJadwalDokumen($jenisDokumenId = null): ?JadwalDokumen
+    {
+        if (!static::$jadwalDokumen && $jenisDokumenId) {
+            static::$jadwalDokumen = JadwalDokumen::where('jenis_dokumen_id', $jenisDokumenId)->first();
+        }
+        return static::$jadwalDokumen;
+    }
+
     public static function form(Form $form): Form
     {
         $user           = Auth::user();
@@ -55,6 +65,14 @@ class DokumenResource extends Resource
 
         return $form
             ->schema([
+                Forms\Components\Hidden::make('jenis_dokumen_id')
+                    ->default(request()->query('jenis_dokumen_id'))
+                    ->required(),
+
+                Forms\Components\Hidden::make('jadwal_dokumen_id')
+                    ->default(request()->query('jadwal_dokumen_id'))
+                    ->required(),
+
                 Forms\Components\TextInput::make('nama')
                     ->label('Nama')
                     ->required()
@@ -62,16 +80,24 @@ class DokumenResource extends Resource
                     ->maxLength(255)
                     ->helperText('Contoh: RKA Perubahan - Rumah Tangga - Urusan Dalam'),
 
+                // Set default dan disabled jika ada data dari jadwal dokumen dan simpan db di handle dari observer 
                 Forms\Components\Select::make('tahun')
                     ->label('Tahun')
                     ->required()
                     ->options(fn() => array_combine(
-                        range(date('Y') + 1, date('Y') - 10),
-                        range(date('Y') + 1, date('Y') - 10)
+                        range(2025, date('Y') + 1),
+                        range(2025, date('Y') + 1)
                     ))
-                    ->default(date('Y')),
+                    ->default(function ($get) {
+                        $jadwalDokumen = self::getJadwalDokumen($get('jenis_dokumen_id'));
+                        return $jadwalDokumen?->tahun ?? null;
+                    })
+                    ->disabled(function ($get) {
+                        $jadwalDokumen           = self::getJadwalDokumen($get('jenis_dokumen_id'));
+                        return $jadwalDokumen?->tahun !== null;
+                    }),
 
-                // Tampilkan jika memiliki akses mode pada dokumen ini
+                // Tampilkan, set default dan disabled jika ada data dari jadwal dokumen dan simpan db di handle dari observer 
                 Forms\Components\Select::make('periode')
                     ->label('Periode')
                     ->required()
@@ -81,10 +107,20 @@ class DokumenResource extends Resource
                         '1' => '1',
                         '2' => '2',
                         '3' => '3',
+                        '4' => '4',
+                        '5' => '5',
                     ])
-                    ->visible(function ($get, $livewire) {
-                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        return $jenisDokumen->mode_periode;
+                    ->default(function ($get) {
+                        $jadwalDokumen = self::getJadwalDokumen($get('jenis_dokumen_id'));
+                        return $jadwalDokumen?->periode ?? null;
+                    })
+                    ->disabled(function ($get) {
+                        $jadwalDokumen             = self::getJadwalDokumen($get('jenis_dokumen_id'));
+                        return $jadwalDokumen?->periode !== null;
+                    })
+                    ->visible(function ($get) {
+                        $jenisDokumen = self::getJenisDokumen($get('jenis_dokumen_id'));
+                        return $jenisDokumen?->mode_periode;
                     }),
 
                 // Tampilkan jika memiliki akses mode pada dokumen ini
@@ -96,9 +132,9 @@ class DokumenResource extends Resource
                     ->relationship('subkegiatan', 'nama', function ($query) {
                         $query->orderBy('nama', 'asc');
                     })
-                    ->visible(function ($get, $livewire) {
-                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        return $jenisDokumen->mode_subkegiatan;
+                    ->visible(function ($get) {
+                        $jenisDokumen = self::getJenisDokumen($get('jenis_dokumen_id'));
+                        return $jenisDokumen?->mode_subkegiatan;
                     }),
 
                 Forms\Components\Textarea::make('keterangan')
@@ -116,17 +152,17 @@ class DokumenResource extends Resource
 
                         Forms\Components\FileUpload::make('path')
                             ->label('File (Upload file sesuai template)')
-                            ->required()
+                            ->nullable()
                             ->storeFiles(false)
                             ->disk('local')
                             ->directory('temp')
-                            ->maxSize(function ($get, $livewire) {
-                                $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
+                            ->maxSize(function ($get) {
+                                $jenisDokumen = self::getJenisDokumen($get('jenis_dokumen_id'));
                                 return $jenisDokumen?->maksimal_ukuran ?? 20480;
                             })
-                            ->acceptedFileTypes(function ($get, $livewire) {
-                                $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                                $mimeTypes    = FormatFile::whereIn('id', $jenisDokumen->format_file ?? [])->pluck('mime_types')->toArray();
+                            ->acceptedFileTypes(function ($get) {
+                                $jenisDokumen = self::getJenisDokumen($get('jenis_dokumen_id'));
+                                $mimeTypes    = FormatFile::whereIn('id', $jenisDokumen?->format_file ?? [])->pluck('mime_types')->toArray();
                                 return $mimeTypes;
                             })
                             ->columnSpanFull(),
@@ -210,9 +246,9 @@ class DokumenResource extends Resource
                             ->disabled(!$isSuperOrAdmin && !$isPerencana),
                     ])
                     ->hiddenOn('create')
-                    ->visible(function ($get, $livewire) use ($isSuperOrAdmin) {
-                        $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        return $isSuperOrAdmin && $jenisDokumen->mode_status;
+                    ->visible(function ($get) use ($isSuperOrAdmin) {
+                        $jenisDokumen = self::getJenisDokumen($get('jenis_dokumen_id'));
+                        return $isSuperOrAdmin && $jenisDokumen?->mode_status;
                     }),
             ]);
     }
@@ -232,7 +268,7 @@ class DokumenResource extends Resource
                 }
 
                 $jenisDokumen      = self::getJenisDokumen($jenisDokumenId);
-                $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen->roles->pluck('id'));
+                $aksesPeranDokumen = $user->roles->pluck('id')->intersect($jenisDokumen?->roles->pluck('id'));
                 if (!$isSuperOrAdmin && !$isPerencana && $aksesPeranDokumen->isNotEmpty()) {
                     $query->where('subbagian_id', $user->subbagian_id);
                 }
@@ -256,7 +292,7 @@ class DokumenResource extends Resource
                     ->sortable()
                     ->visible(function ($livewire) {
                         $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        return $jenisDokumen->mode_subkegiatan;
+                        return $jenisDokumen?->mode_subkegiatan;
                     }),
 
                 Tables\Columns\TextColumn::make('periode')
@@ -265,7 +301,7 @@ class DokumenResource extends Resource
                     ->sortable()
                     ->visible(function ($livewire) {
                         $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        return $jenisDokumen->mode_periode;
+                        return $jenisDokumen?->mode_periode;
                     }),
 
                 // Ditampilkan untuk Super Admin/Admin, atau tampil jika jenis dokumen terkait memiliki role 'subbagian'
@@ -284,7 +320,7 @@ class DokumenResource extends Resource
                     ->sortable()
                     ->visible(function ($livewire) {
                         $jenisDokumen = self::getJenisDokumen($livewire->jenis_dokumen_id);
-                        return $jenisDokumen->mode_status;
+                        return $jenisDokumen?->mode_status;
                     }),
             ])
             ->filters([
@@ -332,17 +368,17 @@ class DokumenResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->label('Detail')
                     ->button()
-                    ->url(fn($record) => route('filament.admin.resources.dokumens.view', [
+                    ->url(fn($record, $livewire) => route('filament.admin.resources.dokumens.view', [
                         'record'           => $record->uuid,
-                        'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
+                        'jenis_dokumen_id' => $livewire->jenis_dokumen_id,
                     ])),
 
                 Tables\Actions\EditAction::make()
                     ->button()
                     ->color('warning')
-                    ->url(fn($record) => route('filament.admin.resources.dokumens.edit', [
+                    ->url(fn($record, $livewire) => route('filament.admin.resources.dokumens.edit', [
                         'record'           => $record->uuid,
-                        'jenis_dokumen_id' => request()->query('jenis_dokumen_id'),
+                        'jenis_dokumen_id' => $livewire->jenis_dokumen_id,
                     ]))
                     ->visible(function ($record) use ($user, $isSuperOrAdmin) {
                         if ($isSuperOrAdmin) return true;
