@@ -11,6 +11,18 @@ class DokumenObserver
 {
     public function creating(Dokumen $dokumen)
     {
+        // if (!$dokumen->jenis_dokumen_id) {
+        //     $dokumen->jenis_dokumen_id = $dokumen->jenis_dokumen_id;
+        // }
+
+        // if (!$dokumen->jadwal_dokumen_id) {
+        //     $dokumen->jadwal_dokumen_id = $dokumen->jadwal_dokumen_id;
+        // }
+
+        if (!$dokumen->subbagian_id) {
+            $dokumen->subbagian_id = Auth::user()?->subbagian_id;
+        }
+
         if (!$dokumen->tahun) {
             $dokumen->tahun = $dokumen->jadwalDokumen?->tahun;
         }

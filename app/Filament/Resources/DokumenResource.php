@@ -174,47 +174,47 @@ class DokumenResource extends Resource
                     ->visibleOn('create'),
 
                 // Tampilkan relasi data jika roles Super Admin/Admin
-                Forms\Components\Fieldset::make('Relasi Data')
-                    ->schema([
-                        Forms\Components\Select::make('jenis_dokumen_id')
-                            ->label('Jenis Dokumen')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->relationship('jenisDokumen', 'nama', function ($query) {
-                                $query->orderBy('nama', 'asc');
-                            })
-                            ->hiddenOn('create'),
+                // Forms\Components\Fieldset::make('Relasi Data')
+                //     ->schema([
+                //         Forms\Components\Select::make('jenis_dokumen_id')
+                //             ->label('Jenis Dokumen')
+                //             ->required()
+                //             ->searchable()
+                //             ->preload()
+                //             ->relationship('jenisDokumen', 'nama', function ($query) {
+                //                 $query->orderBy('nama', 'asc');
+                //             })
+                //             ->hiddenOn('create'),
 
-                        Forms\Components\Select::make('jadwal_dokumen_id')
-                            ->label('Kode Jadwal')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->relationship('jadwalDokumen', 'kode', function ($query, $get) {
-                                $jenisId = $get('jenis_dokumen_id');
-                                if ($jenisId) {
-                                    $query->where('jenis_dokumen_id', $jenisId);
-                                }
-                                $query->orderBy('kode', 'asc');
-                            })
-                            ->hiddenOn('create'),
+                //         Forms\Components\Select::make('jadwal_dokumen_id')
+                //             ->label('Kode Jadwal')
+                //             ->required()
+                //             ->searchable()
+                //             ->preload()
+                //             ->relationship('jadwalDokumen', 'kode', function ($query, $get) {
+                //                 $jenisId = $get('jenis_dokumen_id');
+                //                 if ($jenisId) {
+                //                     $query->where('jenis_dokumen_id', $jenisId);
+                //                 }
+                //                 $query->orderBy('kode', 'asc');
+                //             })
+                //             ->hiddenOn('create'),
 
-                        Forms\Components\Select::make('subbagian_id')
-                            ->label('Subbagian')
-                            ->nullable()
-                            ->searchable()
-                            ->preload()
-                            ->relationship(
-                                'subbagian',
-                                'nama',
-                                fn($query) => $query->with('bagian')->orderBy(Bagian::select('nama')->whereColumn('bagians.id', 'subbagians.bagian_id'))->orderBy('nama')
-                            )
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->bagian->nama} - {$record->nama}")
-                            ->hiddenOn('create'),
-                    ])
-                    ->hiddenOn('create')
-                    ->visible($isSuperOrAdmin),
+                //         Forms\Components\Select::make('subbagian_id')
+                //             ->label('Subbagian')
+                //             ->nullable()
+                //             ->searchable()
+                //             ->preload()
+                //             ->relationship(
+                //                 'subbagian',
+                //                 'nama',
+                //                 fn($query) => $query->with('bagian')->orderBy(Bagian::select('nama')->whereColumn('bagians.id', 'subbagians.bagian_id'))->orderBy('nama')
+                //             )
+                //             ->getOptionLabelFromRecordUsing(fn($record) => "{$record->bagian->nama} - {$record->nama}")
+                //             ->hiddenOn('create'),
+                //     ])
+                //     ->hiddenOn('create')
+                //     ->visible($isSuperOrAdmin),
 
                 // Tampilkan jika mode status nya aktif pada dokumen ini
                 Forms\Components\Fieldset::make('Status Dokumen')

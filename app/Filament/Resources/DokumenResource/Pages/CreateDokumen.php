@@ -77,15 +77,15 @@ class CreateDokumen extends CreateRecord
         return $jenis ? 'Unggah Dokumen ' . $jenis->nama : 'Unggah Dokumen';
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        // Menyimpan jenis_dokumen_id & subbagian_id yang membuat dokumen
-        $data['jenis_dokumen_id']  = $data['jenis_dokumen_id'] ?? $this->jenis_dokumen_id;
-        $data['jadwal_dokumen_id'] = $data['jadwal_dokumen_id'] ?? $this->jadwal_dokumen_id;
-        $data['subbagian_id']      = Auth::user()?->subbagian_id;
+    // protected function mutateFormDataBeforeCreate(array $data): array
+    // {
+    //     // Menyimpan jenis_dokumen_id & subbagian_id yang membuat dokumen
+    //     $data['jenis_dokumen_id']  = $data['jenis_dokumen_id'] ?? $this->jenis_dokumen_id;
+    //     $data['jadwal_dokumen_id'] = $data['jadwal_dokumen_id'] ?? $this->jadwal_dokumen_id;
+    //     $data['subbagian_id']      = Auth::user()?->subbagian_id;
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
     protected function getCreateFormAction(): Action
     {
