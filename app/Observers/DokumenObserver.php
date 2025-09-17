@@ -61,6 +61,10 @@ class DokumenObserver
 
     protected function kirimNotifikasi(Dokumen $dokumen): void
     {
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $notifikasi = DokumenService::notifikasiFind($dokumen);
 
         foreach ($notifikasi as $notif) {
